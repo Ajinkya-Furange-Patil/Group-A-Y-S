@@ -83,6 +83,18 @@ def main() -> None:
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8")
 
+    # Enable ANSI escape colors on Windows
+    if sys.platform == "win32":
+        import os
+        os.system("")
+
+    # ANSI styles
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    GOLD = "\033[38;5;220m"
+    AMBER = "\033[38;5;214m"
+
     parser = build_parser()
     args = parser.parse_args()
 
@@ -95,8 +107,9 @@ def main() -> None:
     setup_logging(verbose=args.verbose)
 
     logger = logging.getLogger("ai_scanner")
-    logger.info("AI Discovery Scanner v1.0.0")
-    logger.info("Scan started...")
+    print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
+    print(f"{DIM}============================================================{RESET}")
+    logger.info("Scan initiated...")
 
     # Run the scan
     controller = ScanController()
@@ -107,11 +120,17 @@ def main() -> None:
     from scanner.reporter import generate_json_report, generate_html_report
 
     if args.output:
-        # Save to file
+        # Save to file (strip extension if user provided it to avoid double extensions like report.json.json)
+        base_output = args.output
+        if base_output.lower().endswith(".json"):
+            base_output = base_output[:-5]
+        elif base_output.lower().endswith(".html"):
+            base_output = base_output[:-5]
+
         if args.format in ["json", "both"]:
-            generate_json_report(result, f"{args.output}.json")
+            generate_json_report(result, f"{base_output}.json")
         if args.format in ["html", "both"]:
-            generate_html_report(result, f"{args.output}.html")
+            generate_html_report(result, f"{base_output}.html")
     else:
         # Default behavior when --output is not provided
         if args.format in ["json", "both"]:
@@ -121,19 +140,47 @@ def main() -> None:
             generate_html_report(result, "report.html")
 
     # Print summary
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    AMBER = "\033[38;5;214m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+
     summary = result_dict.get("summary", {})
-    print("\n" + "=" * 50)
-    print("SCAN SUMMARY")
-    print("=" * 50)
-    print(f"  Host:            {result.hostname}")
-    print(f"  OS:              {result.os_info}")
-    print(f"  Total Findings:  {summary.get('total_findings', 0)}")
-    print(f"  Modules Run:     {summary.get('modules_run', 0)}")
-    print(f"  Modules OK:      {summary.get('modules_succeeded', 0)}")
-    print(f"  Modules Failed:  {summary.get('modules_failed', 0)}")
-    print(f"  Risk Score:      {summary.get('overall_risk_score', 0)}/100")
-    print(f"  Duration:        {result.total_duration_sec:.2f}s")
-    print("=" * 50)
+    
+    # Select risk color based on score
+    risk_score = summary.get("overall_risk_score", 0.0)
+    if risk_score >= 75:
+        risk_color = RED + BOLD
+    elif risk_score >= 50:
+        risk_color = YELLOW + BOLD
+    elif risk_score >= 25:
+        risk_color = BLUE + BOLD
+    else:
+        risk_color = GREEN + BOLD
+
+    print(f"\n{BOLD}{AMBER}╔══════════════════════════════════════════════════════════╗{RESET}")
+    print(f"{BOLD}{AMBER}║                    SCAN RESULT SUMMARY                   ║{RESET}")
+    print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
+    print(f"  {BOLD}Target Host:{RESET}      {result.hostname}")
+    print(f"  {BOLD}Operating System:{RESET} {result.os_info}")
+    print(f"  {BOLD}Total Findings:{RESET}   {summary.get('total_findings', 0)}")
+    print(f"  {BOLD}Risk Score:{RESET}       {risk_color}{risk_score}/100{RESET}")
+    print(f"  {BOLD}Scan Duration:{RESET}    {result.total_duration_sec:.2f} seconds")
+    print(f"  {BOLD}Scanners Run:{RESET}     {summary.get('modules_run', 0)}")
+    print(f"  {BOLD}Scanners OK:{RESET}      {GREEN}{summary.get('modules_succeeded', 0)}{RESET}")
+    print(f"  {BOLD}Scanners Failed:{RESET}  {RED if summary.get('modules_failed', 0) > 0 else RESET}{summary.get('modules_failed', 0)}{RESET}")
+    print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
+    print(f"{BOLD}{AMBER}║ MODULE RESULTS:                                          ║{RESET}")
+    print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
+    for mod in result.modules:
+        status_char = f"{GREEN}✓ SUCCESS{RESET}" if mod.status == "success" else (f"{RED}✗ FAILED{RESET}" if mod.status == "error" else f"{YELLOW}! SKIPPED{RESET}")
+        findings_str = f"({mod.findings_count} findings)" if mod.findings_count > 0 else ""
+        print(f"  [{mod.module_number:02d}] {mod.name:<18} : {status_char:<18} {DIM}{findings_str}{RESET}")
+    print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
 
 
 if __name__ == "__main__":

@@ -57,8 +57,8 @@ class ScanController:
             each module, they will be imported and registered here.
         """
         # ── MODULE 01: System Scanner ────────────────────────────────────
-        from scanner.modules import system_scanner
-        self._engine.register_module(system_scanner)
+        from scanner.modules.system_scanner import SystemScanner
+        self._engine.register_module(SystemScanner())
 
         # ── MODULE 02: File Scanner ──────────────────────────────────────
         from scanner.modules import file_scanner
@@ -84,9 +84,8 @@ class ScanController:
         # self._engine.register_module(RuntimeScanner())
 
         # ── MODULE 07: API Scanner ───────────────────────────────────────
-        # Will be added by Person C (Day 3)
-        # from scanner.modules.api_scanner import APIScanner
-        # self._engine.register_module(APIScanner())
+        from scanner.modules.api_scanner import APIScanner
+        self._engine.register_module(APIScanner())
 
         logger.info("Module registration complete. Registered %d modules.", len(self._engine._modules))
 

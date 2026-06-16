@@ -5,94 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Discovery Scanner — Dashboard</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
     :root {
-      /* WARM CHAMPAGNE LIGHT THEME (Default) */
-      --bg: #fdfbf7;
+      /* TALAKUNCHI RED-WHITE LIGHT THEME (Default) */
+      --bg: #f2f6f7;
       --surface: #ffffff;
-      --glass: rgba(255, 255, 255, 0.45);
-      --glass-border: rgba(255, 255, 255, 0.75);
-      --border-accent: rgba(217, 119, 6, 0.22);
-      --text-primary: #1c1917;
-      --text-secondary: #44403c;
-      --text-muted: #78716c;
+      --glass: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(236, 44, 51, 0.12);
+      --border-accent: rgba(236, 44, 51, 0.22);
+      --text-primary: #222222;
+      --text-secondary: #656a7c;
+      --text-muted: #9da3b4;
       
-      --accent-blue: #1d4ed8;
-      --accent-cyan: #0f766e;
-      --accent-purple: #6d28d9;
-      --accent-gold: #b45309;
+      --accent-red: #ec2c33;
+      --accent-burgundy: #730605;
+      --accent-orange: #ec691f;
       
       --status-success: #15803d;
-      --status-warning: #b45309;
-      --status-danger: #b91c1c;
-      --status-info: #1d4ed8;
+      --status-warning: #ec691f;
+      --status-danger: #ec2c33;
+      --status-info: #656a7c;
 
-      --tag-bg-category: rgba(109, 40, 217, 0.06);
-      --tag-fg-category: #6d28d9;
-      --tag-border-category: rgba(109, 40, 217, 0.12);
+      --tag-bg-category: rgba(236, 44, 51, 0.06);
+      --tag-fg-category: #9a2423;
+      --tag-border-category: rgba(236, 44, 51, 0.15);
 
-      --card-bg: rgba(255, 255, 255, 0.35);
-      --card-border: rgba(255, 255, 255, 0.6);
+      --card-bg: rgba(255, 255, 255, 0.6);
+      --card-border: rgba(236, 44, 51, 0.12);
       
-      --input-bg: rgba(255, 255, 255, 0.55);
-      --input-border: rgba(217, 119, 6, 0.15);
+      --input-bg: rgba(255, 255, 255, 0.85);
+      --input-border: rgba(236, 44, 51, 0.18);
 
       --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-sans: 'Lato', system-ui, sans-serif;
+      --font-title: 'DM Sans', sans-serif;
       --radius-lg: 16px;
       --radius-md: 10px;
       --radius-sm: 6px;
-      --shadow-lg: 0 10px 40px -10px rgba(120, 80, 20, 0.08), 0 2px 10px rgba(0, 0, 0, 0.02);
-      --blur: blur(24px) saturate(190%);
+      --shadow-lg: 0 10px 40px -10px rgba(115, 6, 5, 0.05), 0 2px 10px rgba(0, 0, 0, 0.01);
+      --blur: blur(20px) saturate(180%);
       
-      --glow-color: rgba(217, 119, 6, 0.06);
-      --glow-color-2: rgba(99, 102, 241, 0.04);
+      --glow-color: rgba(236, 44, 51, 0.04);
+      --glow-color-2: rgba(236, 105, 31, 0.03);
       --bg-gradient: radial-gradient(circle at 10% 20%, var(--glow-color) 0%, transparent 40%),
-                     radial-gradient(circle at 90% 80%, var(--glow-color-2) 0%, transparent 45%);
+                     radial-gradient(circle at 90% 80%, var(--glow-color-2) 0%, transparent 45%),
+                     linear-gradient(135deg, #f2f6f7 0%, #ffffff 100%);
     }
 
     /* Dark Theme Settings */
     body.dark-theme {
-      /* DARK GOLD THEME */
-      --bg: #0c0a09;
-      --surface: #1c1917;
-      --glass: rgba(28, 25, 23, 0.65);
+      /* CHARCOAL/CRIMSON DARK THEME */
+      --bg: #121010;
+      --surface: #1c1818;
+      --glass: rgba(28, 24, 24, 0.7);
       --glass-border: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(217, 119, 6, 0.25);
-      --text-primary: #fafaf9;
-      --text-secondary: #d6d3d1;
-      --text-muted: #78716c;
+      --border-accent: rgba(236, 44, 51, 0.28);
+      --text-primary: #faf8f8;
+      --text-secondary: #d6cfcf;
+      --text-muted: #968e8e;
       
-      --accent-blue: #3b82f6;
-      --accent-cyan: #14b8a6;
-      --accent-purple: #a855f7;
-      --accent-gold: #f59e0b;
+      --accent-red: #ff4a51;
+      --accent-burgundy: #a82b2a;
+      --accent-orange: #ff8542;
       
       --status-success: #10b981;
-      --status-warning: #f59e0b;
-      --status-danger: #ef4444;
-      --status-info: #3b82f6;
+      --status-warning: #ff8542;
+      --status-danger: #ff4a51;
+      --status-info: #968e8e;
 
-      --tag-bg-category: rgba(168, 85, 247, 0.12);
-      --tag-fg-category: #c084fc;
-      --tag-border-category: rgba(168, 85, 247, 0.25);
+      --tag-bg-category: rgba(255, 74, 81, 0.12);
+      --tag-fg-category: #ff8287;
+      --tag-border-category: rgba(255, 74, 81, 0.25);
 
-      --card-bg: rgba(255, 255, 255, 0.02);
-      --card-border: rgba(255, 255, 255, 0.06);
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
 
       --input-bg: rgba(0, 0, 0, 0.35);
-      --input-border: rgba(255, 255, 255, 0.08);
+      --input-border: rgba(255, 255, 255, 0.1);
 
-      --shadow-lg: 0 12px 40px -10px rgba(0, 0, 0, 0.6);
-      --glow-color: rgba(217, 119, 6, 0.08);
-      --glow-color-2: rgba(168, 85, 247, 0.06);
+      --shadow-lg: 0 12px 40px -10px rgba(0, 0, 0, 0.65);
+      --glow-color: rgba(236, 44, 51, 0.08);
+      --glow-color-2: rgba(236, 105, 31, 0.05);
+      --bg-gradient: radial-gradient(circle at 10% 20%, var(--glow-color) 0%, transparent 40%),
+                     radial-gradient(circle at 90% 80%, var(--glow-color-2) 0%, transparent 45%),
+                     linear-gradient(135deg, #121010 0%, #1c1818 100%);
     }
 
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-title);
     }
 
     body {
@@ -134,7 +141,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent 0%, rgba(217, 119, 6, 0.35) 50%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, rgba(236, 44, 51, 0.35) 50%, transparent 100%);
       pointer-events: none;
       animation: scanAnim 8s ease-in-out infinite;
       z-index: 9999;
@@ -159,7 +166,7 @@
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 4px;
-      background: linear-gradient(90deg, var(--accent-blue), var(--accent-gold), var(--accent-purple));
+      background: linear-gradient(90deg, var(--accent-red), var(--accent-burgundy), var(--accent-orange));
     }
     .header-logo {
       display: flex;
@@ -168,7 +175,7 @@
     }
     .header-logo .icon {
       font-size: 2rem;
-      background: rgba(217, 119, 6, 0.08);
+      background: rgba(236, 44, 51, 0.08);
       border: 1px solid var(--border-accent);
       width: 50px;
       height: 50px;
@@ -176,7 +183,7 @@
       align-items: center;
       justify-content: center;
       border-radius: var(--radius-md);
-      box-shadow: 0 0 15px rgba(217, 119, 6, 0.12);
+      box-shadow: 0 0 15px rgba(236, 44, 51, 0.12);
     }
     .header-title h1 {
       font-size: 1.5rem;
@@ -223,8 +230,8 @@
       font-size: 0.75rem;
       font-weight: 600;
       font-family: var(--font-mono);
-      background: rgba(217, 119, 6, 0.08);
-      color: var(--accent-gold);
+      background: rgba(236, 44, 51, 0.08);
+      color: var(--accent-red);
       border: 1px solid var(--border-accent);
     }
 
@@ -246,7 +253,7 @@
     }
     .metric-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px -10px rgba(217, 119, 6, 0.12);
+      box-shadow: 0 12px 30px -10px rgba(236, 44, 51, 0.15);
       border-color: var(--border-accent);
     }
     .metric-header {
@@ -416,8 +423,8 @@
       font-family: var(--font-mono);
       font-size: 0.75rem;
       font-weight: 600;
-      background: rgba(217, 119, 6, 0.08);
-      color: var(--accent-gold);
+      background: rgba(236, 44, 51, 0.08);
+      color: var(--accent-red);
       border: 1px solid var(--border-accent);
       padding: 2px 8px;
       border-radius: 12px;
@@ -444,8 +451,8 @@
     }
     .search-input:focus {
       outline: none;
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 10px rgba(217, 119, 6, 0.15);
+      border-color: var(--accent-red);
+      box-shadow: 0 0 10px rgba(236, 44, 51, 0.15);
     }
     .filter-select {
       background: var(--input-bg);
@@ -460,7 +467,7 @@
     }
     .filter-select:focus {
       outline: none;
-      border-color: var(--accent-gold);
+      border-color: var(--accent-red);
     }
     .filter-select option {
       background-color: var(--surface);
@@ -508,9 +515,9 @@
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .risk-critical { background-color: var(--status-danger); }
-    .risk-high { background-color: var(--status-warning); }
-    .risk-medium { background-color: #f59e0b; }
+    .risk-critical { background-color: var(--accent-burgundy); }
+    .risk-high { background-color: var(--accent-red); }
+    .risk-medium { background-color: var(--accent-orange); }
     .risk-low { background-color: var(--status-info); }
     .risk-info { background-color: var(--text-muted); }
 
@@ -537,54 +544,54 @@
       border: 1px solid var(--tag-border-category);
     }
     .tag-risk-critical {
-      background: rgba(185, 28, 28, 0.08);
-      color: #b91c1c;
-      border: 1px solid rgba(185, 28, 28, 0.15);
+      background: rgba(115, 6, 5, 0.08);
+      color: #730605;
+      border: 1px solid rgba(115, 6, 5, 0.15);
     }
     body.dark-theme .tag-risk-critical {
-      background: rgba(239, 68, 68, 0.12);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.25);
+      background: rgba(168, 43, 42, 0.15);
+      color: #ff8287;
+      border: 1px solid rgba(168, 43, 42, 0.3);
     }
     .tag-risk-high {
-      background: rgba(217, 119, 6, 0.08);
-      color: #d97706;
-      border: 1px solid rgba(217, 119, 6, 0.15);
+      background: rgba(236, 44, 51, 0.08);
+      color: #ec2c33;
+      border: 1px solid rgba(236, 44, 51, 0.15);
     }
     body.dark-theme .tag-risk-high {
-      background: rgba(245, 158, 11, 0.12);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: rgba(255, 74, 81, 0.15);
+      color: #ff8287;
+      border: 1px solid rgba(255, 74, 81, 0.3);
     }
     .tag-risk-medium {
-      background: rgba(202, 138, 4, 0.08);
-      color: #ca8a04;
-      border: 1px solid rgba(202, 138, 4, 0.15);
+      background: rgba(236, 105, 31, 0.08);
+      color: #ec691f;
+      border: 1px solid rgba(236, 105, 31, 0.15);
     }
     body.dark-theme .tag-risk-medium {
-      background: rgba(251, 191, 36, 0.12);
-      color: #fde047;
-      border: 1px solid rgba(251, 191, 36, 0.25);
+      background: rgba(255, 133, 66, 0.15);
+      color: #ffac7d;
+      border: 1px solid rgba(255, 133, 66, 0.3);
     }
     .tag-risk-low {
-      background: rgba(29, 78, 216, 0.08);
-      color: #1d4ed8;
-      border: 1px solid rgba(29, 78, 216, 0.15);
+      background: rgba(101, 106, 124, 0.08);
+      color: #656a7c;
+      border: 1px solid rgba(101, 106, 124, 0.15);
     }
     body.dark-theme .tag-risk-low {
-      background: rgba(59, 130, 246, 0.12);
-      color: #93c5fd;
-      border: 1px solid rgba(59, 130, 246, 0.25);
+      background: rgba(150, 142, 142, 0.15);
+      color: #d6cfcf;
+      border: 1px solid rgba(150, 142, 142, 0.3);
     }
     .tag-risk-info {
-      background: rgba(120, 113, 108, 0.08);
-      color: #78716c;
-      border: 1px solid rgba(120, 113, 108, 0.15);
+      background: rgba(157, 163, 180, 0.08);
+      color: #7c8397;
+      border: 1px solid rgba(157, 163, 180, 0.15);
     }
     body.dark-theme .tag-risk-info {
-      background: rgba(107, 114, 128, 0.12);
-      color: #d1d5db;
-      border: 1px solid rgba(107, 114, 128, 0.25);
+      background: rgba(150, 142, 142, 0.1);
+      color: #968e8e;
+      border: 1px solid rgba(150, 142, 142, 0.2);
     }
 
     .expand-icon {
@@ -684,12 +691,12 @@
         <div class="icon">🔍</div>
         <div class="header-title">
           <h1>AI Discovery Scanner</h1>
-          <p>// Target Host: AJINKYA-PATIL</p>
+          <p>// Target Host: YADNESH</p>
         </div>
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: 3947ad5a</span>
+        <span class="scan-badge">Scan ID: c21f305c</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -700,25 +707,25 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <span class="metric-header">Discovered Artifacts</span>
-        <span class="metric-value">3</span>
+        <span class="metric-value">1</span>
         <span class="metric-footer">Total items detected</span>
       </div>
       
       <div class="metric-card critical-risk">
         <span class="metric-header">Security Risk Score</span>
-        <span class="metric-value">8.3</span>
+        <span class="metric-value">0.0</span>
         <span class="metric-footer">Out of 100 max</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">0.77s</span>
+        <span class="metric-value">0.99s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Scanner Status</span>
-        <span class="metric-value">3/3</span>
+        <span class="metric-value">2/2</span>
         <span class="metric-footer">Active modules OK</span>
       </div>
     </div>
@@ -737,18 +744,14 @@
           <select id="filter-category" class="filter-select">
             <option value="all">All Categories</option>
             
-            <option value="AI Model">AI Model (1)</option>
-            
-            <option value="System Info">System Info (2)</option>
+            <option value="System Info">System Info (1)</option>
             
           </select>
           
           <select id="filter-risk" class="filter-select">
             <option value="all">All Risk Levels</option>
             
-            <option value="low">LOW (1)</option>
-            
-            <option value="info">INFO (2)</option>
+            <option value="info">INFO (1)</option>
             
           </select>
         </div>
@@ -758,57 +761,13 @@
           
             
             <div class="finding-card" 
-                 data-category="AI Model" 
-                 data-risk="low">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-low"></div>
-                  <span class="finding-title">model.safetensors</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Model</span>
-                  <span class="tag tag-risk-low">LOW</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Discovered AI model file: model.safetensors (420.05 MB)</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">95%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T16:47:00.814828</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "extension": ".safetensors",
-  "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
-  "file_size_bytes": 440449768,
-  "file_size_formatted": "420.05 MB",
-  "last_modified": "2026-05-08T14:07:45.875645"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
                  data-category="System Info" 
                  data-risk="info">
               
               <div class="finding-header" onclick="toggleFinding(this)">
                 <div class="finding-title-section">
                   <div class="finding-risk-indicator risk-info"></div>
-                  <span class="finding-title">Host Machine: AJINKYA-PATIL</span>
+                  <span class="finding-title">Host Machine: YADNESH</span>
                 </div>
                 <div class="finding-meta">
                   <span class="tag tag-category">System Info</span>
@@ -820,103 +779,51 @@
               <div class="finding-body">
                 <div class="finding-details-grid">
                   <span class="fd-label">Description</span>
-                  <span class="fd-value">System scan target identified: AJINKYA-PATIL running Windows 11 (AMD64)</span>
+                  <span class="fd-value">System scan target identified: YADNESH running Windows 11 (AMD64)</span>
 
                   <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">hostname=AJINKYA-PATIL</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">hostname=YADNESH</span>
 
                   <span class="fd-label">Confidence</span>
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T16:47:01.314755</span>
+                  <span class="fd-value">2026-06-16T17:19:15.418733</span>
                   
                   
                   <span class="fd-label">Metadata</span>
                   <pre class="fd-code">{
   "cpu": {
-    "cpu_freq_mhz": 2688.0,
-    "cpu_logical_cores": 12,
-    "cpu_percent_usage": 7.6,
-    "cpu_physical_cores": 6
+    "cpu_freq_mhz": 1805.0,
+    "cpu_logical_cores": 8,
+    "cpu_percent_usage": 16.9,
+    "cpu_physical_cores": 4
   },
   "disks": [
     {
       "device": "C:\\",
       "filesystem": "NTFS",
-      "free_gb": 237.28,
+      "free_gb": 182.28,
       "mountpoint": "C:\\",
-      "total_gb": 425.44,
-      "used_percent": 44.2
-    },
-    {
-      "device": "D:\\",
-      "filesystem": "NTFS",
-      "free_gb": 39.96,
-      "mountpoint": "D:\\",
-      "total_gb": 50.0,
-      "used_percent": 20.1
+      "total_gb": 474.39,
+      "used_percent": 61.6
     }
   ],
-  "hostname": "AJINKYA-PATIL",
-  "ip_address": "10.50.20.122",
+  "hostname": "YADNESH",
+  "ip_address": "10.126.85.93",
   "os": {
     "architecture": "AMD64",
     "name": "Windows",
-    "processor": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
     "release": "11",
     "version": "10.0.26200"
   },
-  "python_version": "3.14.3",
+  "python_version": "3.14.4",
   "ram": {
-    "available_gb": 0.92,
-    "total_gb": 7.65,
-    "used_percent": 88.0
+    "available_gb": 2.01,
+    "total_gb": 15.4,
+    "used_percent": 86.9
   }
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="System Info" 
-                 data-risk="info">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-info"></div>
-                  <span class="finding-title">GPU Detected: NVIDIA GeForce GTX 1650</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">System Info</span>
-                  <span class="tag tag-risk-info">INFO</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">A GPU was detected on this machine. GPUs are commonly used to accelerate AI/ML model inference and training.</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">system_gpu_detection</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">100%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T16:47:01.380434</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "detection_method": "nvidia-smi",
-  "driver_version": "592.27",
-  "name": "NVIDIA GeForce GTX 1650",
-  "vendor": "NVIDIA",
-  "vram_mb": "4096"
 }</pre>
                   
                 </div>
@@ -936,7 +843,7 @@
           <div class="meta-list" style="grid-template-columns: 1fr;">
             <div class="meta-item">
               <span class="meta-label">Hostname</span>
-              <span class="meta-val">AJINKYA-PATIL</span>
+              <span class="meta-val">YADNESH</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Operating System</span>
@@ -944,7 +851,7 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T16:47:00.738685</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T17:19:14.759366</span>
             </div>
           </div>
         </section>
@@ -960,21 +867,7 @@
                 <span class="module-name">SystemScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.614s</span>
-                <span class="status-badge status-success">success</span>
-                
-                <span class="findings-count-badge">2</span>
-                
-              </div>
-            </div>
-            
-            <div class="module-row">
-              <div class="module-info">
-                <span class="module-num">02</span>
-                <span class="module-name">FileScanner</span>
-              </div>
-              <div class="module-meta">
-                <span class="module-duration">0.065s</span>
+                <span class="module-duration">0.599s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">1</span>
@@ -984,11 +877,11 @@
             
             <div class="module-row">
               <div class="module-info">
-                <span class="module-num">03</span>
-                <span class="module-name">ProcessScanner</span>
+                <span class="module-num">07</span>
+                <span class="module-name">APIScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.046s</span>
+                <span class="module-duration">0.011s</span>
                 <span class="status-badge status-success">success</span>
                 
               </div>
