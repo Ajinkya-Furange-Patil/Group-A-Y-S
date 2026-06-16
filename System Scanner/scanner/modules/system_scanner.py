@@ -276,6 +276,17 @@ def _detect_gpu() -> dict[str, Any] | None:
     return None
 
 
+class SystemScanner:
+    """Wrapper class for Module 01 SystemScanner to conform to the Discovery Engine interface."""
+
+    MODULE_NAME = MODULE_NAME
+    MODULE_NUMBER = MODULE_NUMBER
+
+    def scan(self) -> list[Finding]:
+        findings, _ = run()
+        return findings
+
+
 # ── Standalone test ────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import json

@@ -689,7 +689,7 @@
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: b070204b</span>
+        <span class="scan-badge">Scan ID: 93b957ed</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -700,25 +700,25 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <span class="metric-header">Discovered Artifacts</span>
-        <span class="metric-value">0</span>
+        <span class="metric-value">1</span>
         <span class="metric-footer">Total items detected</span>
       </div>
       
       <div class="metric-card critical-risk">
         <span class="metric-header">Security Risk Score</span>
-        <span class="metric-value">0</span>
+        <span class="metric-value">0.0</span>
         <span class="metric-footer">Out of 100 max</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">0.28s</span>
+        <span class="metric-value">0.66s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Scanner Status</span>
-        <span class="metric-value">0/0</span>
+        <span class="metric-value">2/2</span>
         <span class="metric-footer">Active modules OK</span>
       </div>
     </div>
@@ -737,10 +737,14 @@
           <select id="filter-category" class="filter-select">
             <option value="all">All Categories</option>
             
+            <option value="System Info">System Info (1)</option>
+            
           </select>
           
           <select id="filter-risk" class="filter-select">
             <option value="all">All Risk Levels</option>
+            
+            <option value="info">INFO (1)</option>
             
           </select>
         </div>
@@ -748,9 +752,77 @@
         <!-- Findings List -->
         <div class="findings-list" id="findings-list">
           
-            <div class="no-findings">
-              No AI artifacts discovered on this host.
+            
+            <div class="finding-card" 
+                 data-category="System Info" 
+                 data-risk="info">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-info"></div>
+                  <span class="finding-title">Host Machine: YADNESH</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">System Info</span>
+                  <span class="tag tag-risk-info">INFO</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">System scan target identified: YADNESH running Windows 11 (AMD64)</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">hostname=YADNESH</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">100%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T16:03:55.201753</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "cpu": {
+    "cpu_freq_mhz": 1805.0,
+    "cpu_logical_cores": 8,
+    "cpu_percent_usage": 17.8,
+    "cpu_physical_cores": 4
+  },
+  "disks": [
+    {
+      "device": "C:\\",
+      "filesystem": "NTFS",
+      "free_gb": 182.68,
+      "mountpoint": "C:\\",
+      "total_gb": 474.39,
+      "used_percent": 61.5
+    }
+  ],
+  "hostname": "YADNESH",
+  "ip_address": "10.50.20.110",
+  "os": {
+    "architecture": "AMD64",
+    "name": "Windows",
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "release": "11",
+    "version": "10.0.26200"
+  },
+  "python_version": "3.14.4",
+  "ram": {
+    "available_gb": 2.7,
+    "total_gb": 15.4,
+    "used_percent": 82.4
+  }
+}</pre>
+                  
+                </div>
+              </div>
             </div>
+            
           
         </div>
       </section>
@@ -772,7 +844,7 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T14:55:23.573049</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T16:03:54.645033</span>
             </div>
           </div>
         </section>
@@ -781,6 +853,32 @@
         <section class="glass-panel modules-section">
           <h2><span>⚡</span> Scanners Run</h2>
           <div class="modules-list">
+            
+            <div class="module-row">
+              <div class="module-info">
+                <span class="module-num">01</span>
+                <span class="module-name">SystemScanner</span>
+              </div>
+              <div class="module-meta">
+                <span class="module-duration">0.540s</span>
+                <span class="status-badge status-success">success</span>
+                
+                <span class="findings-count-badge">1</span>
+                
+              </div>
+            </div>
+            
+            <div class="module-row">
+              <div class="module-info">
+                <span class="module-num">07</span>
+                <span class="module-name">APIScanner</span>
+              </div>
+              <div class="module-meta">
+                <span class="module-duration">0.001s</span>
+                <span class="status-badge status-success">success</span>
+                
+              </div>
+            </div>
             
           </div>
         </section>
