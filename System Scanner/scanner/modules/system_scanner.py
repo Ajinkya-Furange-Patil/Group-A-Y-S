@@ -280,7 +280,7 @@ def _detect_gpu() -> dict[str, Any] | None:
 if __name__ == "__main__":
     import json
 
-    print("Running MODULE 01 — SystemScanner standalone test...\n")
+    print("Running MODULE 01 - SystemScanner standalone test...\n")
     findings, info = run()
 
     print(f"Module Status : {info.status}")
