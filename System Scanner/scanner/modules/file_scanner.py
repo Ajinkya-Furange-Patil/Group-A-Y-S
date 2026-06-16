@@ -177,9 +177,9 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         targets = [
             (home / ".cache" / "huggingface", 10),
             (home / ".ollama", 10),
-            (home / "Downloads", 4),
-            # General home directory scan with a shallow depth limit
-            (home, 3),
+            (home / "Downloads", 10),
+            # General home directory scan with a depth limit of 10
+            (home, 10),
         ]
 
         for target_dir, max_depth in targets:

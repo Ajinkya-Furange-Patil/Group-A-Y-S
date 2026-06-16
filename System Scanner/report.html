@@ -696,7 +696,7 @@
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: 1a1c3ec0</span>
+        <span class="scan-badge">Scan ID: 523ee944</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -719,7 +719,7 @@
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">2.85s</span>
+        <span class="metric-value">105.56s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
@@ -744,9 +744,9 @@
           <select id="filter-category" class="filter-select">
             <option value="all">All Categories</option>
             
-            <option value="AI Model">AI Model (1)</option>
-            
             <option value="System Info">System Info (2)</option>
+            
+            <option value="AI Model">AI Model (1)</option>
             
             <option value="Configuration">Configuration (4)</option>
             
@@ -755,9 +755,9 @@
           <select id="filter-risk" class="filter-select">
             <option value="all">All Risk Levels</option>
             
-            <option value="low">LOW (1)</option>
-            
             <option value="info">INFO (2)</option>
+            
+            <option value="low">LOW (1)</option>
             
             <option value="high">HIGH (4)</option>
             
@@ -767,50 +767,6 @@
         <!-- Findings List -->
         <div class="findings-list" id="findings-list">
           
-            
-            <div class="finding-card" 
-                 data-category="AI Model" 
-                 data-risk="low">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-low"></div>
-                  <span class="finding-title">model.safetensors</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Model</span>
-                  <span class="tag tag-risk-low">LOW</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Discovered AI model file: model.safetensors (420.05 MB)</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">95%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:32.909192</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "extension": ".safetensors",
-  "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
-  "file_size_bytes": 440449768,
-  "file_size_formatted": "420.05 MB",
-  "last_modified": "2026-05-08T14:07:45.875645"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
             
             <div class="finding-card" 
                  data-category="System Info" 
@@ -840,7 +796,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:32.998163</span>
+                  <span class="fd-value">2026-06-16T18:11:38.725369</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -848,7 +804,7 @@
   "cpu": {
     "cpu_freq_mhz": 2688.0,
     "cpu_logical_cores": 12,
-    "cpu_percent_usage": 50.1,
+    "cpu_percent_usage": 29.6,
     "cpu_physical_cores": 6
   },
   "disks": [
@@ -880,9 +836,9 @@
   },
   "python_version": "3.14.3",
   "ram": {
-    "available_gb": 0.83,
+    "available_gb": 0.8,
     "total_gb": 7.65,
-    "used_percent": 89.2
+    "used_percent": 89.6
   }
 }</pre>
                   
@@ -918,7 +874,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:33.230754</span>
+                  <span class="fd-value">2026-06-16T18:11:39.355605</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -928,6 +884,50 @@
   "name": "NVIDIA GeForce GTX 1650",
   "vendor": "NVIDIA",
   "vram_mb": "4096"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Model" 
+                 data-risk="low">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-low"></div>
+                  <span class="finding-title">model.safetensors</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Model</span>
+                  <span class="tag tag-risk-low">LOW</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Discovered AI model file: model.safetensors (420.05 MB)</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T18:11:38.218248</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "extension": ".safetensors",
+  "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
+  "file_size_bytes": 440449768,
+  "file_size_formatted": "420.05 MB",
+  "last_modified": "2026-05-08T14:07:45.875645"
 }</pre>
                   
                 </div>
@@ -962,7 +962,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:33.040275</span>
+                  <span class="fd-value">2026-06-16T18:11:50.267775</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1005,7 +1005,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:33.040309</span>
+                  <span class="fd-value">2026-06-16T18:11:50.267806</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1048,7 +1048,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:34.319144</span>
+                  <span class="fd-value">2026-06-16T18:13:23.574177</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1090,7 +1090,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:06:34.319851</span>
+                  <span class="fd-value">2026-06-16T18:13:23.574248</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1126,7 +1126,7 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T18:06:31.693083</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T18:11:38.138889</span>
             </div>
           </div>
         </section>
@@ -1142,7 +1142,7 @@
                 <span class="module-name">SystemScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">1.087s</span>
+                <span class="module-duration">1.190s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">2</span>
@@ -1156,7 +1156,7 @@
                 <span class="module-name">FileScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.791s</span>
+                <span class="module-duration">9.602s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">1</span>
@@ -1170,7 +1170,7 @@
                 <span class="module-name">ProcessScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.753s</span>
+                <span class="module-duration">0.046s</span>
                 <span class="status-badge status-success">success</span>
                 
               </div>
@@ -1182,7 +1182,7 @@
                 <span class="module-name">APIScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">2.121s</span>
+                <span class="module-duration">105.375s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">4</span>

@@ -35,9 +35,9 @@ class APIScanner:
         # Define targets to scan along with maximum depths
         home = pathlib.Path.home()
         self.targets = [
-            (home / "Downloads", 4),
-            (pathlib.Path(self.target_dir), 5),
-            (home, 3),  # general home scan last
+            (home / "Downloads", 10),
+            (pathlib.Path(self.target_dir), 10),
+            (home, 10),  # general home scan last
         ]
         
         # Regex patterns for matching API keys and credentials
