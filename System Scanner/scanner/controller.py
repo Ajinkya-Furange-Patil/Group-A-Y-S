@@ -57,9 +57,8 @@ class ScanController:
             each module, they will be imported and registered here.
         """
         # ── MODULE 01: System Scanner ────────────────────────────────────
-        # Will be added by Person B (Day 1)
-        # from scanner.modules.system_scanner import SystemScanner
-        # self._engine.register_module(SystemScanner())
+        from scanner.modules import system_scanner
+        self._engine.register_module(system_scanner)
 
         # ── MODULE 02: File Scanner ──────────────────────────────────────
         # Will be added by Person B (Day 2)
@@ -91,7 +90,7 @@ class ScanController:
         # from scanner.modules.api_scanner import APIScanner
         # self._engine.register_module(APIScanner())
 
-        logger.info("Module registration complete (stub - no modules registered yet)")
+        logger.info("Module registration complete. Registered %d modules.", len(self._engine._modules))
 
     def run_scan(self) -> ScanResult:
         """Execute the full AI Discovery scan pipeline.
