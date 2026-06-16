@@ -1,0 +1,11 @@
+# AI Discovery Scanner — Dependencies
+# Install with: pip install -r requirements.txt
+
+# System introspection
+psutil>=5.9.0
+
+# HTML report templating
+Jinja2>=3.1.0
+
+# CLI progress & formatting (optional, for polished output)
+# rich>=13.0.0  # Uncomment on Day 4 for CLI polish
