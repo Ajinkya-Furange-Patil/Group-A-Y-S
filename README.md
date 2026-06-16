@@ -135,3 +135,108 @@ git commit -m "Brief summary of changes"
 git push -u origin feature/your-branch-name
 ```
 Open a PR on the GitHub repository and ask for at least **1 approval** before merging into `main`.
+
+---
+
+## Testing - Day 1 (MODULE 01: System Scanner)
+
+This section explains how to manually verify that **MODULE 01 - SystemScanner** is working correctly after cloning and setting up the environment.
+
+### What MODULE 01 Does
+- Detects your machine hostname, OS, IP address
+- Reads CPU (cores, frequency, usage %), RAM (total, available, used %)
+- Lists all disk partitions (device, size, free space)
+- Detects your GPU via nvidia-smi (NVIDIA) or wmic (Windows fallback)
+- Returns structured Finding objects conforming to the shared data contract
+
+---
+
+### Test Command 1 - Run MODULE 01 Standalone
+
+Run the system scanner in isolation. No full pipeline or database needed.
+
+**Make sure you are inside the `System Scanner/` project directory first.**
+
+```bash
+# Windows - using the virtual environment
+.\venv\Scripts\python -m scanner.modules.system_scanner
+
+# macOS / Linux
+./venv/bin/python -m scanner.modules.system_scanner
+```
+
+**Expected Output:**
+```
+Running MODULE 01 - SystemScanner standalone test...
+
+Module Status : success
+Duration      : 0.6xx s
+Findings count: 2
+
+[xxxxxxxx] Host Machine: YOUR-HOSTNAME
+  Category : System Info
+  Risk     : info
+  Details  :
+{
+    "hostname": "YOUR-HOSTNAME",
+    "ip_address": "192.168.x.x",
+    "os": { ... },
+    "cpu": { ... },
+    "ram": { ... },
+    "disks": [ ... ]
+}
+
+[xxxxxxxx] GPU Detected: NVIDIA GeForce GTX XXXX    <- only if GPU is present
+  Category : System Info
+  ...
+```
+
+**Pass Criteria:**
+- `Module Status` is `success` (not `error`)
+- At least **1 finding** is printed (the host machine finding)
+- The `hostname` field matches your actual machine name
+- No Python tracebacks or import errors appear
+
+---
+
+### Test Command 2 - Run Full CLI (Day 1 stub mode)
+
+```bash
+# Windows
+.\venv\Scripts\python main.py --scan --verbose
+
+# macOS / Linux
+./venv/bin/python main.py --scan --verbose
+```
+
+**Pass Criteria:**
+- CLI starts without crashing
+- Help menu works: `python main.py -h`
+- No `ModuleNotFoundError` for `psutil` or `jinja2`
+
+---
+
+### Test Command 3 - Verify psutil is Installed
+
+```bash
+# Windows
+.\venv\Scripts\python -c "import psutil; print(psutil.__version__)"
+
+# macOS / Linux
+./venv/bin/python -c "import psutil; print(psutil.__version__)"
+```
+
+**Pass Criteria:**
+- Prints a version number like `5.9.x` or `7.x.x` with no ImportError
+
+---
+
+### Common Issues and Fixes
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| `ModuleNotFoundError: No module named psutil` | venv not activated or pip install not run | Run `pip install -r requirements.txt` inside the venv |
+| `ModuleNotFoundError: No module named scanner` | Running from wrong directory | `cd` into `System Scanner/` (where the `scanner/` folder lives) |
+| `Module Status: error` in output | Unexpected exception in scanner | Check the `error_message` field printed below status |
+| GPU finding missing | No GPU or drivers not installed | Expected — only 1 finding (host machine) is still a pass |
+| Emoji rendering broken in Windows cmd | Default cp1252 encoding | Use PowerShell or Windows Terminal, or run `chcp 65001` first |
