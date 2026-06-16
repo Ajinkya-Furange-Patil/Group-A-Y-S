@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Discovery Scanner — Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --glass: rgba(17, 24, 39, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(99, 102, 241, 0.25);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      
+      --accent-blue: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #a855f7;
+      
+      --status-success: #10b981;
+      --status-warning: #f59e0b;
+      --status-danger: #ef4444;
+      --status-info: #3b82f6;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-lg: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+      --blur: blur(20px);
+    }
+
+    /* Light Theme Settings */
+    body.light-theme {
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --glass: rgba(255, 255, 255, 0.8);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --border-accent: rgba(99, 102, 241, 0.15);
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --text-muted: #9ca3af;
+      --shadow-lg: 0 10px 30px -10px rgba(99, 102, 241, 0.1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.12) 0%, transparent 45%);
+      color: var(--text-primary);
+      padding: 24px;
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ═══════════════ GLASS CONTAINER ═══════════════ */
+    .glass-panel {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Scanline animation */
+    .scanline {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.4) 50%, transparent 100%);
+      pointer-events: none;
+      animation: scanAnim 8s ease-in-out infinite;
+      z-index: 9999;
+    }
+    @keyframes scanAnim {
+      from { transform: translateY(-10vh); opacity: 0.3; }
+      50% { opacity: 0.6; }
+      to { transform: translateY(110vh); opacity: 0; }
+    }
+
+    /* ═══════════════ HEADER ═══════════════ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-top: 28px;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo .icon {
+      font-size: 2rem;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--border-accent);
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    }
+    .header-title h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+    .header-title p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-toggle {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-muted);
+    }
+    .scan-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      background: rgba(99, 102, 241, 0.1);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    /* ═══════════════ METRICS SUMMARY GRID ═══════════════ */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .metric-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border-color: var(--border-accent);
+    }
+    .metric-header {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+    .metric-footer {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .metric-card.critical-risk {
+      border-left: 4px solid var(--status-danger);
+      background: rgba(239, 68, 68, 0.03);
+    }
+    .metric-card.critical-risk .metric-value {
+      color: var(--status-danger);
+    }
+
+    /* ═══════════════ METADATA & GRID ═══════════════ */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 968px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .meta-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meta-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .meta-val {
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+      word-break: break-all;
+    }
+
+    /* ═══════════════ MODULE OVERVIEW ═══════════════ */
+    .modules-section h2, .findings-section h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .module-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+    .module-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-accent);
+    }
+    .module-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .module-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+    }
+    .module-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .module-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .module-duration {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--status-success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .status-error {
+      background: rgba(239, 108, 108, 0.1);
+      color: var(--status-danger);
+      border: 1px solid rgba(239, 108, 108, 0.2);
+    }
+    .status-pending {
+      background: rgba(107, 114, 128, 0.1);
+      color: var(--text-muted);
+      border: 1px solid rgba(107, 114, 128, 0.2);
+    }
+    .findings-count-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.1);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    /* ═══════════════ FINDINGS LAYOUT ═══════════════ */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+    }
+    .filter-select {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      min-width: 150px;
+    }
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+    .filter-select option {
+      background-color: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .findings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .finding-card {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .finding-card:hover {
+      border-color: var(--border-accent);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .finding-header {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .finding-title-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 250px;
+    }
+    .finding-risk-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .risk-critical { background-color: var(--status-danger); }
+    .risk-high { background-color: var(--status-warning); }
+    .risk-medium { background-color: #f59e0b; }
+    .risk-low { background-color: var(--status-info); }
+    .risk-info { background-color: var(--text-muted); }
+
+    .finding-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .finding-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    .tag-category {
+      background: rgba(168, 85, 247, 0.1);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+    .tag-risk-critical {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .tag-risk-high {
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .tag-risk-medium {
+      background: rgba(251, 191, 36, 0.1);
+      color: #fde047;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+    .tag-risk-low {
+      background: rgba(59, 130, 246, 0.1);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    .tag-risk-info {
+      background: rgba(107, 114, 128, 0.1);
+      color: #d1d5db;
+      border: 1px solid rgba(107, 114, 128, 0.2);
+    }
+
+    .expand-icon {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .finding-card.open .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .finding-body {
+      display: none;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.15);
+      border-top: 1px solid var(--glass-border);
+    }
+    .finding-card.open .finding-body {
+      display: block;
+    }
+
+    .finding-details-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      font-size: 0.85rem;
+    }
+    .fd-label {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .fd-value {
+      word-break: break-all;
+    }
+    .fd-code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      border: 1px solid var(--glass-border);
+      color: #34d399;
+      grid-column: 1 / -1;
+      margin-top: 8px;
+    }
+
+    .no-findings {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* ═══════════════ FOOTER ═══════════════ */
+    .footer {
+      text-align: center;
+      padding: 24px 0;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════ SCROLLBAR ═══════════════ */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--glass-border);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+
+  <div class="container">
+    
+    <!-- ═══ HEADER PANEL ═══ -->
+    <header class="glass-panel header">
+      <div class="header-logo">
+        <div class="icon">🔍</div>
+        <div class="header-title">
+          <h1>AI Discovery Scanner</h1>
+          <p>// Target Host: {{ result.hostname }}</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <span class="scan-badge">Scan ID: {{ result.scan_id[:8] }}</span>
+        <button class="btn-toggle" id="theme-toggle">
+          <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══ METRICS SUMMARY ═══ -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-header">Discovered Artifacts</span>
+        <span class="metric-value">{{ result.summary.total_findings }}</span>
+        <span class="metric-footer">Total items detected</span>
+      </div>
+      
+      <div class="metric-card critical-risk">
+        <span class="metric-header">Security Risk Score</span>
+        <span class="metric-value">{{ result.summary.overall_risk_score }}</span>
+        <span class="metric-footer">Out of 100 max</span>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-header">Execution Time</span>
+        <span class="metric-value">{{ "%.2f"|format(result.total_duration_sec) }}s</span>
+        <span class="metric-footer">Wall-clock duration</span>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-header">Scanner Status</span>
+        <span class="metric-value">{{ result.summary.modules_succeeded }}/{{ result.summary.modules_run }}</span>
+        <span class="metric-footer">Active modules OK</span>
+      </div>
+    </div>
+
+    <!-- ═══ LAYOUT: HOST INFO & MODULES ═══ -->
+    <div class="dashboard-layout">
+      
+      <!-- MAIN: DISCOVERED FINDINGS -->
+      <section class="glass-panel findings-section">
+        <h2><span>🛡️</span> Discovered AI Findings</h2>
+        
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+          <input type="text" id="search-box" class="search-input" placeholder="Search by name, source or description..." />
+          
+          <select id="filter-category" class="filter-select">
+            <option value="all">All Categories</option>
+            {% for cat, count in result.summary.findings_by_category.items() %}
+            <option value="{{ cat }}">{{ cat }} ({{ count }})</option>
+            {% endfor %}
+          </select>
+          
+          <select id="filter-risk" class="filter-select">
+            <option value="all">All Risk Levels</option>
+            {% for risk, count in result.summary.findings_by_risk.items() %}
+            <option value="{{ risk }}">{{ risk|upper }} ({{ count }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Findings List -->
+        <div class="findings-list" id="findings-list">
+          {% if result.findings %}
+            {% for finding in result.findings %}
+            <div class="finding-card" 
+                 data-category="{{ finding.category }}" 
+                 data-risk="{{ finding.risk_level }}">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-{{ finding.risk_level }}"></div>
+                  <span class="finding-title">{{ finding.title }}</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">{{ finding.category }}</span>
+                  <span class="tag tag-risk-{{ finding.risk_level }}">{{ finding.risk_level|upper }}</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">{{ finding.description }}</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">{{ finding.source }}</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">{{ "%.0f"|format(finding.confidence * 100) }}%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">{{ finding.timestamp }}</span>
+                  
+                  {% if finding.details %}
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{{ finding.details|tojson(indent=2) }}</pre>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="no-findings">
+              No AI artifacts discovered on this host.
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- SIDEBAR: SYSTEM INFO & RUN OVERVIEW -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- Host Details Panel -->
+        <section class="glass-panel">
+          <h2><span>🖥️</span> Host Metadata</h2>
+          <div class="meta-list" style="grid-template-columns: 1fr;">
+            <div class="meta-item">
+              <span class="meta-label">Hostname</span>
+              <span class="meta-val">{{ result.hostname }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Operating System</span>
+              <span class="meta-val">{{ result.os_info }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Scan Initiated</span>
+              <span class="meta-val" style="font-size: 0.8rem;">{{ result.scan_timestamp }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Module Progress/Status -->
+        <section class="glass-panel modules-section">
+          <h2><span>⚡</span> Scanners Run</h2>
+          <div class="modules-list">
+            {% for module in result.modules %}
+            <div class="module-row">
+              <div class="module-info">
+                <span class="module-num">{{ "%02d"|format(module.module_number) }}</span>
+                <span class="module-name">{{ module.name }}</span>
+              </div>
+              <div class="module-meta">
+                <span class="module-duration">{{ "%.3f"|format(module.duration_sec) }}s</span>
+                <span class="status-badge status-{{ module.status }}">{{ module.status }}</span>
+                {% if module.findings_count > 0 %}
+                <span class="findings-count-badge">{{ module.findings_count }}</span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+
+    </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+      // Generated by AI Discovery Scanner v1.0.0 — Group-A-Y-S
+    </footer>
+  </div>
+
+  <script>
+    // Theme Toggle Logic
+    const body = document.body;
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+
+    // Check saved theme
+    if (localStorage.getItem('theme') === 'light') {
+      body.classList.add('light-theme');
+      themeIcon.textContent = '🌙';
+      themeText.textContent = 'DARK';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-theme');
+      const isLight = body.classList.contains('light-theme');
+      themeIcon.textContent = isLight ? '🌙' : '☀️';
+      themeText.textContent = isLight ? 'DARK' : 'LIGHT';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
+
+    // Expanding Finding Cards
+    function toggleFinding(header) {
+      const card = header.closest('.finding-card');
+      card.classList.toggle('open');
+    }
+
+    // Dynamic Client-Side Filtering
+    const searchBox = document.getElementById('search-box');
+    const categorySelect = document.getElementById('filter-category');
+    const riskSelect = document.getElementById('filter-risk');
+    const findingCards = document.querySelectorAll('.finding-card');
+
+    function applyFilters() {
+      const query = searchBox.value.toLowerCase().trim();
+      const category = categorySelect.value;
+      const risk = riskSelect.value;
+
+      let visibleCount = 0;
+
+      findingCards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category');
+        const cardRisk = card.getAttribute('data-risk');
+        
+        // Text search across Title, Description and Source
+        const title = card.querySelector('.finding-title').textContent.toLowerCase();
+        const bodyText = card.querySelector('.finding-body') ? card.querySelector('.finding-body').textContent.toLowerCase() : '';
+        const matchesSearch = title.includes(query) || bodyText.includes(query);
+
+        const matchesCategory = (category === 'all' || cardCategory === category);
+        const matchesRisk = (risk === 'all' || cardRisk === risk);
+
+        if (matchesSearch && matchesCategory && matchesRisk) {
+          card.style.display = 'block';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Handle "No results found" dynamic banner if needed
+      const listContainer = document.getElementById('findings-list');
+      let noResultsBanner = document.getElementById('no-results-banner');
+      
+      if (visibleCount === 0) {
+        if (!noResultsBanner) {
+          noResultsBanner = document.createElement('div');
+          noResultsBanner.id = 'no-results-banner';
+          noResultsBanner.className = 'no-findings';
+          noResultsBanner.textContent = 'No findings match your search/filter criteria.';
+          listContainer.appendChild(noResultsBanner);
+        }
+      } else if (noResultsBanner) {
+        noResultsBanner.remove();
+      }
+    }
+
+    searchBox.addEventListener('input', applyFilters);
+    categorySelect.addEventListener('change', applyFilters);
+    riskSelect.addEventListener('change', applyFilters);
+  </script>
+</body>
+</html>

@@ -1,74 +1,137 @@
-# AI Discovery Scanner
+# 🔍 AI Discovery Scanner
 
-A modular AI detection system designed to scan host machines and identify AI frameworks, models, processes, runtimes, agents, and APIs.
+A modular, cross-platform AI detection system designed to scan host machines and identify AI frameworks, models, processes, runtimes, agents, and API keys.
+
+---
+
+## 🏗️ Project Architecture & Flow
+
+```
+UI (CLI / HTML)
+       ↓  trigger scan
+Scan Controller
+       ↓  dispatch modules
+Discovery Engine ── [7 Scanner Modules run in parallel]
+       ↓  raw findings
+Classification Engine
+       ↓  classified items (Confidence & Severity)
+Report Generator ── JSON + HTML
+       ↓  render dashboard
+AI Discovery Dashboard (Glassmorphic Web UI)
+```
+
+The data flow is:
+`UI ➔ Scan Controller ➔ Discovery Engine ➔ 7 Scanners (Parallel) ➔ Raw Findings ➔ Classification ➔ Report Generator ➔ Dashboard`
+
+---
+
+## 📅 Project Progress & Sprint Status
+
+### **DAY 1 — Scaffold & Foundation (Completed)**
+- [x] **Project Scaffolding**: Structured the core package directories and empty `__init__.py` files.
+- [x] **Data Contract Definition**: Created `Finding`, `ScanResult`, and `ModuleInfo` models in `scanner/models.py`.
+- [x] **CLI Setup**: Built `main.py` CLI parser supporting `--scan`, `--format`, `--output`, and `--verbose` arguments.
+- [x] **Terminal Encoding Patch**: Reconfigured output streams to UTF-8 on startup to avoid encoding crashes when rendering emojis on Windows cmd/powershell.
+- [x] **System Scanner Module (Module 01)**: Fully implemented by Person B to collect hardware specs, CPU/RAM percentages, storage partitions, IP addresses, and detect active GPUs.
+- [x] **Jinja2 Dashboard Template**: Created `dashboard.html.j2` with glassmorphic cards, dynamic metrics summary, interactive finding disclosures, and client-side searching/filtering.
+
+### **DAY 2 — Parallel Execution & Core Scanners (Next Up)**
+- [ ] **Discovery Engine**: ThreadPoolExecutor-based parallel execution of registered scanners.
+- [ ] **Classification Engine**: Rule-based categorization engine (Model, Runtime, Agent, Framework, Service, Config).
+- [ ] **File Scanner (Module 02)**: Multi-threaded directory traversal detecting GGUF, Safetensors, PyTorch, ONNX, and CKPT models.
+- [ ] **Process Scanner (Module 03)**: Introspecting active runtimes (Ollama, LM Studio, vLLM, custom python scripts).
+- [ ] **Report Generator (JSON)**: Structured JSON compiler.
+
+---
+
+## 📁 Project Directory Layout
+
+```
+System Scanner/
+├── main.py                    # CLI entry point with argparse & formatting
+├── requirements.txt           # Project environment dependencies
+├── scanner/
+│   ├── __init__.py            # Core package descriptor
+│   ├── models.py              # Shared dataclasses (Finding, ScanResult, ModuleInfo)
+│   ├── controller.py          # Central scan controller orchestrating pipeline
+│   ├── engine.py              # Parallel Discovery Engine (ThreadPool Dispatcher)
+│   ├── classifier.py          # Classification Engine
+│   ├── modules/               # 7 Scanner Modules
+│   │   ├── __init__.py
+│   │   └── system_scanner.py  # MODULE 01: Host hardware & metadata collector
+│   └── reporter/
+│       ├── __init__.py
+│       └── templates/
+│           └── dashboard.html.j2 # Jinja2 HTML report dashboard layout
+```
 
 ---
 
 ## 🚀 Getting Started
 
-### Cloning the Repository
+### 1. Prerequisites
+- Python 3.8 or higher
+- Windows, macOS, or Linux
 
-To clone the repository and navigate to the project directory, run:
+### 2. Environment Setup
+Clone the repository and install dependencies inside a virtual environment:
 
 ```bash
 # Clone the repository
 git clone https://github.com/Ajinkya-Furange-Patil/Group-A-Y-S.git
-
-# Navigate to the System Scanner directory
 cd "Group-A-Y-S/System Scanner"
+
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+```
+
+### 3. Running the Scanner
+To execute the scanner via the CLI:
+
+```bash
+# Print help menu and options
+python main.py -h
+
+# Perform a scan (stub mode for Day 1 modules)
+python main.py --scan
+
+# Perform a scan with verbose debug logging
+python main.py --scan --verbose
 ```
 
 ---
 
-## 🤝 Collaboration Workflow
+## 🤝 Collaboration Workflow & Git Branching
 
-To maintain a clean history and avoid conflicts, all contributors should follow this git workflow:
+To keep code integrated smoothly, use the following flow:
 
-### 1. Sync Your Main Branch
-Before starting any new feature or fix, make sure your local `main` branch is fully updated with the remote repository:
+### 1. Synchronize main
+Before working, pull the latest changes:
 ```bash
 git checkout main
 git pull origin main
 ```
 
 ### 2. Create a Feature Branch
-Always work on a separate branch. Choose a descriptive branch name (e.g., `feature/feature-name` or `bugfix/issue-name`):
+Check out a branch named after your role/task:
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b feature/cli-and-template-wireframe # (Person C, Day 1 example)
 ```
 
-### 3. Commit Your Changes
-Make your changes, test them, and commit them with a clean, descriptive commit message:
+### 3. Push and Create Pull Request
+Once code has been local-tested:
 ```bash
-# Stage all changes
 git add .
-
-# Commit changes
-git commit -m "Add description of what you did"
+git commit -m "Brief summary of changes"
+git push -u origin feature/your-branch-name
 ```
-
-### 4. Keep Your Branch Updated
-If changes are pushed to `main` by other collaborators while you are working, sync your branch:
-```bash
-git checkout main
-git pull origin main
-git checkout feature/your-feature-name
-git merge main
-# Resolve any conflicts if they arise, then commit
-```
-
-### 5. Push and Open a Pull Request (PR)
-Push your local branch to the remote repository and set the upstream tracking:
-```bash
-git push -u origin feature/your-feature-name
-```
-After pushing, visit the [GitHub repository](https://github.com/Ajinkya-Furange-Patil/Group-A-Y-S) to create a **Pull Request** to merge your branch into `main`.
-
----
-
-## 🏗️ Architecture Overview
-
-The system architecture flow is as follows:
-`UI ➔ Scan Controller ➔ Discovery Engine ➔ 7 Scanners (Parallel) ➔ Raw Findings ➔ Classification ➔ Report Generator ➔ Dashboard`
-
-For a detailed visual walkthrough of the architecture, open [ai_discovery_scanner_architecture_white.html](file:///d:/College%20Work/Internship/Group%20A-Y-S/System%20Scanner/ai_discovery_scanner_architecture_white.html) in your browser.
+Open a PR on the GitHub repository and ask for at least **1 approval** before merging into `main`.

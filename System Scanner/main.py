@@ -77,6 +77,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     """Main entry point for the AI Discovery Scanner CLI."""
+    # Reconfigure stdout/stderr to UTF-8 on systems like Windows where the default code page lacks emoji support
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+
     parser = build_parser()
     args = parser.parse_args()
 
