@@ -1,9 +1,8 @@
 """
-AI Discovery Scanner — Classification Engine (Stub)
+AI Discovery Scanner — Classification Engine
 
 The Classification Engine maps raw findings to meaningful AI categories
-with confidence scores. This is a Day 1 stub that passes findings through
-unmodified. Full rule-based classification will be implemented on Day 2.
+with confidence scores and risk levels.
 
 Classes:
     ClassificationEngine — Rule-based finding classifier
@@ -13,21 +12,102 @@ from __future__ import annotations
 
 import logging
 
-from scanner.models import Finding
+from scanner.models import Finding, FindingCategory, RiskLevel
 
 logger = logging.getLogger(__name__)
 
 
 class ClassificationEngine:
-    """Classifies raw scanner findings into AI categories.
-
-    Day 1 stub — passes findings through without modification.
-    Full rule-based classification with confidence scoring on Day 2.
-    """
+    """Classifies raw scanner findings into AI categories."""
 
     def __init__(self) -> None:
         """Initialize the Classification Engine."""
-        logger.info("Classification Engine initialized (stub mode)")
+        logger.info("Classification Engine initialized")
+
+    def classify_single(self, finding: Finding) -> Finding:
+        """Classify a single raw finding using rule-based heuristics.
+
+        Args:
+            finding: The raw finding to classify.
+
+        Returns:
+            The classified finding.
+        """
+        # If the finding already has classification, use it as a default baseline
+        category = finding.category if finding.category else FindingCategory.UNKNOWN
+        risk_level = finding.risk_level if finding.risk_level else RiskLevel.INFO
+        confidence = finding.confidence if finding.confidence > 0 else 0.5
+
+        title_lower = finding.title.lower()
+        desc_lower = finding.description.lower()
+        source_lower = finding.source.lower()
+
+        # ── Rule 1: API Keys & Secrets (API Scanner) ────────────────────
+        if "api_key" in title_lower or "api-key" in title_lower or "key" in source_lower or finding.module_name == "APIScanner":
+            category = FindingCategory.CONFIGURATION
+            # Exposing API keys is a significant risk
+            risk_level = RiskLevel.HIGH
+            confidence = 0.95
+            if "openai" in title_lower or "openai" in desc_lower:
+                category = FindingCategory.CONFIGURATION
+                finding.details["provider"] = "OpenAI"
+            elif "anthropic" in title_lower or "anthropic" in desc_lower:
+                category = FindingCategory.CONFIGURATION
+                finding.details["provider"] = "Anthropic"
+            elif "google" in title_lower or "google" in desc_lower:
+                category = FindingCategory.CONFIGURATION
+                finding.details["provider"] = "Google"
+
+        # ── Rule 2: AI Models & Weights (File Scanner) ──────────────────
+        elif finding.module_name == "FileScanner" or any(ext in source_lower for ext in [".gguf", ".safetensors", ".pt", ".pth", ".onnx", ".ckpt", ".h5"]):
+            category = FindingCategory.AI_MODEL
+            confidence = 0.95
+            # Set risk level based on model size or path
+            if "download" in source_lower:
+                risk_level = RiskLevel.MEDIUM  # Unmanaged downloads of AI models
+            elif "cache" in source_lower:
+                risk_level = RiskLevel.LOW     # Normal framework caches (e.g. HuggingFace)
+            else:
+                risk_level = RiskLevel.INFO
+
+        # ── Rule 3: LLM Runtimes (Runtime Scanner / Process Scanner) ────
+        elif finding.module_name in ["RuntimeScanner", "ProcessScanner"] or any(kw in title_lower or kw in desc_lower for kw in ["ollama", "lmstudio", "lm studio", "vllm", "llama.cpp"]):
+            category = FindingCategory.LLM_RUNTIME
+            confidence = 0.90
+            # Active runtimes listening on ports or running locally
+            if "port" in desc_lower or "active" in desc_lower or "running" in desc_lower:
+                risk_level = RiskLevel.MEDIUM
+            else:
+                risk_level = RiskLevel.LOW
+
+        # ── Rule 4: AI Agents & Frameworks (Agent Scanner) ─────────────
+        elif finding.module_name == "AgentScanner" or any(kw in title_lower or kw in desc_lower for kw in ["agent", "crew", "crewai", "autogen", "langchain", "llama-index"]):
+            category = FindingCategory.AI_AGENT
+            confidence = 0.85
+            risk_level = RiskLevel.MEDIUM  # Agents have execution capabilities
+
+        # ── Rule 5: ML/AI Libraries & Frameworks (Package Scanner) ──────
+        elif finding.module_name == "PackageScanner" or any(kw in title_lower for kw in ["torch", "tensorflow", "transformers", "scikit-learn", "keras"]):
+            # Differentiate core frameworks from agent frameworks
+            if any(agent_kw in title_lower for agent_kw in ["langchain", "crewai", "autogen"]):
+                category = FindingCategory.AI_AGENT
+            else:
+                category = FindingCategory.ML_FRAMEWORK
+            confidence = 0.90
+            risk_level = RiskLevel.INFO
+
+        # ── Rule 6: System Info Fallback (System Scanner) ────────────────
+        elif finding.module_name == "SystemScanner" or category == FindingCategory.SYSTEM_INFO:
+            category = FindingCategory.SYSTEM_INFO
+            risk_level = RiskLevel.INFO
+            confidence = 1.0
+
+        # Update the finding fields
+        finding.category = category
+        finding.risk_level = risk_level
+        finding.confidence = confidence
+
+        return finding
 
     def classify(self, findings: list[Finding]) -> list[Finding]:
         """Classify a list of raw findings.
@@ -36,14 +116,11 @@ class ClassificationEngine:
             findings: Raw findings from the Discovery Engine.
 
         Returns:
-            The same findings with category and confidence fields populated.
-
-        Note:
-            Day 1 stub — returns findings unmodified. Full implementation on Day 2.
+            The list of findings with category, risk_level, and confidence populated.
         """
-        logger.info(
-            "Classification Engine: Processing %d findings (stub - passthrough)...",
-            len(findings),
-        )
-        # Stub: return findings as-is. Day 2 will add rule-based classification.
-        return findings
+        logger.info("Classification Engine: Classifying %d findings...", len(findings))
+        classified = []
+        for finding in findings:
+            classified.append(self.classify_single(finding))
+        return classified
+
