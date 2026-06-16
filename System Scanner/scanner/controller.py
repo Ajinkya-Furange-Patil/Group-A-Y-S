@@ -61,14 +61,12 @@ class ScanController:
         self._engine.register_module(system_scanner)
 
         # ── MODULE 02: File Scanner ──────────────────────────────────────
-        # Will be added by Person B (Day 2)
-        # from scanner.modules.file_scanner import FileScanner
-        # self._engine.register_module(FileScanner())
+        from scanner.modules import file_scanner
+        self._engine.register_module(file_scanner)
 
         # ── MODULE 03: Process Scanner ───────────────────────────────────
-        # Will be added by Person B (Day 2)
-        # from scanner.modules.process_scanner import ProcessScanner
-        # self._engine.register_module(ProcessScanner())
+        from scanner.modules import process_scanner
+        self._engine.register_module(process_scanner)
 
         # ── MODULE 04: Package Scanner ───────────────────────────────────
         # Will be added by Person B (Day 3)
