@@ -696,7 +696,7 @@
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: 62681df6</span>
+        <span class="scan-badge">Scan ID: 1a1c3ec0</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -707,19 +707,19 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <span class="metric-header">Discovered Artifacts</span>
-        <span class="metric-value">3</span>
+        <span class="metric-value">7</span>
         <span class="metric-footer">Total items detected</span>
       </div>
       
       <div class="metric-card critical-risk">
         <span class="metric-header">Security Risk Score</span>
-        <span class="metric-value">8.3</span>
+        <span class="metric-value">46.4</span>
         <span class="metric-footer">Out of 100 max</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">2.33s</span>
+        <span class="metric-value">2.85s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
@@ -748,6 +748,8 @@
             
             <option value="System Info">System Info (2)</option>
             
+            <option value="Configuration">Configuration (4)</option>
+            
           </select>
           
           <select id="filter-risk" class="filter-select">
@@ -756,6 +758,8 @@
             <option value="low">LOW (1)</option>
             
             <option value="info">INFO (2)</option>
+            
+            <option value="high">HIGH (4)</option>
             
           </select>
         </div>
@@ -792,7 +796,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T17:36:37.759683</span>
+                  <span class="fd-value">2026-06-16T18:06:32.909192</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -836,7 +840,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T17:36:38.258712</span>
+                  <span class="fd-value">2026-06-16T18:06:32.998163</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -844,17 +848,17 @@
   "cpu": {
     "cpu_freq_mhz": 2688.0,
     "cpu_logical_cores": 12,
-    "cpu_percent_usage": 31.6,
+    "cpu_percent_usage": 50.1,
     "cpu_physical_cores": 6
   },
   "disks": [
     {
       "device": "C:\\",
       "filesystem": "NTFS",
-      "free_gb": 237.27,
+      "free_gb": 236.99,
       "mountpoint": "C:\\",
       "total_gb": 425.44,
-      "used_percent": 44.2
+      "used_percent": 44.3
     },
     {
       "device": "D:\\",
@@ -876,9 +880,9 @@
   },
   "python_version": "3.14.3",
   "ram": {
-    "available_gb": 0.55,
+    "available_gb": 0.83,
     "total_gb": 7.65,
-    "used_percent": 92.8
+    "used_percent": 89.2
   }
 }</pre>
                   
@@ -914,7 +918,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T17:36:38.630514</span>
+                  <span class="fd-value">2026-06-16T18:06:33.230754</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -924,6 +928,177 @@
   "name": "NVIDIA GeForce GTX 1650",
   "vendor": "NVIDIA",
   "vram_mb": "4096"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 47.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:47</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T18:06:33.040275</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+  "line_number": 47,
+  "masked_key": "key...n_20"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed AWS Access Key ID</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a AWS Access Key ID was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 48.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:48</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T18:06:33.040309</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "AWS Access Key ID",
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+  "line_number": 48,
+  "masked_key": "AKIA...MPLE"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Environment Variable: ANTIGRAVITY_CSRF_TOKEN</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Active environment variable 'ANTIGRAVITY_CSRF_TOKEN' contains a potential Unknown credential.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">env://ANTIGRAVITY_CSRF_TOKEN</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T18:06:34.319144</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Unknown Environment Credential",
+  "env_var_name": "ANTIGRAVITY_CSRF_TOKEN",
+  "masked_key": "env_key...769d"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Environment Variable: GEMINI_API_KEY</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Active environment variable 'GEMINI_API_KEY' contains a potential Google/Gemini credential.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">env://GEMINI_API_KEY</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T18:06:34.319851</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google/Gemini Environment Credential",
+  "env_var_name": "GEMINI_API_KEY",
+  "masked_key": "AIzaSy...y_kg",
+  "provider": "Google"
 }</pre>
                   
                 </div>
@@ -951,7 +1126,7 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T17:36:36.578295</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T18:06:31.693083</span>
             </div>
           </div>
         </section>
@@ -967,7 +1142,7 @@
                 <span class="module-name">SystemScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">1.005s</span>
+                <span class="module-duration">1.087s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">2</span>
@@ -981,7 +1156,7 @@
                 <span class="module-name">FileScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.143s</span>
+                <span class="module-duration">0.791s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">1</span>
@@ -995,7 +1170,7 @@
                 <span class="module-name">ProcessScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.109s</span>
+                <span class="module-duration">0.753s</span>
                 <span class="status-badge status-success">success</span>
                 
               </div>
@@ -1007,8 +1182,10 @@
                 <span class="module-name">APIScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.047s</span>
+                <span class="module-duration">2.121s</span>
                 <span class="status-badge status-success">success</span>
+                
+                <span class="findings-count-badge">4</span>
                 
               </div>
             </div>

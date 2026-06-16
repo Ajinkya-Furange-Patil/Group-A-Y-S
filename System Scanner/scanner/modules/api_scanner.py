@@ -1,67 +1,132 @@
 """
 MODULE 07 — API Scanner
 ======================
-Scans project files (.env, .yaml, .yml, .json) for exposed AI API keys
-(OpenAI, Anthropic, Google Gemini, Cohere, etc.), masks them for security,
-and reports them as high-risk configuration findings.
+Scans project files (.env, .yaml, .yml, .json, .py, .js, .ts, etc.) for exposed AI API keys
+(OpenAI, Anthropic, Google Gemini, Cohere, etc.) and active system environment variables,
+masks them for security, and reports them as configuration findings.
 
 Author: Person C
 Day: 3
 """
 
+from __future__ import annotations
+
 import json
+import logging
 import os
+import pathlib
 import re
 from typing import Any
 from scanner.models import Finding, FindingCategory, RiskLevel
 
+logger = logging.getLogger(__name__)
+
 
 class APIScanner:
-    """Scans local directories for exposed AI service credentials and API keys."""
+    """Scans local directories and active environments for credentials and API keys."""
 
     MODULE_NAME = "APIScanner"
     MODULE_NUMBER = 7
 
     def __init__(self, target_dir: str = ".") -> None:
-        """Initialize the API Scanner with a target search directory."""
+        """Initialize the API Scanner and setup directories, exclusions, and regex patterns."""
         self.target_dir = os.path.abspath(target_dir)
+
+        # Define targets to scan along with maximum depths
+        home = pathlib.Path.home()
+        self.targets = [
+            (home / "Downloads", 4),
+            (pathlib.Path(self.target_dir), 5),
+            (home, 3),  # general home scan last
+        ]
         
         # Regex patterns for matching API keys and credentials
         self.patterns = {
             "OpenAI API Key": {
-                "regex": re.compile(r"(?:OPENAI_API_KEY|openai_key)[\s:=]+['\"]?((?:sk-[a-zA-Z0-9-]{32,})|(?:sk-proj-[a-zA-Z0-9-]{40,}))['\"]?", re.IGNORECASE),
+                "regex": re.compile(
+                    r"(?:OPENAI_API_KEY|openai_key)[\s:=]+['\"]?((?:sk-[a-zA-Z0-9-]{32,})|(?:sk-proj-[a-zA-Z0-9-]{40,}))['\"]?",
+                    re.IGNORECASE
+                ),
                 "risk": RiskLevel.CRITICAL,
                 "mask_prefix": "sk-...",
             },
             "Anthropic API Key": {
-                "regex": re.compile(r"(?:ANTHROPIC_API_KEY|anthropic_key)[\s:=]+['\"]?(sk-ant-sid[0-9a-zA-Z_-]{24,}|sk-ant-api[0-9a-zA-Z_-]{24,})['\"]?", re.IGNORECASE),
+                "regex": re.compile(
+                    r"(?:ANTHROPIC_API_KEY|anthropic_key)[\s:=]+['\"]?(sk-ant-sid[0-9a-zA-Z_-]{24,}|sk-ant-api[0-9a-zA-Z_-]{24,})['\"]?",
+                    re.IGNORECASE
+                ),
                 "risk": RiskLevel.CRITICAL,
                 "mask_prefix": "sk-ant-...",
             },
             "Google AI/Gemini API Key": {
-                "regex": re.compile(r"(?:GOOGLE_API_KEY|gemini_api_key|gemini_key)[\s:=]+['\"]?(AIzaSy[a-zA-Z0-9_-]{33})['\"]?", re.IGNORECASE),
+                "regex": re.compile(
+                    r"(?:GOOGLE_API_KEY|gemini_api_key|gemini_key)[\s:=]+['\"]?(AIzaSy[a-zA-Z0-9_-]{33})['\"]?",
+                    re.IGNORECASE
+                ),
                 "risk": RiskLevel.CRITICAL,
                 "mask_prefix": "AIzaSy...",
             },
             "Cohere API Key": {
-                "regex": re.compile(r"(?:COHERE_API_KEY|cohere_key)[\s:=]+['\"]?([a-zA-Z0-9]{32,})['\"]?", re.IGNORECASE),
+                "regex": re.compile(
+                    r"(?:COHERE_API_KEY|cohere_key)[\s:=]+['\"]?([a-zA-Z0-9]{32,})['\"]?",
+                    re.IGNORECASE
+                ),
                 "risk": RiskLevel.HIGH,
                 "mask_prefix": "co-...",
             },
             "Hugging Face Hub Token": {
-                "regex": re.compile(r"(?:HF_TOKEN|HUGGINGFACE_API_TOKEN)[\s:=]+['\"]?(hf_[a-zA-Z0-9]{34,})['\"]?", re.IGNORECASE),
+                "regex": re.compile(
+                    r"(?:HF_TOKEN|HUGGINGFACE_API_TOKEN)[\s:=]+['\"]?(hf_[a-zA-Z0-9]{34,})['\"]?",
+                    re.IGNORECASE
+                ),
                 "risk": RiskLevel.HIGH,
                 "mask_prefix": "hf_...",
+            },
+            "AWS Access Key ID": {
+                "regex": re.compile(
+                    r"\b((?:AKIA|ASIA)[0-9A-Z]{16})\b"
+                ),
+                "risk": RiskLevel.CRITICAL,
+                "mask_prefix": "AKIA...",
+            },
+            "AWS Secret Access Key": {
+                "regex": re.compile(
+                    r"(?:AWS_SECRET_ACCESS_KEY|aws_secret|secret_key)[\s:=]+['\"]?([a-zA-Z0-9+/]{40})['\"]?",
+                    re.IGNORECASE
+                ),
+                "risk": RiskLevel.CRITICAL,
+                "mask_prefix": "aws-secret...",
+            },
+            "GitHub Personal Access Token": {
+                "regex": re.compile(
+                    r"\b(ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{82})\b"
+                ),
+                "risk": RiskLevel.HIGH,
+                "mask_prefix": "ghp_...",
+            },
+            "Generic API Key/Token": {
+                "regex": re.compile(
+                    r"(?:api_key|apikey|api_token|apitoken|secret_key|secretkey|access_token|accesstoken|auth_token|bearer_token)[\s:=]+['\"]?([a-zA-Z0-9_\-]{20,})['\"]?",
+                    re.IGNORECASE
+                ),
+                "risk": RiskLevel.HIGH,
+                "mask_prefix": "key...",
             }
         }
         
         # Folders to completely ignore during scan to avoid performance lags
         self.exclude_dirs = {
             "node_modules", ".git", ".github", "venv", ".venv", "env",
-            "__pycache__", "build", "dist", ".idea", ".vscode"
+            "__pycache__", "build", "dist", ".idea", ".vscode", "AppData",
+            "Application Data", "Local Settings", "Library", "Cookies",
+            "SendTo", "NetHood", "PrintHood", "Templates", "Recent", "My Documents",
+            "System Volume Information", "$RECYCLE.BIN"
         }
         # Extensions of interest
-        self.include_extensions = {".env", ".yaml", ".yml", ".json"}
+        self.include_extensions = {
+            ".env", ".yaml", ".yml", ".json", ".py", ".js", ".ts",
+            ".toml", ".ini", ".conf", ".txt"
+        }
 
     def _mask_key(self, key: str, prefix: str) -> str:
         """Mask an API key so it is secure to show in a report.
@@ -77,40 +142,29 @@ class APIScanner:
             return "********"
         return f"{prefix}{key[-4:]}"
 
-    def scan(self) -> list[Finding]:
-        """Perform directory traversal and scan files for exposed credentials.
+    def _depth_limited_walk(self, root_path: pathlib.Path, max_depth: int):
+        """Traverse a directory structure up to a maximum depth.
 
-        Returns:
-            List of Findings representing discovered API keys.
+        Prunes excluded directories in-place.
         """
-        findings: list[Finding] = []
+        if not root_path.exists() or not root_path.is_dir():
+            return
 
-        # Walk targeted directories
-        for root, dirs, files in os.walk(self.target_dir):
-            # Prune excluded directories in-place
-            dirs[:] = [d for d in dirs if d not in self.exclude_dirs]
+        root_depth = len(root_path.parts)
+        for root, dirs, files in os.walk(root_path, topdown=True):
+            dirs[:] = [
+                d
+                for d in dirs
+                if d not in self.exclude_dirs and not d.startswith(".")
+            ]
 
-            for file in files:
-                file_path = os.path.join(root, file)
-                
-                # Check file extension or name
-                name_lower = file.lower()
-                has_valid_ext = any(file_path.endswith(ext) for ext in self.include_extensions)
-                is_env_file = name_lower.startswith(".env")
-                
-                if not (has_valid_ext or is_env_file):
-                    continue
+            current_path = pathlib.Path(root)
+            current_depth = len(current_path.parts) - root_depth
 
-                try:
-                    findings.extend(self._scan_file(file_path))
-                except (PermissionError, FileNotFoundError):
-                    # Skip files we cannot access
-                    continue
-                except Exception:
-                    # Generic catch-all to prevent scanner crashes
-                    continue
+            yield current_path, files
 
-        return findings
+            if current_depth >= max_depth:
+                dirs.clear()
 
     def _scan_file(self, file_path: str) -> list[Finding]:
         """Scan a single file line by line for any matched regex pattern.
@@ -122,45 +176,175 @@ class APIScanner:
             List of Finding objects discovered.
         """
         file_findings: list[Finding] = []
-        rel_path = os.path.relpath(file_path, self.target_dir)
-
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            for line_no, line in enumerate(f, 1):
-                # Check each regular expression pattern
-                for key_name, info in self.patterns.items():
-                    matches = info["regex"].findall(line)
-                    for match in matches:
-                        # Findall might return tuples if group patterns are complex, extract string
-                        raw_key = match[0] if isinstance(match, tuple) else match
-                        raw_key = raw_key.strip()
-                        
-                        # Validate length and format briefly
-                        if not raw_key:
-                            continue
+        
+        try:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                for line_no, line in enumerate(f, 1):
+                    # Check each regular expression pattern
+                    matched_on_line = set()
+                    for key_name, info in self.patterns.items():
+                        matches = info["regex"].findall(line)
+                        for match in matches:
+                            raw_key = match[0] if isinstance(match, tuple) else match
+                            raw_key = raw_key.strip()
                             
-                        masked_key = self._mask_key(raw_key, info["mask_prefix"])
-                        
-                        finding = Finding(
-                            module_name=self.MODULE_NAME,
-                            title=f"Exposed {key_name}",
-                            description=(
-                                f"A matching pattern for a {key_name} was discovered "
-                                f"in config file '{rel_path}' at line {line_no}."
-                            ),
-                            source=f"{rel_path}:{line_no}",
-                            category=FindingCategory.CONFIGURATION,
-                            risk_level=info["risk"],
-                            confidence=0.9,
-                            details={
-                                "file_path": rel_path,
-                                "line_number": line_no,
-                                "credential_type": key_name,
-                                "masked_key": masked_key,
-                            }
-                        )
-                        file_findings.append(finding)
+                            # Validate length
+                            if not raw_key or len(raw_key) < 16:
+                                continue
+                            
+                            # Skip if we already matched this exact credential value on the same line
+                            if raw_key in matched_on_line:
+                                continue
+                                
+                            # Basic check to avoid normal word false positives on Generic rules
+                            if key_name == "Generic API Key/Token":
+                                if not (any(c.isdigit() for c in raw_key) and any(c.isalpha() for c in raw_key)):
+                                    continue
+                            
+                            matched_on_line.add(raw_key)
+                            masked_key = self._mask_key(raw_key, info["mask_prefix"])
+                            
+                            finding = Finding(
+                                module_name=self.MODULE_NAME,
+                                title=f"Exposed {key_name}",
+                                description=(
+                                    f"A matching pattern for a {key_name} was discovered "
+                                    f"in config file '{file_path}' at line {line_no}."
+                                ),
+                                source=f"{file_path}:{line_no}",
+                                category=FindingCategory.CONFIGURATION,
+                                risk_level=info["risk"],
+                                confidence=0.9,
+                                details={
+                                    "file_path": file_path,
+                                    "line_number": line_no,
+                                    "credential_type": key_name,
+                                    "masked_key": masked_key,
+                                }
+                            )
+                            file_findings.append(finding)
+        except Exception:
+            pass
 
         return file_findings
+
+    def _scan_environment(self) -> list[Finding]:
+        """Iterate through active process environment variables for keys.
+
+        Returns:
+            List of environment credentials findings.
+        """
+        env_findings: list[Finding] = []
+        env_keywords = {"KEY", "TOKEN", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL"}
+        
+        for key, value in os.environ.items():
+            key_upper = key.upper()
+            if any(kw in key_upper for kw in env_keywords):
+                if value and len(value) >= 12:
+                    provider = "Unknown"
+                    risk = RiskLevel.HIGH
+                    mask_prefix = "env_key..."
+                    
+                    if "OPENAI" in key_upper:
+                        provider = "OpenAI"
+                        risk = RiskLevel.CRITICAL
+                        mask_prefix = "sk-..."
+                    elif "ANTHROPIC" in key_upper:
+                        provider = "Anthropic"
+                        risk = RiskLevel.CRITICAL
+                        mask_prefix = "sk-ant-..."
+                    elif "GOOGLE" in key_upper or "GEMINI" in key_upper:
+                        provider = "Google/Gemini"
+                        risk = RiskLevel.CRITICAL
+                        mask_prefix = "AIzaSy..."
+                    elif "HF_" in key_upper or "HUGGINGFACE" in key_upper:
+                        provider = "Hugging Face"
+                        risk = RiskLevel.HIGH
+                        mask_prefix = "hf_..."
+                    elif "AWS" in key_upper:
+                        provider = "AWS"
+                        risk = RiskLevel.CRITICAL
+                        mask_prefix = "aws..."
+                        
+                    masked = self._mask_key(value, mask_prefix)
+                    
+                    finding = Finding(
+                        module_name=self.MODULE_NAME,
+                        title=f"Environment Variable: {key}",
+                        description=f"Active environment variable '{key}' contains a potential {provider} credential.",
+                        source=f"env://{key}",
+                        category=FindingCategory.CONFIGURATION,
+                        risk_level=risk,
+                        confidence=0.95,
+                        details={
+                            "env_var_name": key,
+                            "credential_type": f"{provider} Environment Credential",
+                            "masked_key": masked,
+                        }
+                    )
+                    env_findings.append(finding)
+                    
+        return env_findings
+
+    def scan(self) -> list[Finding]:
+        """Perform directory traversal, file extraction, scanning, and active environments checks.
+
+        Returns:
+            List of Findings representing discovered API keys.
+        """
+        findings: list[Finding] = []
+
+        # ── Step 1: File Gathering ──────────────────────────────────────
+        candidate_files: list[pathlib.Path] = []
+        for target_path, max_depth in self.targets:
+            try:
+                if not target_path.exists():
+                    continue
+
+                if target_path.is_file():
+                    candidate_files.append(target_path)
+                    continue
+
+                for folder, files in self._depth_limited_walk(target_path, max_depth):
+                    for file in files:
+                        name_lower = file.lower()
+                        has_valid_ext = any(file.endswith(ext) for ext in self.include_extensions)
+                        is_env_file = name_lower.startswith(".env")
+                        
+                        if has_valid_ext or is_env_file:
+                            candidate_files.append(folder / file)
+            except Exception as e:
+                logger.error("Error gathering files under %s: %s", target_path, e)
+
+        # ── Step 2: Deduplication ───────────────────────────────────────
+        unique_files: list[tuple[str, pathlib.Path]] = []
+        seen: set[str] = set()
+        for path in candidate_files:
+            try:
+                abs_path_str = str(path.resolve()).replace("\\", "/")
+                if abs_path_str not in seen:
+                    seen.add(abs_path_str)
+                    unique_files.append((abs_path_str, path))
+            except Exception:
+                continue
+
+        # ── Step 3: Sequential Scanning ─────────────────────────────────
+        for abs_path_str, path in unique_files:
+            try:
+                file_findings = self._scan_file(abs_path_str)
+                # ── Step 4: Regex Matching & Counting ─────────────────────
+                findings.extend(file_findings)
+            except Exception as e:
+                logger.error("Error scanning file %s: %s", abs_path_str, e)
+
+        # ── Active Environment Variables ────────────────────────────────
+        try:
+            env_findings = self._scan_environment()
+            findings.extend(env_findings)
+        except Exception as e:
+            logger.error("Error scanning environment variables: %s", e)
+
+        return findings
 
 
 # Standalone test runner
