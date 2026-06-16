@@ -104,16 +104,21 @@ def main() -> None:
 
     # Output results
     result_dict = result.to_dict()
+    from scanner.reporter import generate_json_report, generate_html_report
 
     if args.output:
         # Save to file
-        output_path = f"{args.output}.json"
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(result_dict, f, indent=2, ensure_ascii=False)
-        logger.info("Report saved to: %s", output_path)
+        if args.format in ["json", "both"]:
+            generate_json_report(result, f"{args.output}.json")
+        if args.format in ["html", "both"]:
+            generate_html_report(result, f"{args.output}.html")
     else:
-        # Print to stdout
-        print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
+        # Default behavior when --output is not provided
+        if args.format in ["json", "both"]:
+            print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
+        if args.format in ["html", "both"]:
+            # Auto-save HTML report as report.html for preview
+            generate_html_report(result, "report.html")
 
     # Print summary
     summary = result_dict.get("summary", {})

@@ -108,6 +108,17 @@ python main.py --scan
 python main.py --scan --verbose
 ```
 
+### 4. Running the Frontend (HTML Dashboard)
+To generate and view the visual dashboard locally:
+```bash
+# 1. Run a scan and compile findings to HTML
+python main.py --scan --format html
+
+# 2. Spin up a local server to bypass file protocol browser security
+python -m http.server 8000
+```
+Once the server is running, navigate to [http://localhost:8000/report.html](http://localhost:8000/report.html) to interact with the dashboard.
+
 ---
 
 ## 🤝 Collaboration Workflow & Git Branching
