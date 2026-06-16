@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Discovery Scanner — Architecture</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg:      #f0f4ff;
+  --glass:   rgba(255,255,255,0.72);
+  --glass2:  rgba(255,255,255,0.52);
+  --glass3:  rgba(255,255,255,0.38);
+  --dim:     rgba(148,163,184,0.18);
+  --dim2:    rgba(148,163,184,0.28);
+  --border:  rgba(99,102,241,0.15);
+  --blue:    #4f46e5;
+  --blue2:   #6366f1;
+  --cyan:    #0891b2;
+  --green:   #059669;
+  --purple:  #7c3aed;
+  --amber:   #d97706;
+  --red:     #dc2626;
+  --pink:    #db2777;
+  --yellow:  #ca8a04;
+  --text:    #0f172a;
+  --text2:   #334155;
+  --muted:   #64748b;
+  --mono:    'JetBrains Mono', 'Fira Code', monospace;
+  --sans:    'Inter', system-ui, sans-serif;
+  --radius:  14px;
+  --shadow:  0 4px 24px rgba(99,102,241,0.07), 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 40px rgba(99,102,241,0.13), 0 2px 8px rgba(0,0,0,0.07);
+  --blur:    blur(18px) saturate(180%);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(165,180,252,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 10%, rgba(196,181,253,0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(186,230,253,0.2) 0%, transparent 60%);
+  color: var(--text);
+  padding: 20px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════ GLASS MIXIN ═══════════════ */
+.glass {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow: var(--shadow);
+}
+
+/* ═══════════════ SHIMMER ANIMATION ═══════════════ */
+.scanline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.5) 50%, transparent 100%);
+  pointer-events: none;
+  animation: scanAnim 7s ease-in-out infinite;
+  z-index: 9999;
+}
+@keyframes scanAnim { from { transform: translateY(0); opacity:0.5; } 50% { opacity:0.8; } to { transform: translateY(100vh); opacity:0; } }
+
+/* ═══════════════ HEADER ═══════════════ */
+.header {
+  background: rgba(255,255,255,0.80);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(99,102,241,0.08) inset;
+}
+.header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue2), var(--cyan), var(--purple), var(--pink));
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.header::after {
+  content: '';
+  position: absolute; bottom: 0; right: 0;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.h-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.h-title { font-family: var(--mono); font-size: 21px; font-weight: 700; color: var(--blue); letter-spacing: 0.03em; }
+.h-sub   { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 5px; }
+.h-flow  {
+  font-family: var(--mono); font-size: 11px; color: var(--text2);
+  margin-top: 14px; padding: 9px 14px;
+  background: rgba(99,102,241,0.06);
+  border-radius: 8px; border-left: 3px solid var(--blue2);
+  overflow-x: auto; white-space: nowrap;
+}
+.h-flow .lbl { color: var(--muted); }
+.h-flow .arr { color: rgba(99,102,241,0.4); margin: 0 5px; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 11px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  font-family: var(--mono); letter-spacing: 0.05em;
+}
+.b-blue   { background: rgba(99,102,241,0.09);  color: var(--blue2);  border: 1px solid rgba(99,102,241,0.2);  }
+.b-green  { background: rgba(5,150,105,0.09);   color: var(--green);  border: 1px solid rgba(5,150,105,0.2);   }
+.b-purple { background: rgba(124,58,237,0.09);  color: var(--purple); border: 1px solid rgba(124,58,237,0.2);  }
+.b-pink   { background: rgba(219,39,119,0.09);  color: var(--pink);   border: 1px solid rgba(219,39,119,0.2);  }
+.b-amber  { background: rgba(217,119,6,0.09);   color: var(--amber);  border: 1px solid rgba(217,119,6,0.2);   }
+
+/* ═══════════════ FLOW CONNECTOR ═══════════════ */
+.connector { display: flex; flex-direction: column; align-items: center; padding: 2px 0; gap: 1px; }
+.c-line {
+  width: 2px; height: 22px;
+  background: linear-gradient(to bottom, var(--blue2), var(--cyan));
+  position: relative; opacity: 0.45;
+}
+.c-line::after {
+  content: '';
+  position: absolute; bottom: -7px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--cyan);
+  opacity: 0.7;
+}
+.c-label { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin: 2px 0; }
+.c-dot   { width: 5px; height: 5px; border-radius: 50%; background: var(--blue2); animation: flowDot 2s ease-in-out infinite; opacity: 0.7; }
+@keyframes flowDot {
+  0%   { opacity: 0; transform: translateY(-6px); }
+  40%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(6px); }
+}
+
+/* ═══════════════ LAYER CARDS ═══════════════ */
+.layer {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+}
+.l-eye  { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+.l-title { font-size: 15px; font-weight: 700; margin-bottom: 9px; color: var(--text); }
+.pill-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill {
+  padding: 4px 11px; border-radius: 6px;
+  font-size: 11px; font-family: var(--mono);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--dim2);
+  color: var(--text2);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* Layer colour themes — left border accent */
+.ly-ui  { border-left: 3px solid var(--purple); }
+.ly-ui  .l-title { color: var(--purple); }
+.ly-ctl { border-left: 3px solid var(--blue2); }
+.ly-ctl .l-title { color: var(--blue2); }
+.ly-eng { border-left: 3px solid var(--cyan); }
+.ly-eng .l-title { color: var(--cyan); }
+.ly-cls { border-left: 3px solid var(--amber); }
+.ly-cls .l-title { color: var(--amber); }
+.ly-rep { border-left: 3px solid var(--green); }
+.ly-rep .l-title { color: var(--green); }
+.ly-dsh { border-left: 3px solid var(--yellow); }
+.ly-dsh .l-title { color: var(--yellow); }
+
+/* ═══════════════ SCAN CONTROLLER GRID ═══════════════ */
+.ctl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 10px; }
+.ctl-item {
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--dim2);
+  border-radius: 9px; padding: 10px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.ctl-ico  { font-size: 18px; margin-bottom: 5px; }
+.ctl-name { font-size: 11px; font-weight: 600; color: var(--text); }
+.ctl-desc { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+/* ═══════════════ PARALLEL REGION ═══════════════ */
+.par-region {
+  border: 1.5px dashed rgba(8,145,178,0.28);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  background: rgba(240,249,255,0.35);
+}
+.par-label {
+  position: absolute; top: -11px; left: 16px;
+  background: var(--bg); padding: 0 9px;
+  font-family: var(--mono); font-size: 9px;
+  color: var(--cyan); letter-spacing: 0.14em; font-weight: 700;
+  /* give it a glass look too */
+  background: rgba(240,249,255,0.95);
+  border-radius: 4px;
+}
+
+/* ═══════════════ MODULE CARDS ═══════════════ */
+.mod-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+
+.mcard {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,1) inset;
+}
+.mcard::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--mc);
+  border-radius: 10px 10px 0 0;
+}
+.mcard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.98);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.1), 0 0 0 2px var(--mc-dim), 0 1px 0 rgba(255,255,255,1) inset;
+}
+.mcard.open {
+  border-color: rgba(255,255,255,0.98);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.09), 0 0 0 2px var(--mc-dim);
+}
+
+.m-ico  { font-size: 18px; margin-bottom: 7px; }
+.m-num  { font-family: var(--mono); font-size: 9px; color: var(--mc); letter-spacing: 0.1em; margin-bottom: 2px; font-weight: 600; }
+.m-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.m-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
+.m-hint { font-family: var(--mono); font-size: 10px; color: var(--mc); margin-top: 7px; opacity: 0.75; }
+
+.m-detail {
+  display: none;
+  margin-top: 11px; padding-top: 11px;
+  border-top: 1px solid var(--dim);
+}
+.mcard.open .m-detail { display: block; }
+
+.dl   { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.chip {
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-family: var(--mono);
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--mc-dim);
+  color: var(--text2);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.ojson {
+  background: rgba(240,253,244,0.85);
+  border: 1px solid rgba(5,150,105,0.18);
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-family: var(--mono); font-size: 10px;
+  color: #065f46;
+  white-space: pre; overflow-x: auto; line-height: 1.6;
+}
+
+/* Module accent colours */
+.mc-sys     { --mc: #7c3aed; --mc-glow: rgba(124,58,237,0.2); --mc-dim: rgba(124,58,237,0.2); }
+.mc-file    { --mc: #4f46e5; --mc-glow: rgba(79,70,229,0.2);  --mc-dim: rgba(79,70,229,0.2);  }
+.mc-proc    { --mc: #059669; --mc-glow: rgba(5,150,105,0.2);  --mc-dim: rgba(5,150,105,0.2);  }
+.mc-pkg     { --mc: #d97706; --mc-glow: rgba(217,119,6,0.2);  --mc-dim: rgba(217,119,6,0.2);  }
+.mc-agent   { --mc: #dc2626; --mc-glow: rgba(220,38,38,0.2);  --mc-dim: rgba(220,38,38,0.2);  }
+.mc-runtime { --mc: #0891b2; --mc-glow: rgba(8,145,178,0.2);  --mc-dim: rgba(8,145,178,0.2);  }
+.mc-api     { --mc: #db2777; --mc-glow: rgba(219,39,119,0.2); --mc-dim: rgba(219,39,119,0.2); }
+
+/* ═══════════════ RAW FINDINGS AGGREGATOR ═══════════════ */
+.raw-box {
+  margin-top: 12px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: 8px;
+  padding: 11px 16px;
+  text-align: center;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+.raw-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.raw-code  { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* ═══════════════ CLASSIFICATION ENGINE ═══════════════ */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.cat-item {
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--dim2);
+  border-radius: 7px;
+  padding: 8px 10px; font-size: 11px; font-family: var(--mono);
+  color: var(--text2);
+  display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.cls-ex {
+  margin-top: 10px;
+  background: rgba(255,251,235,0.8);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 6px 6px 0;
+  padding: 9px 13px;
+  font-family: var(--mono); font-size: 10px; line-height: 1.75;
+  border: 1px solid rgba(217,119,6,0.15); border-left: 3px solid var(--amber);
+}
+.cls-ex .raw-lbl  { color: var(--muted); }
+.cls-ex .raw-val  { color: #166534; }
+.cls-ex .cls-lbl  { color: var(--muted); }
+.cls-ex .cls-val  { color: var(--amber); }
+
+/* ═══════════════ REPORT GENERATOR ═══════════════ */
+.fmt-row { display: flex; gap: 9px; margin-top: 10px; }
+.fmt-card {
+  flex: 1;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--dim2);
+  border-radius: 8px;
+  padding: 12px; text-align: center;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+.fmt-ico  { font-size: 22px; margin-bottom: 6px; }
+.fmt-name { font-size: 12px; font-weight: 700; margin-bottom: 3px; color: var(--text); }
+.fmt-desc { font-size: 10px; color: var(--muted); }
+.rep-json {
+  margin-top: 10px;
+  background: rgba(240,253,244,0.85); border: 1px solid rgba(5,150,105,0.18); border-radius: 5px;
+  padding: 9px 11px; font-family: var(--mono); font-size: 10px; color: #065f46;
+  overflow-x: auto;
+}
+
+/* ═══════════════ DASHBOARD ═══════════════ */
+.metrics  { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.metric   {
+  flex: 1; min-width: 65px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--dim2);
+  border-radius: 8px;
+  padding: 10px; text-align: center;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.metric:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
+.m-val { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--blue2); }
+.m-lbl { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.metric.risk { background: rgba(255,241,242,0.85); border-color: rgba(220,38,38,0.18); }
+.metric.risk .m-val { color: var(--red); }
+.dsh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+
+/* ═══════════════ TECH STACK ═══════════════ */
+.tech-box {
+  margin-top: 18px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.tech-hd  { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+.tech-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.tec {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--dim2);
+  border-radius: 7px; padding: 10px 11px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.t-lbl { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.t-val { font-size: 12px; font-weight: 600; color: var(--text); margin-top: 3px; }
+
+/* ═══════════════ DEMO QUOTE ═══════════════ */
+.demo-box {
+  margin-top: 16px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: var(--radius);
+  padding: 16px 20px; border-left: 3px solid var(--blue2);
+  box-shadow: var(--shadow);
+}
+.demo-lbl { font-family: var(--mono); font-size: 9px; color: var(--blue2); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 7px; font-weight: 600; }
+.demo-txt { font-size: 12px; color: var(--text2); line-height: 1.75; font-style: italic; }
+
+/* ═══════════════ FOOTER ═══════════════ */
+.foot { text-align: center; margin-top: 16px; font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.07em; }
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media (max-width: 640px) {
+  .mod-grid  { grid-template-columns: repeat(2, 1fr); }
+  .ctl-grid  { grid-template-columns: repeat(2, 1fr); }
+  .cat-grid  { grid-template-columns: repeat(2, 1fr); }
+  .tech-grid { grid-template-columns: repeat(2, 1fr); }
+  .fmt-row   { flex-direction: column; }
+  .h-title   { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="h-top">
+    <div>
+      <div class="h-title">🔍 AI DISCOVERY SCANNER</div>
+      <div class="h-sub">// Final Architecture — Modular AI Detection System</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+      <span class="badge b-blue">Python 3.x</span>
+      <span class="badge b-green">v1.0</span>
+    </div>
+  </div>
+  <div class="h-flow">
+    <span class="lbl">DATA FLOW : </span>
+    <span>UI</span><span class="arr">→</span>
+    <span>Scan Controller</span><span class="arr">→</span>
+    <span>Discovery Engine</span><span class="arr">→</span>
+    <span>7 Scanners (Parallel)</span><span class="arr">→</span>
+    <span>Raw Findings</span><span class="arr">→</span>
+    <span>Classification</span><span class="arr">→</span>
+    <span>Report Generator</span><span class="arr">→</span>
+    <span>Dashboard</span>
+  </div>
+  <div class="badges">
+    <span class="badge b-blue">7 Scanner Modules</span>
+    <span class="badge b-green">Modular Architecture</span>
+    <span class="badge b-purple">Enterprise-Ready</span>
+    <span class="badge b-pink">Parallel Execution</span>
+    <span class="badge b-amber">Click modules to expand</span>
+  </div>
+</div>
+
+<!-- ═══ LAYER 0: USER INTERFACE ═══ -->
+<div class="connector" style="margin:7px 0 2px">
+  <div class="c-label">USER INTERACTION LAYER</div>
+</div>
+
+<div class="layer ly-ui">
+  <div class="l-eye">// LAYER 0 — Interface</div>
+  <div class="l-title">🖥️ User Interface</div>
+  <div class="pill-row">
+    <span class="pill">📟 CLI (Terminal)</span>
+    <span class="pill">🌐 HTML Dashboard</span>
+    <span class="pill">📦 EXE (PyInstaller)</span>
+  </div>
+</div>
+
+<!-- CONNECTOR -->
+<div class="connector" style="margin:3px 0">
+  <div class="c-line"></div>
+  <div class="c-label">trigger scan</div>
+  <div class="c-dot" style="animation-delay:0s"></div>
+</div>
+
+<!-- ═══ LAYER 1: SCAN CONTROLLER ═══ -->
+<div class="layer ly-ctl">
+  <div class="l-eye">// LAYER 1 — Orchestration</div>
+  <div class="l-title">⚙️ Scan Controller</div>
+  <div class="ctl-grid">
+    <div class="ctl-item">
+      <div class="ctl-ico">▶️</div>
+      <div class="ctl-name">Start Scan</div>
+      <div class="ctl-desc">Initiates the pipeline</div>
+    </div>
+    <div class="ctl-item">
+      <div class="ctl-ico">📋</div>
+      <div class="ctl-name">Module Mgmt</div>
+      <div class="ctl-desc">Schedules all scanners</div>
+    </div>
+    <div class="ctl-item">
+      <div class="ctl-ico">🗄️</div>
+      <div class="ctl-name">Aggregation</div>
+      <div class="ctl-desc">Merges all findings</div>
+    </div>
+    <div class="ctl-item">
+      <div class="ctl-ico">⚠️</div>
+      <div class="ctl-name">Error Handling</div>
+      <div class="ctl-desc">Catches &amp; logs failures</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECTOR -->
+<div class="connector" style="margin:3px 0">
+  <div class="c-line"></div>
+  <div class="c-label">dispatch modules</div>
+  <div class="c-dot" style="animation-delay:0.5s"></div>
+</div>
+
+<!-- ═══ PARALLEL REGION: DISCOVERY ENGINE + 7 MODULES ═══ -->
+<div class="par-region">
+  <span class="par-label">⚡ PARALLEL EXECUTION</span>
+
+  <div class="layer ly-eng">
+    <div class="l-eye">// LAYER 2 — Engine</div>
+    <div class="l-title">🔬 Discovery Engine</div>
+    <div style="font-size:11px;color:var(--muted)">
+      Dispatches all 7 scanner modules concurrently — each independently detects a class of AI artifact
+    </div>
+  </div>
+
+  <!-- 7 SCANNER MODULE CARDS -->
+  <div class="mod-grid">
+
+    <!-- MODULE 01 -->
+    <div class="mcard mc-sys" onclick="toggleCard(this)">
+      <div class="m-ico">💻</div>
+      <div class="m-num">MODULE 01</div>
+      <div class="m-name">System Scanner</div>
+      <div class="m-desc">Collects host machine metadata</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Libraries</div>
+        <div class="chips">
+          <span class="chip">platform</span>
+          <span class="chip">socket</span>
+          <span class="chip">psutil</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"hostname": "DESKTOP01",
+ "os": "Windows 11",
+ "cpu": "Intel i7",
+ "ram": "16GB"}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 02 -->
+    <div class="mcard mc-file" onclick="toggleCard(this)">
+      <div class="m-ico">📁</div>
+      <div class="m-num">MODULE 02</div>
+      <div class="m-name">File Scanner</div>
+      <div class="m-desc">Finds AI model files on disk</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Extensions</div>
+        <div class="chips">
+          <span class="chip">.gguf</span>
+          <span class="chip">.safetensors</span>
+          <span class="chip">.pt/.pth</span>
+          <span class="chip">.onnx</span>
+          <span class="chip">.ckpt</span>
+          <span class="chip">.h5</span>
+        </div>
+        <div class="dl">Search Paths</div>
+        <div class="chips">
+          <span class="chip">~/Home</span>
+          <span class="chip">Downloads</span>
+          <span class="chip">HuggingFace Cache</span>
+          <span class="chip">Ollama Folder</span>
+          <span class="chip">LM Studio</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"type": "LLM Model",
+ "name": "llama3.gguf"}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 03 -->
+    <div class="mcard mc-proc" onclick="toggleCard(this)">
+      <div class="m-ico">⚡</div>
+      <div class="m-num">MODULE 03</div>
+      <div class="m-name">Process Scanner</div>
+      <div class="m-desc">Finds running AI software</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Detect Processes</div>
+        <div class="chips">
+          <span class="chip">ollama</span>
+          <span class="chip">lmstudio</span>
+          <span class="chip">llama.cpp</span>
+          <span class="chip">vllm</span>
+          <span class="chip">python</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"process": "ollama.exe",
+ "status": "running"}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 04 -->
+    <div class="mcard mc-pkg" onclick="toggleCard(this)">
+      <div class="m-ico">📦</div>
+      <div class="m-num">MODULE 04</div>
+      <div class="m-name">Package Scanner</div>
+      <div class="m-desc">Scans pip for AI frameworks</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Source</div>
+        <div class="chips"><span class="chip">pip list</span></div>
+        <div class="dl">Detect Frameworks</div>
+        <div class="chips">
+          <span class="chip">langchain</span>
+          <span class="chip">crewai</span>
+          <span class="chip">autogen</span>
+          <span class="chip">llama-index</span>
+          <span class="chip">torch</span>
+          <span class="chip">tensorflow</span>
+          <span class="chip">transformers</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"framework": "LangChain"}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 05 -->
+    <div class="mcard mc-agent" onclick="toggleCard(this)">
+      <div class="m-ico">🤖</div>
+      <div class="m-num">MODULE 05</div>
+      <div class="m-name">Agent Scanner</div>
+      <div class="m-desc">Detects AI agents in source code</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Import Patterns</div>
+        <div class="chips">
+          <span class="chip">from langchain</span>
+          <span class="chip">from crewai</span>
+          <span class="chip">from autogen</span>
+        </div>
+        <div class="dl">Code Patterns</div>
+        <div class="chips">
+          <span class="chip">Agent(</span>
+          <span class="chip">Crew(</span>
+          <span class="chip">AssistantAgent(</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"type": "Agent",
+ "framework": "CrewAI"}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 06 -->
+    <div class="mcard mc-runtime" onclick="toggleCard(this)">
+      <div class="m-ico">🌐</div>
+      <div class="m-num">MODULE 06</div>
+      <div class="m-name">Runtime Scanner</div>
+      <div class="m-desc">Detects active AI runtimes</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Check Ports</div>
+        <div class="chips">
+          <span class="chip">:11434</span>
+          <span class="chip">:8000</span>
+          <span class="chip">:5000</span>
+          <span class="chip">:8080</span>
+        </div>
+        <div class="dl">Check Folders</div>
+        <div class="chips">
+          <span class="chip">.ollama</span>
+          <span class="chip">lmstudio</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"runtime": "Ollama",
+ "status": "Active"}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 07 -->
+    <div class="mcard mc-api" onclick="toggleCard(this)">
+      <div class="m-ico">🔑</div>
+      <div class="m-num">MODULE 07</div>
+      <div class="m-name">API Scanner</div>
+      <div class="m-desc">Detects AI service integrations</div>
+      <div class="m-hint">↓ expand</div>
+      <div class="m-detail">
+        <div class="dl">Config Files</div>
+        <div class="chips">
+          <span class="chip">.env</span>
+          <span class="chip">.yaml</span>
+          <span class="chip">.json</span>
+        </div>
+        <div class="dl">API Keys Detected</div>
+        <div class="chips">
+          <span class="chip">OPENAI_API_KEY</span>
+          <span class="chip">ANTHROPIC_API_KEY</span>
+          <span class="chip">GOOGLE_API_KEY</span>
+        </div>
+        <div class="dl">Output</div>
+        <div class="ojson">{"provider": "OpenAI",
+ "configured": true}</div>
+      </div>
+    </div>
+
+  </div><!-- /mod-grid -->
+
+  <!-- RAW FINDINGS AGGREGATOR -->
+  <div class="raw-box">
+    <div class="raw-title">📥 Raw Findings — Aggregated by Scan Controller</div>
+    <div class="raw-code">{ models[ ], processes[ ], packages[ ], agents[ ], runtimes[ ], apis[ ] }</div>
+  </div>
+</div><!-- /par-region -->
+
+<!-- CONNECTOR -->
+<div class="connector" style="margin:3px 0">
+  <div class="c-line"></div>
+  <div class="c-label">classify findings</div>
+  <div class="c-dot" style="animation-delay:1s"></div>
+</div>
+
+<!-- ═══ LAYER 3: CLASSIFICATION ENGINE ═══ -->
+<div class="layer ly-cls">
+  <div class="l-eye">// LAYER 3 — Intelligence</div>
+  <div class="l-title">🧠 Classification Engine</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px">
+    Converts raw scanner outputs into meaningful AI categories with confidence scores
+  </div>
+  <div class="cat-grid">
+    <div class="cat-item">🗂️ AI Model</div>
+    <div class="cat-item">⚙️ LLM Runtime</div>
+    <div class="cat-item">🤖 AI Agent</div>
+    <div class="cat-item">🔧 ML Framework</div>
+    <div class="cat-item">🌐 AI Service</div>
+    <div class="cat-item">🔩 Configuration</div>
+  </div>
+  <div class="cls-ex">
+    <span class="raw-lbl">RAW INPUT :</span>
+    <span class="raw-val"> langchain + ollama + llama3.gguf</span><br>
+    <span class="cls-lbl">CLASSIFIED :</span>
+    <span class="cls-val"> { "category": "AI Agent System", "confidence": "High" }</span>
+  </div>
+</div>
+
+<!-- CONNECTOR -->
+<div class="connector" style="margin:3px 0">
+  <div class="c-line"></div>
+  <div class="c-label">generate report</div>
+  <div class="c-dot" style="animation-delay:1.5s"></div>
+</div>
+
+<!-- ═══ LAYER 4: REPORT GENERATOR ═══ -->
+<div class="layer ly-rep">
+  <div class="l-eye">// LAYER 4 — Output</div>
+  <div class="l-title">📄 Report Generator</div>
+  <div class="fmt-row">
+    <div class="fmt-card">
+      <div class="fmt-ico">{ }</div>
+      <div class="fmt-name">JSON Report</div>
+      <div class="fmt-desc">Machine-readable structured output for integrations &amp; APIs</div>
+    </div>
+    <div class="fmt-card">
+      <div class="fmt-ico">🌐</div>
+      <div class="fmt-name">HTML Report</div>
+      <div class="fmt-desc">Visual dashboard rendered via Jinja2 templates</div>
+    </div>
+  </div>
+  <div class="rep-json">{"system":"DESKTOP01", "models_found":12, "frameworks_found":4, "agents_found":2}</div>
+</div>
+
+<!-- CONNECTOR -->
+<div class="connector" style="margin:3px 0">
+  <div class="c-line"></div>
+  <div class="c-label">render dashboard</div>
+  <div class="c-dot" style="animation-delay:2s"></div>
+</div>
+
+<!-- ═══ LAYER 5: DASHBOARD ═══ -->
+<div class="layer ly-dsh">
+  <div class="l-eye">// LAYER 5 — Presentation</div>
+  <div class="l-title">📊 AI Discovery Dashboard</div>
+  <div class="metrics">
+    <div class="metric"><div class="m-val">12</div><div class="m-lbl">Models</div></div>
+    <div class="metric"><div class="m-val">4</div><div class="m-lbl">Frameworks</div></div>
+    <div class="metric"><div class="m-val">2</div><div class="m-lbl">Agents</div></div>
+    <div class="metric"><div class="m-val">1</div><div class="m-lbl">Runtimes</div></div>
+    <div class="metric"><div class="m-val">3</div><div class="m-lbl">APIs</div></div>
+    <div class="metric risk"><div class="m-val">85</div><div class="m-lbl">Risk Score</div></div>
+  </div>
+  <div class="dsh-tags">
+    <span class="badge b-blue">LangChain ✓</span>
+    <span class="badge b-blue">PyTorch ✓</span>
+    <span class="badge b-green">Ollama: Active</span>
+    <span class="badge b-purple">CrewAI Agent</span>
+    <span class="badge b-pink">OpenAI API ✓</span>
+    <span class="badge b-amber">Risk: HIGH</span>
+  </div>
+</div>
+
+<!-- ═══ TECH STACK ═══ -->
+<div class="tech-box">
+  <div class="tech-hd">⚙️ Technology Stack</div>
+  <div class="tech-grid">
+    <div class="tec"><div class="t-lbl">Language</div><div class="t-val">Python</div></div>
+    <div class="tec"><div class="t-lbl">Process Detection</div><div class="t-val">psutil</div></div>
+    <div class="tec"><div class="t-lbl">File Scanning</div><div class="t-val">os, pathlib</div></div>
+    <div class="tec"><div class="t-lbl">Reporting</div><div class="t-val">json, jinja2</div></div>
+    <div class="tec"><div class="t-lbl">Dashboard</div><div class="t-val">HTML / CSS</div></div>
+    <div class="tec"><div class="t-lbl">Packaging</div><div class="t-val">PyInstaller</div></div>
+    <div class="tec"><div class="t-lbl">Data Models</div><div class="t-val">dataclasses</div></div>
+    <div class="tec"><div class="t-lbl">Logging</div><div class="t-val">logging</div></div>
+  </div>
+</div>
+
+<!-- ═══ DEMO QUOTE ═══ -->
+<div class="demo-box">
+  <div class="demo-lbl">🎤 Demo Script</div>
+  <div class="demo-txt">
+    "The scanner uses a modular discovery architecture. Each scanner module independently detects AI-related 
+    artifacts — model files, frameworks, agent code, runtimes, and API integrations. Findings are aggregated 
+    by the Scan Controller, classified into AI categories, and presented through reports and dashboards. 
+    This design allows us to add new detectors without changing the overall architecture."
+  </div>
+</div>
+
+<div class="foot">
+  AI Discovery Scanner · Modular Architecture v1.0 · Python · Click any module card to expand
+</div>
+
+<script>
+  function toggleCard(card) {
+    const isOpen = card.classList.contains('open');
+    document.querySelectorAll('.mcard').forEach(c => {
+      c.classList.remove('open');
+      const hint = c.querySelector('.m-hint');
+      if (hint) hint.textContent = '↓ expand';
+    });
+    if (!isOpen) {
+      card.classList.add('open');
+      const hint = card.querySelector('.m-hint');
+      if (hint) hint.textContent = '↑ collapse';
+    }
+  }
+</script>
+
+</body>
+</html>
