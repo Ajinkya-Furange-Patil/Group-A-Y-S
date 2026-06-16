@@ -691,12 +691,12 @@
         <div class="icon">🔍</div>
         <div class="header-title">
           <h1>AI Discovery Scanner</h1>
-          <p>// Target Host: YADNESH</p>
+          <p>// Target Host: AJINKYA-PATIL</p>
         </div>
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: c21f305c</span>
+        <span class="scan-badge">Scan ID: 62681df6</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -707,25 +707,25 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <span class="metric-header">Discovered Artifacts</span>
-        <span class="metric-value">1</span>
+        <span class="metric-value">3</span>
         <span class="metric-footer">Total items detected</span>
       </div>
       
       <div class="metric-card critical-risk">
         <span class="metric-header">Security Risk Score</span>
-        <span class="metric-value">0.0</span>
+        <span class="metric-value">8.3</span>
         <span class="metric-footer">Out of 100 max</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">0.99s</span>
+        <span class="metric-value">2.33s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Scanner Status</span>
-        <span class="metric-value">2/2</span>
+        <span class="metric-value">4/4</span>
         <span class="metric-footer">Active modules OK</span>
       </div>
     </div>
@@ -744,14 +744,18 @@
           <select id="filter-category" class="filter-select">
             <option value="all">All Categories</option>
             
-            <option value="System Info">System Info (1)</option>
+            <option value="AI Model">AI Model (1)</option>
+            
+            <option value="System Info">System Info (2)</option>
             
           </select>
           
           <select id="filter-risk" class="filter-select">
             <option value="all">All Risk Levels</option>
             
-            <option value="info">INFO (1)</option>
+            <option value="low">LOW (1)</option>
+            
+            <option value="info">INFO (2)</option>
             
           </select>
         </div>
@@ -761,13 +765,57 @@
           
             
             <div class="finding-card" 
+                 data-category="AI Model" 
+                 data-risk="low">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-low"></div>
+                  <span class="finding-title">model.safetensors</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Model</span>
+                  <span class="tag tag-risk-low">LOW</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Discovered AI model file: model.safetensors (420.05 MB)</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T17:36:37.759683</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "extension": ".safetensors",
+  "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
+  "file_size_bytes": 440449768,
+  "file_size_formatted": "420.05 MB",
+  "last_modified": "2026-05-08T14:07:45.875645"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
                  data-category="System Info" 
                  data-risk="info">
               
               <div class="finding-header" onclick="toggleFinding(this)">
                 <div class="finding-title-section">
                   <div class="finding-risk-indicator risk-info"></div>
-                  <span class="finding-title">Host Machine: YADNESH</span>
+                  <span class="finding-title">Host Machine: AJINKYA-PATIL</span>
                 </div>
                 <div class="finding-meta">
                   <span class="tag tag-category">System Info</span>
@@ -779,51 +827,103 @@
               <div class="finding-body">
                 <div class="finding-details-grid">
                   <span class="fd-label">Description</span>
-                  <span class="fd-value">System scan target identified: YADNESH running Windows 11 (AMD64)</span>
+                  <span class="fd-value">System scan target identified: AJINKYA-PATIL running Windows 11 (x64)</span>
 
                   <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">hostname=YADNESH</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">hostname=AJINKYA-PATIL</span>
 
                   <span class="fd-label">Confidence</span>
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T17:19:15.418733</span>
+                  <span class="fd-value">2026-06-16T17:36:38.258712</span>
                   
                   
                   <span class="fd-label">Metadata</span>
                   <pre class="fd-code">{
   "cpu": {
-    "cpu_freq_mhz": 1805.0,
-    "cpu_logical_cores": 8,
-    "cpu_percent_usage": 16.9,
-    "cpu_physical_cores": 4
+    "cpu_freq_mhz": 2688.0,
+    "cpu_logical_cores": 12,
+    "cpu_percent_usage": 31.6,
+    "cpu_physical_cores": 6
   },
   "disks": [
     {
       "device": "C:\\",
       "filesystem": "NTFS",
-      "free_gb": 182.28,
+      "free_gb": 237.27,
       "mountpoint": "C:\\",
-      "total_gb": 474.39,
-      "used_percent": 61.6
+      "total_gb": 425.44,
+      "used_percent": 44.2
+    },
+    {
+      "device": "D:\\",
+      "filesystem": "NTFS",
+      "free_gb": 39.96,
+      "mountpoint": "D:\\",
+      "total_gb": 50.0,
+      "used_percent": 20.1
     }
   ],
-  "hostname": "YADNESH",
-  "ip_address": "10.126.85.93",
+  "hostname": "AJINKYA-PATIL",
+  "ip_address": "10.50.20.122",
   "os": {
-    "architecture": "AMD64",
+    "architecture": "x64",
     "name": "Windows",
-    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "processor": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
     "release": "11",
     "version": "10.0.26200"
   },
-  "python_version": "3.14.4",
+  "python_version": "3.14.3",
   "ram": {
-    "available_gb": 2.01,
-    "total_gb": 15.4,
-    "used_percent": 86.9
+    "available_gb": 0.55,
+    "total_gb": 7.65,
+    "used_percent": 92.8
   }
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="System Info" 
+                 data-risk="info">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-info"></div>
+                  <span class="finding-title">GPU Detected: NVIDIA GeForce GTX 1650</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">System Info</span>
+                  <span class="tag tag-risk-info">INFO</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A GPU was detected on this machine. GPUs are commonly used to accelerate AI/ML model inference and training.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">system_gpu_detection</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">100%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-16T17:36:38.630514</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "detection_method": "nvidia-smi",
+  "driver_version": "592.27",
+  "name": "NVIDIA GeForce GTX 1650",
+  "vendor": "NVIDIA",
+  "vram_mb": "4096"
 }</pre>
                   
                 </div>
@@ -843,15 +943,15 @@
           <div class="meta-list" style="grid-template-columns: 1fr;">
             <div class="meta-item">
               <span class="meta-label">Hostname</span>
-              <span class="meta-val">YADNESH</span>
+              <span class="meta-val">AJINKYA-PATIL</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Operating System</span>
-              <span class="meta-val">Windows 11 (AMD64)</span>
+              <span class="meta-val">Windows 11 (x64)</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T17:19:14.759366</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T17:36:36.578295</span>
             </div>
           </div>
         </section>
@@ -867,10 +967,36 @@
                 <span class="module-name">SystemScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.599s</span>
+                <span class="module-duration">1.005s</span>
+                <span class="status-badge status-success">success</span>
+                
+                <span class="findings-count-badge">2</span>
+                
+              </div>
+            </div>
+            
+            <div class="module-row">
+              <div class="module-info">
+                <span class="module-num">02</span>
+                <span class="module-name">FileScanner</span>
+              </div>
+              <div class="module-meta">
+                <span class="module-duration">0.143s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">1</span>
+                
+              </div>
+            </div>
+            
+            <div class="module-row">
+              <div class="module-info">
+                <span class="module-num">03</span>
+                <span class="module-name">ProcessScanner</span>
+              </div>
+              <div class="module-meta">
+                <span class="module-duration">0.109s</span>
+                <span class="status-badge status-success">success</span>
                 
               </div>
             </div>
@@ -881,7 +1007,7 @@
                 <span class="module-name">APIScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.011s</span>
+                <span class="module-duration">0.047s</span>
                 <span class="status-badge status-success">success</span>
                 
               </div>

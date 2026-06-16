@@ -135,7 +135,8 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         os_name = platform.system()
         os_version = platform.version()
         os_release = platform.release()
-        architecture = platform.machine()
+        machine = platform.machine()
+        architecture = "x64" if machine == "AMD64" else machine
         processor = platform.processor() or "N/A"
         python_version = platform.python_version()
         ip_address = _get_ip_address()

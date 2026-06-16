@@ -108,9 +108,11 @@ class ScanController:
         scan_start = time.time()
 
         # Initialize result with host metadata
+        machine = platform.machine()
+        arch = "x64" if machine == "AMD64" else machine
         result = ScanResult(
             hostname=socket.gethostname(),
-            os_info=f"{platform.system()} {platform.release()} ({platform.machine()})",
+            os_info=f"{platform.system()} {platform.release()} ({arch})",
         )
 
         try:
