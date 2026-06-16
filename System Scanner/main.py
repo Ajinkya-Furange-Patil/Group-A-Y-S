@@ -120,11 +120,17 @@ def main() -> None:
     from scanner.reporter import generate_json_report, generate_html_report
 
     if args.output:
-        # Save to file
+        # Save to file (strip extension if user provided it to avoid double extensions like report.json.json)
+        base_output = args.output
+        if base_output.lower().endswith(".json"):
+            base_output = base_output[:-5]
+        elif base_output.lower().endswith(".html"):
+            base_output = base_output[:-5]
+
         if args.format in ["json", "both"]:
-            generate_json_report(result, f"{args.output}.json")
+            generate_json_report(result, f"{base_output}.json")
         if args.format in ["html", "both"]:
-            generate_html_report(result, f"{args.output}.html")
+            generate_html_report(result, f"{base_output}.html")
     else:
         # Default behavior when --output is not provided
         if args.format in ["json", "both"]:
