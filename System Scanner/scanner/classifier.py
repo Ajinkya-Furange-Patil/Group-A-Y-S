@@ -48,13 +48,13 @@ class ClassificationEngine:
             # Exposing API keys is a significant risk
             risk_level = RiskLevel.HIGH
             confidence = 0.95
-            if "openai" in title_lower or "openai" in desc_lower:
+            if "openai" in title_lower or "openai" in desc_lower or "openai" in source_lower:
                 category = FindingCategory.CONFIGURATION
                 finding.details["provider"] = "OpenAI"
-            elif "anthropic" in title_lower or "anthropic" in desc_lower:
+            elif "anthropic" in title_lower or "anthropic" in desc_lower or "anthropic" in source_lower:
                 category = FindingCategory.CONFIGURATION
                 finding.details["provider"] = "Anthropic"
-            elif "google" in title_lower or "google" in desc_lower:
+            elif "google" in title_lower or "google" in desc_lower or "google" in source_lower:
                 category = FindingCategory.CONFIGURATION
                 finding.details["provider"] = "Google"
 
@@ -80,13 +80,7 @@ class ClassificationEngine:
             else:
                 risk_level = RiskLevel.LOW
 
-        # ── Rule 4: AI Agents & Frameworks (Agent Scanner) ─────────────
-        elif finding.module_name == "AgentScanner" or any(kw in title_lower or kw in desc_lower for kw in ["agent", "crew", "crewai", "autogen", "langchain", "llama-index"]):
-            category = FindingCategory.AI_AGENT
-            confidence = 0.85
-            risk_level = RiskLevel.MEDIUM  # Agents have execution capabilities
-
-        # ── Rule 5: ML/AI Libraries & Frameworks (Package Scanner) ──────
+        # ── Rule 4: ML/AI Libraries & Frameworks (Package Scanner) ──────
         elif finding.module_name == "PackageScanner" or any(kw in title_lower for kw in ["torch", "tensorflow", "transformers", "scikit-learn", "keras"]):
             # Differentiate core frameworks from agent frameworks
             if any(agent_kw in title_lower for agent_kw in ["langchain", "crewai", "autogen"]):
@@ -95,6 +89,12 @@ class ClassificationEngine:
                 category = FindingCategory.ML_FRAMEWORK
             confidence = 0.90
             risk_level = RiskLevel.INFO
+
+        # ── Rule 5: AI Agents & Frameworks (Agent Scanner) ─────────────
+        elif finding.module_name == "AgentScanner" or any(kw in title_lower or kw in desc_lower for kw in ["agent", "crew", "crewai", "autogen", "langchain", "llama-index"]):
+            category = FindingCategory.AI_AGENT
+            confidence = 0.85
+            risk_level = RiskLevel.MEDIUM  # Agents have execution capabilities
 
         # ── Rule 6: System Info Fallback (System Scanner) ────────────────
         elif finding.module_name == "SystemScanner" or category == FindingCategory.SYSTEM_INFO:
