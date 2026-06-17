@@ -96,6 +96,40 @@
       --font-sans: 'Rajdhani', 'Inter', system-ui, sans-serif;
     }
 
+    body.dark-theme {
+      --hud-bg: #0b0d10;
+      --text-muted: #8a99ad;
+      --text-main: #f8fafc;
+      --text-secondary: #8a99ad;
+      --hud-bg-trans: rgba(11, 13, 16, 0.9);
+      --hud-panel-bg: #12161b;
+      --hud-panel-bg-hover: rgba(211, 13, 48, 0.08);
+      
+      --hud-red-glow: rgba(211, 13, 48, 0.15);
+      --hud-red-dim: rgba(211, 13, 48, 0.05);
+      --hud-border-dim: rgba(211, 13, 48, 0.35);
+    }
+
+    .theme-toggle-btn {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--hud-red);
+      background: transparent;
+      border: 1px solid var(--hud-border-dim);
+      padding: 6px 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: all 0.25s;
+    }
+    .theme-toggle-btn:hover {
+      color: var(--text-main);
+      background: rgba(211, 13, 48, 0.08);
+      border-color: var(--hud-red);
+      box-shadow: 0 0 8px var(--hud-red-glow);
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -104,8 +138,8 @@
 
     body {
       font-family: var(--font-sans);
-      background-color: #ffffff;
-      color: #1e293b;
+      background-color: var(--hud-bg);
+      color: var(--text-main);
       padding: 24px;
       min-height: 100vh;
       line-height: 1.4;
@@ -232,7 +266,7 @@
       font-weight: 800;
       letter-spacing: 0.05em;
       font-family: var(--font-sans);
-      color: #1e293b;
+      color: var(--text-main);
       text-transform: uppercase;
       text-shadow: 0 0 8px rgba(255, 0, 60, 0.5);
     }
@@ -259,7 +293,7 @@
       padding: 4px 12px;
       border: 1px solid var(--hud-red);
       background: rgba(255, 0, 60, 0.1);
-      color: #1e293b;
+      color: var(--text-main);
       font-weight: bold;
       box-shadow: 0 0 8px rgba(255, 0, 60, 0.2);
     }
@@ -389,7 +423,7 @@
       font-size: 2.5rem;
       font-weight: 800;
       font-family: var(--font-mono);
-      color: #1e293b;
+      color: var(--text-main);
       line-height: 1;
       
     }
@@ -426,6 +460,7 @@
     {% set runtime_count = namespace(value=0) %}
     {% set system_count = namespace(value=0) %}
     {% set config_count = namespace(value=0) %}
+    {% set api_count = namespace(value=0) %}
 
     {% for finding in result.findings %}
       {% set cat = finding.category.value if finding.category.value is defined else finding.category %}
@@ -438,7 +473,8 @@
         {% set package_count.value = package_count.value + 1 %}
       {% elif mod == 'AgentScanner' or cat == 'AI Agent' %}
         {% set agent_count.value = agent_count.value + 1 %}
-      {% elif cat == 'Configuration' %}
+      {% elif mod == 'APIScanner' or cat == 'Configuration' %}
+        {% set api_count.value = api_count.value + 1 %}
         {% set config_count.value = config_count.value + 1 %}
       {% else %}
         {% set runtime_count.value = runtime_count.value + 1 %}
@@ -451,7 +487,7 @@
       gap: 16px;
     }
     .metric-card {
-      background: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+      background: var(--hud-panel-bg); box-shadow: 0 4px 8px rgba(0,0,0,0.02);
       border: 1px solid var(--hud-border-dim);
       padding: 16px;
       position: relative;
@@ -495,7 +531,7 @@
       font-size: 2.2rem;
       font-weight: 800;
       font-family: var(--font-mono);
-      color: #1e293b;
+      color: var(--text-main);
       line-height: 1;
       text-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
     }
@@ -536,7 +572,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
-      background: #ffffff;
+      background: var(--hud-panel-bg);
       border: 1px solid rgba(255, 0, 60, 0.15);
       padding: 14px 20px;
     }
@@ -555,7 +591,7 @@
     .info-value {
       font-size: 0.9rem;
       font-family: var(--font-mono);
-      color: #1e293b;
+      color: var(--text-main);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -581,9 +617,9 @@
       flex-wrap: wrap;
     }
     .hud-input, .hud-select {
-      background: #ffffff;
+      background: var(--hud-panel-bg);
       border: 1px solid var(--hud-border-dim);
-      color: #1e293b;
+      color: var(--text-main);
       padding: 10px 16px;
       font-size: 0.85rem;
       outline: none;
@@ -608,8 +644,8 @@
       box-shadow: 0 0 10px rgba(255, 0, 60, 0.25);
     }
     .hud-select option {
-      background-color: #ffffff;
-      color: #1e293b;
+      background-color: var(--hud-panel-bg);
+      color: var(--text-main);
     }
 
     /* ═══════════════ MODULE SECTIONS ═══════════════ */
@@ -656,7 +692,7 @@
       gap: 12px;
     }
     .finding-card {
-      background: #ffffff;
+      background: var(--hud-panel-bg);
       border: 1px solid var(--hud-border-dim);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
@@ -712,7 +748,7 @@
       font-size: 0.95rem;
       font-weight: 700;
       letter-spacing: 0.02em;
-      color: #1e293b;
+      color: var(--text-main);
     }
     .finding-meta {
       display: flex;
@@ -884,7 +920,7 @@
       font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 0.1em;
-      color: #1e293b;
+      color: var(--text-main);
     }
     .empty-state-text {
       font-size: 0.75rem;
@@ -903,7 +939,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 14px;
-      background: #ffffff; border: 1px solid rgba(211, 13, 48, 0.15);
+      background: var(--hud-panel-bg);
       border: 1px solid rgba(255, 0, 60, 0.15);
       transition: all 0.2s;
     }
@@ -932,7 +968,7 @@
     .module-name-lbl {
       font-size: 0.82rem;
       font-weight: 700;
-      color: #1e293b;
+      color: var(--text-main);
     }
     .module-telemetry {
       display: flex;
@@ -1015,7 +1051,7 @@
       letter-spacing: 0.06em;
     }
     .menu-item:hover, .menu-item.active {
-      color: #1e293b;
+      color: var(--text-main);
       background: rgba(211, 13, 48, 0.04);
       border-color: var(--hud-red);
     }
@@ -1141,9 +1177,12 @@
       </div>
       
       <div class="header-right">
-        <div class="scan-status-badge">
-          <div class="pulse-dot"></div>
-          STATUS: INTRUSION SCAN COMPLETE
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+          <button id="theme-toggle" class="theme-toggle-btn">// THEME: LIGHT</button>
+          <div class="scan-status-badge">
+            <div class="pulse-dot"></div>
+            STATUS: INTRUSION SCAN COMPLETE
+          </div>
         </div>
         <div style="opacity: 0.7; font-size: 0.75rem;">// SESSION_ID: {{ result.scan_id }}</div>
       </div>
@@ -1152,9 +1191,7 @@
     <!-- ═══════════════ PREMIUM HUD MENU BAR ═══════════════ -->
     <nav class="hud-menu-bar">
       <a href="#SystemScanner" class="menu-item active">OVERVIEW</a>
-      <a href="#ModelScanner" class="menu-item">THREAT VECTORS</a>
-      <a href="#dome-gallery-section" class="menu-item">DOME GALLERY</a>
-      <a href="#curved-loop-section" class="menu-item">CURVED LOOP</a>
+      <a href="#FileScanner" class="menu-item">THREAT VECTORS</a>
       <a href="#RuntimeScanner" class="menu-item">DIAGNOSTICS</a>
     </nav>
 
@@ -1255,6 +1292,17 @@
             <div class="metric-footer">// Langchain, CrewAI scripts</div>
           </div>
 
+          <!-- API Keys -->
+          {% set api_alert = 'alert-metric' if api_count.value > 0 else '' %}
+          <div class="metric-card {{ api_alert }}">
+            <div class="metric-header">
+              <span class="metric-title">API Keys</span>
+              <span class="metric-icon">🔑</span>
+            </div>
+            <div class="metric-value">{{ api_count.value }}</div>
+            <div class="metric-footer">// Exposed credentials</div>
+          </div>
+
           <!-- Classification status -->
           {% if risk_score >= 51 %}
             {% set class_alert = 'alert-metric' %}
@@ -1309,77 +1357,7 @@
       </div>
     </div>
 
-    <!-- ═══════════════ PREMIUM HUD TELEMETRY ADDONS ═══════════════ -->
-    <div class="telemetry-addons-grid" id="dome-gallery-section">
-      <!-- DOME GALLERY PANEL -->
-      <div class="hud-panel addon-panel" id="dome-gallery">
-        <div class="hud-corner c-tl"></div>
-        <div class="hud-corner c-tr"></div>
-        <div class="hud-corner c-bl"></div>
-        <div class="hud-corner c-br"></div>
-        <div class="hud-header-tab">DOME GALLERY NODES</div>
-        
-        <div class="addon-content">
-          <svg class="dome-svg" viewBox="0 0 200 120">
-            <!-- Circular dome grid lines -->
-            <path d="M 10 100 A 90 90 0 0 1 190 100" class="dome-grid-line" />
-            <path d="M 30 100 A 70 70 0 0 1 170 100" class="dome-grid-line" />
-            <path d="M 50 100 A 50 50 0 0 1 150 100" class="dome-grid-line" />
-            
-            <!-- Radial axes -->
-            <line x1="100" y1="100" x2="100" y2="10" class="dome-grid-line" />
-            <line x1="100" y1="100" x2="20" y2="50" class="dome-grid-line" />
-            <line x1="100" y1="100" x2="180" y2="50" class="dome-grid-line" />
-            <line x1="10" y1="100" x2="190" y2="100" class="dome-grid-line" style="stroke-width: 1.5;" />
-            
-            <!-- Sweeping radar vector -->
-            <line x1="100" y1="100" x2="60" y2="25" class="dome-sweep-line" />
-            
-            <!-- Threat Nodes -->
-            <circle cx="100" cy="50" r="4" class="dome-node critical" />
-            <circle cx="60" cy="70" r="3" class="dome-node medium" />
-            <circle cx="140" cy="65" r="3.5" class="dome-node high" />
-          </svg>
-          <div class="addon-meta">
-            <div class="addon-title">Active Security Dome Radar</div>
-            <div class="addon-status">// SCAN AREA: SECURE DOME REGION 7</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- CURVED LOOP PANEL -->
-      <div class="hud-panel addon-panel" id="curved-loop-section">
-        <div class="hud-corner c-tl"></div>
-        <div class="hud-corner c-tr"></div>
-        <div class="hud-corner c-bl"></div>
-        <div class="hud-corner c-br"></div>
-        <div class="hud-header-tab">CURVED LOOP TELEMETRY</div>
-        
-        <div class="addon-content">
-          <svg class="loop-svg" viewBox="0 0 200 120">
-            <!-- Curved loops (infinity trace path) -->
-            <path d="M 50 60 C 20 20, 20 100, 100 60 C 180 20, 180 100, 150 60 C 120 20, 120 100, 50 60 Z" class="loop-track" id="loop-path" />
-            
-            <!-- Animated flowing data particle -->
-            <circle r="4" class="loop-particle" fill="var(--hud-red)">
-              <animateMotion dur="6s" repeatCount="indefinite">
-                <mpath href="#loop-path" />
-              </animateMotion>
-            </circle>
-            
-            <circle r="3" class="loop-particle-delayed" fill="var(--color-high)">
-              <animateMotion dur="6s" begin="2s" repeatCount="indefinite">
-                <mpath href="#loop-path" />
-              </animateMotion>
-            </circle>
-          </svg>
-          <div class="addon-meta">
-            <div class="addon-title">Feedback Signal Telemetry Loop</div>
-            <div class="addon-status">// SIG: ACTIVE FLOW RATIO 1.45 Gb/s</div>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- ═══════════════ MAIN SECTIONS LAYOUT: FINDINGS & SIDEBAR ═══════════════ -->
     <div class="main-grid">
@@ -1414,27 +1392,30 @@
         <!-- Findings List categorized by Modules -->
         <div class="findings-container" id="findings-list">
           
-          {% set ns = namespace(system=[], model=[], package=[], agent=[], runtime=[]) %}
+          {% set ns = namespace(system=[], file=[], process=[], package=[], agent=[], runtime=[], api=[]) %}
           {% for f in result.findings %}
-            {% set cat = f.category.value if f.category.value is defined else f.category %}
             {% set mod = f.module_name %}
-            {% if mod == 'SystemScanner' or cat == 'System Info' %}
+            {% if mod == 'SystemScanner' %}
               {% set ns.system = ns.system + [f] %}
-            {% elif mod in ['ModelScanner', 'FileScanner'] or cat == 'AI Model' %}
-              {% set ns.model = ns.model + [f] %}
-            {% elif mod == 'PackageScanner' or cat == 'ML Framework' %}
+            {% elif mod == 'FileScanner' %}
+              {% set ns.file = ns.file + [f] %}
+            {% elif mod == 'ProcessScanner' %}
+              {% set ns.process = ns.process + [f] %}
+            {% elif mod == 'PackageScanner' %}
               {% set ns.package = ns.package + [f] %}
-            {% elif mod == 'AgentScanner' or cat == 'AI Agent' %}
+            {% elif mod == 'AgentScanner' %}
               {% set ns.agent = ns.agent + [f] %}
-            {% else %}
+            {% elif mod == 'RuntimeScanner' %}
               {% set ns.runtime = ns.runtime + [f] %}
+            {% elif mod == 'APIScanner' %}
+              {% set ns.api = ns.api + [f] %}
             {% endif %}
           {% endfor %}
 
           <!-- SECTION 1: SYSTEM SCANNER -->
-          <section class="module-section" data-section-name="SystemScanner">
+          <section class="module-section" id="SystemScanner" data-section-name="SystemScanner">
             <div class="module-section-title">
-              <span class="title-txt">🖥_ Module 01: System Information Scanner</span>
+              <span class="title-txt">🖥️ Module 01: System Information Scanner</span>
               <span class="module-badge">{{ ns.system | length }} findings</span>
             </div>
             <div class="findings-list-wrapper">
@@ -1448,15 +1429,15 @@
             </div>
           </section>
 
-          <!-- SECTION 2: MODEL SCANNER -->
-          <section class="module-section" data-section-name="ModelScanner">
+          <!-- SECTION 2: FILE SCANNER -->
+          <section class="module-section" id="FileScanner" data-section-name="FileScanner">
             <div class="module-section-title">
               <span class="title-txt">🧠 Module 02: AI Models & Weights Scanner</span>
-              <span class="module-badge">{{ ns.model | length }} findings</span>
+              <span class="module-badge">{{ ns.file | length }} findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.model %}
-                {% for finding in ns.model %}
+              {% if ns.file %}
+                {% for finding in ns.file %}
                   {{ render_finding_card(finding) }}
                 {% endfor %}
               {% else %}
@@ -1465,10 +1446,27 @@
             </div>
           </section>
 
-          <!-- SECTION 3: PACKAGE SCANNER -->
-          <section class="module-section" data-section-name="PackageScanner">
+          <!-- SECTION 3: PROCESS SCANNER -->
+          <section class="module-section" id="ProcessScanner" data-section-name="ProcessScanner">
             <div class="module-section-title">
-              <span class="title-txt">📦 Module 03: Machine Learning Frameworks</span>
+              <span class="title-txt">🔍 Module 03: Process Scanner</span>
+              <span class="module-badge">{{ ns.process | length }} findings</span>
+            </div>
+            <div class="findings-list-wrapper">
+              {% if ns.process %}
+                {% for finding in ns.process %}
+                  {{ render_finding_card(finding) }}
+                {% endfor %}
+              {% else %}
+                {{ render_empty_state() }}
+              {% endif %}
+            </div>
+          </section>
+
+          <!-- SECTION 4: PACKAGE SCANNER -->
+          <section class="module-section" id="PackageScanner" data-section-name="PackageScanner">
+            <div class="module-section-title">
+              <span class="title-txt">📦 Module 04: Machine Learning Frameworks</span>
               <span class="module-badge">{{ ns.package | length }} findings</span>
             </div>
             <div class="findings-list-wrapper">
@@ -1482,10 +1480,10 @@
             </div>
           </section>
 
-          <!-- SECTION 4: AGENT SCANNER -->
-          <section class="module-section" data-section-name="AgentScanner">
+          <!-- SECTION 5: AGENT SCANNER -->
+          <section class="module-section" id="AgentScanner" data-section-name="AgentScanner">
             <div class="module-section-title">
-              <span class="title-txt">🤖 Module 04: AI Agent Frameworks</span>
+              <span class="title-txt">🤖 Module 05: AI Agent Frameworks</span>
               <span class="module-badge">{{ ns.agent | length }} findings</span>
             </div>
             <div class="findings-list-wrapper">
@@ -1499,15 +1497,32 @@
             </div>
           </section>
 
-          <!-- SECTION 5: RUNTIME SCANNER -->
-          <section class="module-section" data-section-name="RuntimeScanner">
+          <!-- SECTION 6: RUNTIME SCANNER -->
+          <section class="module-section" id="RuntimeScanner" data-section-name="RuntimeScanner">
             <div class="module-section-title">
-              <span class="title-txt">⚡ Module 05: LLM Runtimes & Active Services</span>
+              <span class="title-txt">⚡ Module 06: LLM Runtimes & Active Services</span>
               <span class="module-badge">{{ ns.runtime | length }} findings</span>
             </div>
             <div class="findings-list-wrapper">
               {% if ns.runtime %}
                 {% for finding in ns.runtime %}
+                  {{ render_finding_card(finding) }}
+                {% endfor %}
+              {% else %}
+                {{ render_empty_state() }}
+              {% endif %}
+            </div>
+          </section>
+
+          <!-- SECTION 7: API SCANNER -->
+          <section class="module-section" id="APIScanner" data-section-name="APIScanner">
+            <div class="module-section-title">
+              <span class="title-txt">🔑 Module 07: API Keys & Credentials Scanner</span>
+              <span class="module-badge">{{ ns.api | length }} findings</span>
+            </div>
+            <div class="findings-list-wrapper">
+              {% if ns.api %}
+                {% for finding in ns.api %}
                   {{ render_finding_card(finding) }}
                 {% endfor %}
               {% else %}
@@ -1587,6 +1602,33 @@
 
   <!-- ═══════════════ INTERACTION SCRIPTS ═══════════════ -->
   <script>
+    // Theme Toggling Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    // Check local storage or document class list for theme
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+      if (themeToggleBtn) themeToggleBtn.textContent = '// THEME: DARK';
+    } else {
+      document.body.classList.remove('dark-theme');
+      if (themeToggleBtn) themeToggleBtn.textContent = '// THEME: LIGHT';
+    }
+    
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        let theme = 'light';
+        if (document.body.classList.contains('dark-theme')) {
+          theme = 'dark';
+          themeToggleBtn.textContent = '// THEME: DARK';
+        } else {
+          themeToggleBtn.textContent = '// THEME: LIGHT';
+        }
+        localStorage.setItem('theme', theme);
+      });
+    }
+
     // Expand/Collapse disclosures
     function toggleFinding(header) {
       const card = header.closest('.finding-card');

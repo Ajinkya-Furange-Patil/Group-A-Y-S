@@ -289,6 +289,17 @@ def run() -> tuple[list[Finding], ModuleInfo]:
     return findings, module_info
 
 
+class FileScanner:
+    """Wrapper class for Module 02 FileScanner to conform to the Discovery Engine interface."""
+
+    MODULE_NAME = MODULE_NAME
+    MODULE_NUMBER = MODULE_NUMBER
+
+    def scan(self) -> list[Finding]:
+        findings, _ = run()
+        return findings
+
+
 if __name__ == "__main__":
     import json
 
