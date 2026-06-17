@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Discovery Scanner — Remote Authorization Portal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+    :root {
+      --hud-bg: #ffffff;
+      --text-muted: #475569;
+      --text-main: #1e293b;
+      --text-secondary: #475569;
+      --hud-bg-trans: rgba(255, 255, 255, 0.9);
+      --hud-panel-bg: #ffffff;
+      --hud-panel-bg-hover: rgba(255, 245, 246, 0.8);
+      
+      --hud-red: #d30d30;
+      --hud-red-glow: rgba(211, 13, 48, 0.08);
+      --hud-red-dim: rgba(211, 13, 48, 0.03);
+      --hud-border-dim: rgba(211, 13, 48, 0.22);
+
+      --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+      --font-sans: 'Rajdhani', 'Inter', system-ui, sans-serif;
+    }
+
+    body.dark-theme {
+      --hud-bg: #0b0d10;
+      --text-muted: #8a99ad;
+      --text-main: #f8fafc;
+      --text-secondary: #8a99ad;
+      --hud-bg-trans: rgba(11, 13, 16, 0.9);
+      --hud-panel-bg: #12161b;
+      --hud-panel-bg-hover: rgba(211, 13, 48, 0.08);
+      
+      --hud-red-glow: rgba(211, 13, 48, 0.15);
+      --hud-red-dim: rgba(211, 13, 48, 0.05);
+      --hud-border-dim: rgba(211, 13, 48, 0.35);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--hud-bg);
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      transition: background-color 0.3s;
+    }
+
+    /* Outer Container */
+    .portal-container {
+      width: 100%;
+      max-width: 600px;
+      position: relative;
+    }
+
+    /* Beveled corners decorators */
+    .hud-panel {
+      position: relative;
+      background: var(--hud-panel-bg);
+      border: 1px solid var(--hud-border-dim);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 0 10px rgba(0, 0, 0, 0.01);
+      padding: 40px;
+      transition: all 0.3s;
+    }
+    .hud-panel::before {
+      content: '';
+      position: absolute;
+      top: 4px; left: 4px; right: 4px; bottom: 4px;
+      border: 1px dashed rgba(211, 13, 48, 0.12);
+      pointer-events: none;
+    }
+
+    .hud-corner {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-color: var(--hud-red);
+      border-style: solid;
+      pointer-events: none;
+    }
+    .hud-corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .hud-corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+    .hud-corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+    .hud-corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    /* Header & UI Elements */
+    .portal-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .portal-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--hud-red);
+      text-shadow: 0 0 10px var(--hud-red-glow);
+      text-transform: uppercase;
+    }
+    .portal-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      letter-spacing: 0.08em;
+    }
+
+    .theme-toggle-container {
+      position: absolute;
+      top: -45px;
+      right: 0;
+    }
+    .theme-toggle-btn {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--hud-red);
+      background: transparent;
+      border: 1px solid var(--hud-border-dim);
+      padding: 6px 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: all 0.25s;
+    }
+    .theme-toggle-btn:hover {
+      color: var(--text-main);
+      background: rgba(211, 13, 48, 0.08);
+      border-color: var(--hud-red);
+    }
+
+    /* System Stats Box */
+    .system-stats {
+      background: var(--hud-red-dim);
+      border: 1px solid var(--hud-border-dim);
+      padding: 15px;
+      margin-bottom: 25px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .stat-row:last-child {
+      margin-bottom: 0;
+    }
+    .stat-label {
+      color: var(--text-muted);
+    }
+    .stat-value {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Scope Items List */
+    .scope-box {
+      margin-bottom: 25px;
+    }
+    .scope-title {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--hud-red);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .scope-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .scope-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      background: var(--hud-panel-bg-hover);
+      padding: 8px 12px;
+      border-left: 2px solid var(--hud-red);
+    }
+
+    /* Checkboxes & Action Forms */
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-label input {
+      margin-top: 4px;
+      accent-color: var(--hud-red);
+      width: 16px;
+      height: 16px;
+    }
+    .checkbox-desc {
+      color: var(--text-main);
+    }
+    .checkbox-help {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-scan {
+      display: block;
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: var(--hud-red);
+      border: 1px solid var(--hud-red);
+      padding: 14px 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(211, 13, 48, 0.2);
+    }
+    .btn-scan:hover:not(:disabled) {
+      background-color: #be0a27;
+      box-shadow: 0 4px 20px rgba(211, 13, 48, 0.4);
+    }
+    .btn-scan:disabled {
+      background-color: var(--text-muted);
+      border-color: var(--text-muted);
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Loading / Running Scan State */
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .spinner-ring {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(211, 13, 48, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--hud-red);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 25px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-status {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      color: var(--hud-red);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .loading-subtext {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 4px;
+      background: var(--hud-red-dim);
+      border: 1px solid var(--hud-border-dim);
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--hud-red);
+      width: 0%;
+      transition: width 0.4s;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+
+  <div class="portal-container">
+    <div class="theme-toggle-container">
+      <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">// THEME: DARK</button>
+    </div>
+
+    <div class="hud-panel">
+      <!-- Corners decoration -->
+      <div class="hud-corner hud-corner-tl"></div>
+      <div class="hud-corner hud-corner-tr"></div>
+      <div class="hud-corner hud-corner-bl"></div>
+      <div class="hud-corner hud-corner-br"></div>
+
+      <!-- Main Consent UI Content -->
+      <div id="consentContent">
+        <div class="portal-header">
+          <h1 class="portal-title">System Scan Authorization</h1>
+          <p class="portal-subtitle">AI Discovery Client Portal</p>
+        </div>
+
+        <div class="system-stats">
+          <div class="stat-row">
+            <span class="stat-label">TARGET DEVICE:</span>
+            <span class="stat-value">{{ hostname }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">OPERATING SYSTEM:</span>
+            <span class="stat-value">{{ os_info }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">LOCAL NETWORK IP:</span>
+            <span class="stat-value">{{ ip_address }}</span>
+          </div>
+        </div>
+
+        <div class="scope-box">
+          <h2 class="scope-title">// Diagnostic Modules Scanned</h2>
+          <div class="scope-list">
+            <div class="scope-item">📊 System Hardware Info</div>
+            <div class="scope-item">📂 Local Directory Walks</div>
+            <div class="scope-item">⚙️ Running AI Processes</div>
+            <div class="scope-item">📦 Package Manager (pip)</div>
+            <div class="scope-item">🤖 AI Agent Code Snippets</div>
+            <div class="scope-item">🔌 Local Host Listeners</div>
+            <div class="scope-item">🔑 Hidden API Credentials</div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <!-- Quick Mode Toggle -->
+          <label class="checkbox-label">
+            <input type="checkbox" id="quickModeToggle" checked />
+            <div class="checkbox-desc">
+              <strong>Quick Scan Mode</strong>
+              <div class="checkbox-help">Limits search path recursive depth to prevent network performance lags. Recommended.</div>
+            </div>
+          </label>
+
+          <!-- Consent Checkbox -->
+          <label class="checkbox-label">
+            <input type="checkbox" id="consentCheckbox" onchange="validateConsent()" />
+            <div class="checkbox-desc">
+              <strong>I authorize the execution of the AI Discovery Scanner</strong>
+              <div class="checkbox-help">This system will inspect environment logs, filesystems, and active connections.</div>
+            </div>
+          </label>
+        </div>
+
+        <button class="btn-scan" id="startScanBtn" disabled onclick="triggerScan()">Authorize & Run Scan</button>
+      </div>
+
+      <!-- Loading Running Scan State -->
+      <div id="loadingContent" class="loading-state">
+        <div class="spinner-ring"></div>
+        <div class="loading-status" id="loadingStatus">Initializing Telemetry Scan...</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="loading-subtext" id="loadingSubtext">Connecting to diagnostic controllers...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Management matching the main dashboard
+    const body = document.body;
+    const themeBtn = document.getElementById('themeToggle');
+
+    // Load persisted theme
+    const savedTheme = localStorage.getItem('hud-theme');
+    if (savedTheme === 'light') {
+      body.classList.remove('dark-theme');
+      themeBtn.textContent = '// THEME: LIGHT';
+    } else {
+      body.classList.add('dark-theme');
+      themeBtn.textContent = '// THEME: DARK';
+    }
+
+    function toggleTheme() {
+      if (body.classList.contains('dark-theme')) {
+        body.classList.remove('dark-theme');
+        themeBtn.textContent = '// THEME: LIGHT';
+        localStorage.setItem('hud-theme', 'light');
+      } else {
+        body.classList.add('dark-theme');
+        themeBtn.textContent = '// THEME: DARK';
+        localStorage.setItem('hud-theme', 'dark');
+      }
+    }
+
+    function validateConsent() {
+      const isChecked = document.getElementById('consentCheckbox').checked;
+      document.getElementById('startScanBtn').disabled = !isChecked;
+    }
+
+    function triggerScan() {
+      const quickScan = document.getElementById('quickModeToggle').checked;
+      
+      // Hide Consent, Show Loader
+      document.getElementById('consentContent').style.display = 'none';
+      document.getElementById('loadingContent').style.display = 'block';
+
+      // Progressive status updates simulating the scan modules
+      const statusUpdates = [
+        { progress: 10, text: "Launching Discovery Engines...", sub: "Instantiating scanner core processes." },
+        { progress: 25, text: "Reading Hardware Attributes...", sub: "Inspecting host system configuration & CPU/RAM details." },
+        { progress: 45, text: "Walking File Trees...", sub: quickScan ? "Quick-scanning top-level user directories." : "Recursively scanning user filesystems. (This may take up to 45 seconds...)" },
+        { progress: 65, text: "Scanning Running Processes...", sub: "Inspecting port connections & host process list." },
+        { progress: 80, text: "Searching Credentials Cache...", sub: "Reviewing environment configuration files for credentials." },
+        { progress: 95, text: "Compiling Report Formats...", sub: "Structuring findings and outputting visual report layouts." }
+      ];
+
+      let updateIndex = 0;
+      const progressInterval = setInterval(() => {
+        if (updateIndex < statusUpdates.length) {
+          const item = statusUpdates[updateIndex];
+          document.getElementById('progressBar').style.width = item.progress + "%";
+          document.getElementById('loadingStatus').textContent = item.text;
+          document.getElementById('loadingSubtext').textContent = item.sub;
+          updateIndex++;
+        }
+      }, quickScan ? 800 : 4500); // Slower progress increments for full scan
+
+      // Make network request to trigger the Python scan controller
+      fetch(`/run-scan?quick=${quickScan}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Scan process encountered an internal error.");
+          }
+          return response.json();
+        })
+        .then(data => {
+          clearInterval(progressInterval);
+          document.getElementById('progressBar').style.width = "100%";
+          document.getElementById('loadingStatus').textContent = "Telemetry Scan Complete";
+          document.getElementById('loadingSubtext').textContent = "Redirecting to scan dashboard...";
+          
+          setTimeout(() => {
+            window.location.href = "/report";
+          }, 1000);
+        })
+        .catch(err => {
+          clearInterval(progressInterval);
+          document.getElementById('loadingStatus').textContent = "ERROR OCCURRED";
+          document.getElementById('loadingSubtext').textContent = err.message;
+          document.getElementById('loadingSubtext').style.color = "var(--hud-red)";
+          
+          setTimeout(() => {
+            // Restore consent form to try again
+            document.getElementById('consentContent').style.display = 'block';
+            document.getElementById('loadingContent').style.display = 'none';
+          }, 4000);
+        });
+    }
+  </script>
+
+</body>
+</html>

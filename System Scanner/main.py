@@ -96,6 +96,23 @@ def build_parser() -> argparse.ArgumentParser:
         "Example: --output report → report.json",
     )
     parser.add_argument(
+        "--server",
+        action="store_true",
+        help="Start local HTTP server for remote scan authorization and viewing",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to run the server on (default: 8000)",
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="0.0.0.0",
+        help="Host address to bind the server to (default: 0.0.0.0)",
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose/debug logging",
@@ -127,7 +144,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # If no arguments provided, show help
-    if not args.scan:
+    if not args.scan and not args.server:
         parser.print_help()
         sys.exit(0)
 
@@ -135,6 +152,13 @@ def main() -> None:
     setup_logging(verbose=args.verbose)
 
     logger = logging.getLogger("ai_scanner")
+
+    if args.server:
+        from scanner.server import ScanServer
+        server = ScanServer(host=args.host, port=args.port)
+        server.start()
+        sys.exit(0)
+
     print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
     print(f"{DIM}============================================================{RESET}")
     logger.info("Scan initiated...")
