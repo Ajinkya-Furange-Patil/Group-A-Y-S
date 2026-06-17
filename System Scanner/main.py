@@ -159,8 +159,8 @@ def main() -> None:
         if args.format in ["json", "both"]:
             print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
         if args.format in ["html", "both"]:
-            # Auto-save HTML report as report.html for preview
-            generate_html_report(result, "report.html")
+            # Auto-save HTML report as rendered_dashboard.html for preview
+            generate_html_report(result, "rendered_dashboard.html")
 
     # Print summary
     RESET = "\033[0m"
