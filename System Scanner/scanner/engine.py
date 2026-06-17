@@ -136,22 +136,92 @@ class DiscoveryEngine:
 
         max_workers = len(self._modules)
         logger.debug("ThreadPoolExecutor initialized with max_workers=%d", max_workers)
-        with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="ScannerModule") as executor:
-            future_to_module = {
-                executor.submit(self._execute_module, module): module
-                for module in self._modules
-            }
+        import sys
+        import time
 
-            for future in as_completed(future_to_module):
-                module = future_to_module[future]
-                name = getattr(module, "MODULE_NAME", type(module).__name__)
-                try:
-                    findings, info = future.result()
-                    all_findings.extend(findings)
-                    module_infos.append(info)
-                    logger.debug("Discovery Engine: Aggregated results from %s", name)
-                except Exception as e:
-                    logger.error("Discovery Engine: Thread error executing %s: %s", name, e, exc_info=True)
+        # Temporarily set console handler levels to WARNING to prevent logging output from corrupting the spinner
+        console_handlers = []
+        root_logger = logging.getLogger()
+        for h in root_logger.handlers:
+            if isinstance(h, logging.StreamHandler) and getattr(h, "stream", None) == sys.stdout:
+                console_handlers.append((h, h.level))
+                h.setLevel(logging.WARNING)
+
+        total_modules = len(self._modules)
+        completed_modules = 0
+        spinner = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        spinner_idx = 0
+
+        # ANSI styles
+        RESET = "\033[0m"
+        BOLD = "\033[1m"
+        GOLD = "\033[38;5;220m"
+        AMBER = "\033[38;5;214m"
+        DIM = "\033[2m"
+
+        try:
+            with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="ScannerModule") as executor:
+                future_to_module = {
+                    executor.submit(self._execute_module, module): module
+                    for module in self._modules
+                }
+
+                while completed_modules < total_modules:
+                    completed_modules = sum(1 for f in future_to_module if f.done())
+                    percent = int((completed_modules / total_modules) * 100)
+                    
+                    bar_length = 20
+                    filled_length = int(bar_length * completed_modules // total_modules)
+                    bar = "█" * filled_length + "░" * (bar_length - filled_length)
+                    
+                    spin = spinner[spinner_idx % len(spinner)]
+                    spinner_idx += 1
+                    
+                    running_names = []
+                    for f, mod in future_to_module.items():
+                        if not f.done():
+                            name = getattr(mod, "MODULE_NAME", getattr(mod, "__name__", type(mod).__name__))
+                            running_names.append(name)
+                    
+                    running_str = ", ".join(running_names[:2])
+                    if len(running_names) > 2:
+                        running_str += f" (+{len(running_names) - 2} more)"
+                    
+                    status_text = f"Scanning ({running_str})..." if running_names else "Wrapping up..."
+                    
+                    try:
+                        sys.stdout.write(f"\r{GOLD}{spin}{RESET} {AMBER}[{bar}]{RESET} {BOLD}{percent}%{RESET} | {DIM}{status_text}{RESET}")
+                        sys.stdout.flush()
+                    except UnicodeEncodeError:
+                        ascii_spin = ["|", "/", "-", "\\"][spinner_idx % 4]
+                        # Replace block characters with '#' and '=' for non-UTF8/CP1252 shells
+                        ascii_bar = "#" * filled_length + "-" * (bar_length - filled_length)
+                        try:
+                            sys.stdout.write(f"\r{GOLD}{ascii_spin}{RESET} {AMBER}[{ascii_bar}]{RESET} {BOLD}{percent}%{RESET} | {DIM}{status_text}{RESET}")
+                            sys.stdout.flush()
+                        except Exception:
+                            pass
+                    
+                    time.sleep(0.1)
+
+                sys.stdout.write("\r" + " " * 85 + "\r")
+                sys.stdout.flush()
+
+                # Collect findings and metadata from completed tasks
+                for future in future_to_module:
+                    module = future_to_module[future]
+                    name = getattr(module, "MODULE_NAME", getattr(module, "__name__", type(module).__name__))
+                    try:
+                        findings, info = future.result()
+                        all_findings.extend(findings)
+                        module_infos.append(info)
+                        logger.debug("Discovery Engine: Aggregated results from %s", name)
+                    except Exception as e:
+                        logger.error("Discovery Engine: Thread error executing %s: %s", name, e, exc_info=True)
+        finally:
+            # Restore console log level configuration
+            for h, level in console_handlers:
+                h.setLevel(level)
 
         # Sort modules by module number for consistent ordering
         module_infos.sort(key=lambda x: x.module_number)

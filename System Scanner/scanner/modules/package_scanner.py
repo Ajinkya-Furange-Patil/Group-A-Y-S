@@ -53,8 +53,11 @@ def run() -> tuple[list[Finding], ModuleInfo]:
 
     packages: list[dict[str, Any]] = []
     try:
-        # Run pip list in JSON format using active python process
-        cmd = [sys.executable, "-m", "pip", "list", "--format=json"]
+        # Run pip list in JSON format using active python process (or system pip if frozen)
+        if hasattr(sys, "frozen"):
+            cmd = ["pip", "list", "--format=json"]
+        else:
+            cmd = [sys.executable, "-m", "pip", "list", "--format=json"]
         logger.debug("Running PackageScanner command: %s", " ".join(cmd))
         
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -63,7 +66,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         else:
             logger.warning("PackageScanner: pip list returned empty output.")
     except Exception as exc:
-        logger.warning(
+        logger.debug(
             "PackageScanner: Failed running pip command: %s. Falling back to importlib.metadata",
             exc
         )

@@ -273,17 +273,17 @@ def run(quick: bool = False) -> tuple[list[Finding], ModuleInfo]:
                 targets.append((pathlib.Path(local_appdata) / "lm-studio", 1))
         else:
             targets = [
-                (home / ".cache" / "huggingface", 10),
-                (home / ".cache" / "lm-studio", 10),
-                (home / ".ollama", 10),
-                (home / "Downloads", 10),
-                (repo_root, 10),
-                # General home directory scan with a depth limit of 10
-                (home, 10),
+                (home / ".cache" / "huggingface", 5),
+                (home / ".cache" / "lm-studio", 5),
+                (home / ".ollama", 5),
+                (home / "Downloads", 5),
+                (repo_root, 5),
+                # General home directory scan with a depth limit of 3
+                (home, 3),
             ]
             local_appdata = os.environ.get("LOCALAPPDATA")
             if local_appdata:
-                targets.append((pathlib.Path(local_appdata) / "lm-studio", 10))
+                targets.append((pathlib.Path(local_appdata) / "lm-studio", 5))
 
             # Dynamically discover other drive directories
             for drive_target in get_drive_targets():
@@ -296,9 +296,10 @@ def run(quick: bool = False) -> tuple[list[Finding], ModuleInfo]:
                         continue
                     if drive_target_res == home_res.parent:
                         continue
-                    targets.append((drive_target, 10))
+                    # Use a shallow depth of 2 for other drive directories to prevent scanning entire installations
+                    targets.append((drive_target, 2))
                 except Exception:
-                    targets.append((drive_target, 10))
+                    targets.append((drive_target, 2))
 
         for target_dir, max_depth in targets:
             if target_dir.exists() and target_dir.is_dir():

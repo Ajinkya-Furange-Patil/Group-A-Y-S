@@ -1,0 +1,935 @@
+{
+  "scan_id": "f8e33281-edd",
+  "scan_timestamp": "2026-06-17T17:20:24.010949",
+  "hostname": "AJINKYA-PATIL",
+  "os_info": "Windows 11 (x64)",
+  "total_duration_sec": 100.562,
+  "total_duration_formatted": "1m 40.56s",
+  "summary": {
+    "total_findings": 47,
+    "modules_run": 7,
+    "modules_succeeded": 7,
+    "modules_failed": 0,
+    "findings_by_category": {
+      "System Info": 2,
+      "LLM Runtime": 1,
+      "AI Model": 2,
+      "AI Agent": 10,
+      "Configuration": 32
+    },
+    "findings_by_risk": {
+      "info": 3,
+      "medium": 11,
+      "low": 1,
+      "high": 32
+    },
+    "overall_risk_score": 63.3
+  },
+  "modules": [
+    {
+      "name": "SystemScanner",
+      "module_number": 1,
+      "status": "success",
+      "duration_sec": 0.706,
+      "findings_count": 2
+    },
+    {
+      "name": "FileScanner",
+      "module_number": 2,
+      "status": "success",
+      "duration_sec": 5.37,
+      "findings_count": 2
+    },
+    {
+      "name": "ProcessScanner",
+      "module_number": 3,
+      "status": "success",
+      "duration_sec": 0.053,
+      "findings_count": 0
+    },
+    {
+      "name": "PackageScanner",
+      "module_number": 4,
+      "status": "success",
+      "duration_sec": 1.733,
+      "findings_count": 0
+    },
+    {
+      "name": "AgentScanner",
+      "module_number": 5,
+      "status": "success",
+      "duration_sec": 40.242,
+      "findings_count": 10
+    },
+    {
+      "name": "RuntimeScanner",
+      "module_number": 6,
+      "status": "success",
+      "duration_sec": 1.544,
+      "findings_count": 1
+    },
+    {
+      "name": "APIScanner",
+      "module_number": 7,
+      "status": "success",
+      "duration_sec": 100.219,
+      "findings_count": 32
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "ebc7508d",
+      "module_name": "SystemScanner",
+      "title": "Host Machine: AJINKYA-PATIL",
+      "description": "System scan target identified: AJINKYA-PATIL running Windows 11 (x64)",
+      "category": "System Info",
+      "risk_level": "info",
+      "source": "hostname=AJINKYA-PATIL",
+      "details": {
+        "hostname": "AJINKYA-PATIL",
+        "ip_address": "10.50.20.122",
+        "os": {
+          "name": "Windows",
+          "release": "11",
+          "version": "10.0.26200",
+          "architecture": "x64",
+          "processor": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel"
+        },
+        "python_version": "3.14.3",
+        "cpu": {
+          "cpu_physical_cores": 6,
+          "cpu_logical_cores": 12,
+          "cpu_freq_mhz": 2688.0,
+          "cpu_percent_usage": 42.9
+        },
+        "ram": {
+          "total_gb": 7.65,
+          "available_gb": 0.39,
+          "used_percent": 94.9
+        },
+        "disks": [
+          {
+            "device": "C:\\",
+            "mountpoint": "C:\\",
+            "filesystem": "NTFS",
+            "total_gb": 425.44,
+            "free_gb": 239.4,
+            "used_percent": 43.7
+          },
+          {
+            "device": "D:\\",
+            "mountpoint": "D:\\",
+            "filesystem": "NTFS",
+            "total_gb": 50.0,
+            "free_gb": 39.82,
+            "used_percent": 20.3
+          }
+        ]
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-06-17T17:20:24.724465"
+    },
+    {
+      "finding_id": "6cf662aa",
+      "module_name": "SystemScanner",
+      "title": "GPU Detected: NVIDIA GeForce GTX 1650",
+      "description": "A GPU was detected on this machine. GPUs are commonly used to accelerate AI/ML model inference and training.",
+      "category": "System Info",
+      "risk_level": "info",
+      "source": "system_gpu_detection",
+      "details": {
+        "name": "NVIDIA GeForce GTX 1650",
+        "vram_mb": "4096",
+        "driver_version": "592.27",
+        "vendor": "NVIDIA",
+        "detection_method": "nvidia-smi"
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-06-17T17:20:24.867646"
+    },
+    {
+      "finding_id": "06ff5e39",
+      "module_name": "RuntimeScanner",
+      "title": "Active LLM Service Port: 8080",
+      "description": "An active service was detected listening on port 8080 (llama.cpp / LocalAI Server). This port is commonly used by local LLM APIs, services, or model servers.",
+      "category": "LLM Runtime",
+      "risk_level": "medium",
+      "source": "127.0.0.1:8080",
+      "details": {
+        "port": 8080,
+        "label": "llama.cpp / LocalAI Server",
+        "host": "127.0.0.1"
+      },
+      "confidence": 0.9,
+      "timestamp": "2026-06-17T17:20:25.762956"
+    },
+    {
+      "finding_id": "469d7ae9",
+      "module_name": "FileScanner",
+      "title": "model.safetensors",
+      "description": "Discovered AI model file: model.safetensors (420.05 MB)",
+      "category": "AI Model",
+      "risk_level": "low",
+      "source": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
+      "details": {
+        "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
+        "file_size_bytes": 440449768,
+        "file_size_formatted": "420.05 MB",
+        "extension": ".safetensors",
+        "last_modified": "2026-05-08T14:07:45.875645"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:24.246284"
+    },
+    {
+      "finding_id": "9c16bb5e",
+      "module_name": "FileScanner",
+      "title": "bert_ftpi_model.pt",
+      "description": "Discovered AI model file: bert_ftpi_model.pt (418.23 MB)",
+      "category": "AI Model",
+      "risk_level": "info",
+      "source": "D:/College Work/Dhande/main/bert_ftpi_model.pt",
+      "details": {
+        "file_path": "D:/College Work/Dhande/main/bert_ftpi_model.pt",
+        "file_size_bytes": 438545313,
+        "file_size_formatted": "418.23 MB",
+        "extension": ".pt",
+        "last_modified": "2026-05-08T13:26:25.938653"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:29.286398"
+    },
+    {
+      "finding_id": "2a17704b",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: LangChain Import",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 25 (LangChain Import).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:25",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 25,
+        "matched_pattern": "LangChain Import",
+        "snippet": "from langchain.chat_models import ChatOpenAI"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.383066"
+    },
+    {
+      "finding_id": "5b6e9355",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: CrewAI Import",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 26 (CrewAI Import).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:26",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 26,
+        "matched_pattern": "CrewAI Import",
+        "snippet": "from crewai import Agent"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.383597"
+    },
+    {
+      "finding_id": "1cc00799",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: Agent Instantiation",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 30 (Agent Instantiation).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:30",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 30,
+        "matched_pattern": "Agent Instantiation",
+        "snippet": "agent = Agent(role=\"researcher\", goal=\"find info\")"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.384225"
+    },
+    {
+      "finding_id": "a10baaa4",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: Crew Instantiation",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 31 (Crew Instantiation).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:31",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 31,
+        "matched_pattern": "Crew Instantiation",
+        "snippet": "crew = Crew(agents=[agent], tasks=[])"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.384662"
+    },
+    {
+      "finding_id": "b3a8a2a6",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: AssistantAgent Instantiation",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 32 (AssistantAgent Instantiation).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:32",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 32,
+        "matched_pattern": "AssistantAgent Instantiation",
+        "snippet": "assistant = AssistantAgent(name=\"autogen_assistant\")"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.385180"
+    },
+    {
+      "finding_id": "499ffb77",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: CrewAI Import",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 81 (CrewAI Import).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:81",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 81,
+        "matched_pattern": "CrewAI Import",
+        "snippet": "(home_dir / \"home_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.385774"
+    },
+    {
+      "finding_id": "98ff9769",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: LangChain Import",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 82 (LangChain Import).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:82",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 82,
+        "matched_pattern": "LangChain Import",
+        "snippet": "(workspace_dir / \"project_script.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.386094"
+    },
+    {
+      "finding_id": "a7911ef3",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: LangChain Import",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 87 (LangChain Import).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:87",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 87,
+        "matched_pattern": "LangChain Import",
+        "snippet": "(excluded_dir / \"dependency.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.386532"
+    },
+    {
+      "finding_id": "aa6dfa6d",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: CrewAI Import",
+      "description": "Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 92 (CrewAI Import).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:92",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+        "line_number": 92,
+        "matched_pattern": "CrewAI Import",
+        "snippet": "(deep_home_dir / \"deep_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.387121"
+    },
+    {
+      "finding_id": "fb0f44c5",
+      "module_name": "AgentScanner",
+      "title": "Agent Usage: Agent Instantiation",
+      "description": "Potential AI Agent signature detected in script 'test_classifier.py' at line 103 (Agent Instantiation).",
+      "category": "AI Agent",
+      "risk_level": "medium",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py:103",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py",
+        "line_number": 103,
+        "matched_pattern": "Agent Instantiation",
+        "snippet": "description=\"Found CrewAI code patterns: Agent(role='Researcher')\","
+      },
+      "confidence": 0.85,
+      "timestamp": "2026-06-17T17:20:24.418547"
+    },
+    {
+      "finding_id": "73ae1f7a",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 21.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:21",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+        "line_number": 21,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...5678",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:31.665919"
+    },
+    {
+      "finding_id": "23ce5796",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 30.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:30",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+        "line_number": 30,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...ef12",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:31.666063"
+    },
+    {
+      "finding_id": "5c24b580",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 47.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:47",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+        "line_number": 47,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...n_20"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:31.666301"
+    },
+    {
+      "finding_id": "4a63f82f",
+      "module_name": "APIScanner",
+      "title": "Exposed AWS Access Key ID",
+      "description": "A matching pattern for a AWS Access Key ID was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 48.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:48",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+        "line_number": 48,
+        "credential_type": "AWS Access Key ID",
+        "masked_key": "AKIA...MPLE"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:31.666319"
+    },
+    {
+      "finding_id": "01f0a10c",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 69.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:69",
+      "details": {
+        "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+        "line_number": 69,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...es12",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:31.666581"
+    },
+    {
+      "finding_id": "a9199375",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'C:/Users/Ajinkya Patil/main.c7d1f819.js' at line 2.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "C:/Users/Ajinkya Patil/main.c7d1f819.js:2",
+      "details": {
+        "file_path": "C:/Users/Ajinkya Patil/main.c7d1f819.js",
+        "line_number": 2,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...p9uE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:20:32.001471"
+    },
+    {
+      "finding_id": "a1309ae7",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py' at line 23.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py:23",
+      "details": {
+        "file_path": "D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py",
+        "line_number": 23,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...x9t5"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:28.381587"
+    },
+    {
+      "finding_id": "bf9558e6",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/RoadMap DFIR/Extension/SmartFill/popup.js' at line 4.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/RoadMap DFIR/Extension/SmartFill/popup.js:4",
+      "details": {
+        "file_path": "D:/RoadMap DFIR/Extension/SmartFill/popup.js",
+        "line_number": 4,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...phjk",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:28.776687"
+    },
+    {
+      "finding_id": "c0132254",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 28.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:28",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 28,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...4633",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.625999"
+    },
+    {
+      "finding_id": "eba3630a",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 68.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:68",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 68,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...4633",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.626308"
+    },
+    {
+      "finding_id": "9d2c00f4",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 222.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:222",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 222,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...Q2HE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.628109"
+    },
+    {
+      "finding_id": "24fc22aa",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 223.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:223",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 223,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...6mEQ"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.628144"
+    },
+    {
+      "finding_id": "04445ca3",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 237.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:237",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 237,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...Q2HE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.628274"
+    },
+    {
+      "finding_id": "eb550fd8",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 238.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:238",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 238,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...6mEQ"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.628307"
+    },
+    {
+      "finding_id": "49ad40b1",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 262.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:262",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 262,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...Q2HE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.628572"
+    },
+    {
+      "finding_id": "35014974",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 263.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/img - api/all_env_data.txt:263",
+      "details": {
+        "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+        "line_number": 263,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...6mEQ"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.628599"
+    },
+    {
+      "finding_id": "d4807736",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science/backend/.env' at line 8.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/V4 Science/backend/.env:8",
+      "details": {
+        "file_path": "D:/Professional Webiste/V4 Science/backend/.env",
+        "line_number": 8,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...Q2HE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.857813"
+    },
+    {
+      "finding_id": "025e93b8",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science/backend/.env' at line 9.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/V4 Science/backend/.env:9",
+      "details": {
+        "file_path": "D:/Professional Webiste/V4 Science/backend/.env",
+        "line_number": 9,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...6mEQ"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:34.857904"
+    },
+    {
+      "finding_id": "aa2dd075",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science/frontend/.env.local' at line 11.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/V4 Science/frontend/.env.local:11",
+      "details": {
+        "file_path": "D:/Professional Webiste/V4 Science/frontend/.env.local",
+        "line_number": 11,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...Q2HE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:35.295469"
+    },
+    {
+      "finding_id": "b6c2c868",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science/frontend/.env.local' at line 12.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/V4 Science/frontend/.env.local:12",
+      "details": {
+        "file_path": "D:/Professional Webiste/V4 Science/frontend/.env.local",
+        "line_number": 12,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...6mEQ"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:35.295530"
+    },
+    {
+      "finding_id": "b4c59e99",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science - Copy/backend/.env' at line 3.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/V4 Science - Copy/backend/.env:3",
+      "details": {
+        "file_path": "D:/Professional Webiste/V4 Science - Copy/backend/.env",
+        "line_number": 3,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...Q2HE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:36.118106"
+    },
+    {
+      "finding_id": "35f74e2c",
+      "module_name": "APIScanner",
+      "title": "Exposed Generic API Key/Token",
+      "description": "A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science - Copy/backend/.env' at line 4.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Professional Webiste/V4 Science - Copy/backend/.env:4",
+      "details": {
+        "file_path": "D:/Professional Webiste/V4 Science - Copy/backend/.env",
+        "line_number": 4,
+        "credential_type": "Generic API Key/Token",
+        "masked_key": "key...6mEQ"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:36.118157"
+    },
+    {
+      "finding_id": "234db212",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/AY/First try/.env.example' at line 15.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/AY/First try/.env.example:15",
+      "details": {
+        "file_path": "D:/AY/First try/.env.example",
+        "line_number": 15,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...4633",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:36.489399"
+    },
+    {
+      "finding_id": "51b600fa",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/AY/First try/server/.env' at line 14.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/AY/First try/server/.env:14",
+      "details": {
+        "file_path": "D:/AY/First try/server/.env",
+        "line_number": 14,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...4633",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:37.024492"
+    },
+    {
+      "finding_id": "6530cd26",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/College Work/Learning Platform/google-services.json' at line 23.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/College Work/Learning Platform/google-services.json:23",
+      "details": {
+        "file_path": "D:/College Work/Learning Platform/google-services.json",
+        "line_number": 23,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...56H4",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:21:43.886373"
+    },
+    {
+      "finding_id": "956bf319",
+      "module_name": "APIScanner",
+      "title": "Exposed Google AI/Gemini API Key",
+      "description": "A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/aa.js' at line 46652.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Personal Work/GLM 5.1 Testing/aa.js:46652",
+      "details": {
+        "file_path": "D:/Personal Work/GLM 5.1 Testing/aa.js",
+        "line_number": 46652,
+        "credential_type": "Google AI/Gemini API Key",
+        "masked_key": "AIzaSy...p9uE",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.383713"
+    },
+    {
+      "finding_id": "604ab217",
+      "module_name": "APIScanner",
+      "title": "Exposed Cloudflare User Token",
+      "description": "A matching pattern for a Cloudflare User Token was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py' at line 6.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py:6",
+      "details": {
+        "file_path": "D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py",
+        "line_number": 6,
+        "credential_type": "Cloudflare User Token",
+        "masked_key": "cfut_...c476"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.427891"
+    },
+    {
+      "finding_id": "b9c3cb6e",
+      "module_name": "APIScanner",
+      "title": "Exposed NVIDIA API Key",
+      "description": "A matching pattern for a NVIDIA API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/nvidia.py' at line 12.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Personal Work/GLM 5.1 Testing/API/nvidia.py:12",
+      "details": {
+        "file_path": "D:/Personal Work/GLM 5.1 Testing/API/nvidia.py",
+        "line_number": 12,
+        "credential_type": "NVIDIA API Key",
+        "masked_key": "nvapi-...Hbmk"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.428481"
+    },
+    {
+      "finding_id": "ff8270aa",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py' at line 4.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py:4",
+      "details": {
+        "file_path": "D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py",
+        "line_number": 4,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...4633",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.428967"
+    },
+    {
+      "finding_id": "cdf7866d",
+      "module_name": "APIScanner",
+      "title": "Exposed OpenAI API Key",
+      "description": "A matching pattern for a OpenAI API Key was discovered in config file 'D:/Personal Work/RAG/llm_engine.py' at line 8.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "D:/Personal Work/RAG/llm_engine.py:8",
+      "details": {
+        "file_path": "D:/Personal Work/RAG/llm_engine.py",
+        "line_number": 8,
+        "credential_type": "OpenAI API Key",
+        "masked_key": "sk-...4633",
+        "provider": "OpenAI"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.430100"
+    },
+    {
+      "finding_id": "5ebba7ad",
+      "module_name": "APIScanner",
+      "title": "Environment Variable: ANTIGRAVITY_CSRF_TOKEN",
+      "description": "Active environment variable 'ANTIGRAVITY_CSRF_TOKEN' contains a potential Unknown credential.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "env://ANTIGRAVITY_CSRF_TOKEN",
+      "details": {
+        "env_var_name": "ANTIGRAVITY_CSRF_TOKEN",
+        "credential_type": "Unknown Environment Credential",
+        "masked_key": "env_key...f7a6"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.435508"
+    },
+    {
+      "finding_id": "01a1a398",
+      "module_name": "APIScanner",
+      "title": "Environment Variable: GEMINI_API_KEY",
+      "description": "Active environment variable 'GEMINI_API_KEY' contains a potential Google/Gemini credential.",
+      "category": "Configuration",
+      "risk_level": "high",
+      "source": "env://GEMINI_API_KEY",
+      "details": {
+        "env_var_name": "GEMINI_API_KEY",
+        "credential_type": "Google/Gemini Environment Credential",
+        "masked_key": "AIzaSy...y_kg",
+        "provider": "Google"
+      },
+      "confidence": 0.95,
+      "timestamp": "2026-06-17T17:22:04.435563"
+    }
+  ]
+}

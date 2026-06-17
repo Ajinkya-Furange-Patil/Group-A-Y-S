@@ -103,9 +103,9 @@ class APIScanner:
         # Define targets to scan along with maximum depths
         home = pathlib.Path.home()
         self.targets = [
-            (home / "Downloads", 10),
-            (pathlib.Path(repo_root), 10),
-            (home, 10),  # general home scan last
+            (home / "Downloads", 5),
+            (pathlib.Path(repo_root), 5),
+            (home, 3),  # general home scan last
         ]
 
         # Dynamically discover other drive directories
@@ -119,9 +119,10 @@ class APIScanner:
                     continue
                 if drive_target_res == home_res.parent:
                     continue
-                self.targets.append((drive_target, 10))
+                # Use a shallow depth of 2 for other drive directories to prevent scanning entire installations
+                self.targets.append((drive_target, 2))
             except Exception:
-                self.targets.append((drive_target, 10))
+                self.targets.append((drive_target, 2))
         
         # Regex patterns for matching API keys and credentials
         self.patterns = {

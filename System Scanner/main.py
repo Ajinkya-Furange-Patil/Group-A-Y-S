@@ -121,7 +121,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """Main entry point for the AI Discovery Scanner CLI."""
+    """Main entry point for the AI Discovery Scanner."""
     # Reconfigure stdout/stderr to UTF-8 on systems like Windows where the default code page lacks emoji support
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -139,101 +139,171 @@ def main() -> None:
     DIM = "\033[2m"
     GOLD = "\033[38;5;220m"
     AMBER = "\033[38;5;214m"
-
-    parser = build_parser()
-    args = parser.parse_args()
-
-    # If no arguments provided, show help
-    if not args.scan and not args.server:
-        parser.print_help()
-        sys.exit(0)
-
-    # Setup logging
-    setup_logging(verbose=args.verbose)
-
-    logger = logging.getLogger("ai_scanner")
-
-    if args.server:
-        from scanner.server import ScanServer
-        server = ScanServer(host=args.host, port=args.port)
-        server.start()
-        sys.exit(0)
-
-    print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
-    print(f"{DIM}============================================================{RESET}")
-    logger.info("Scan initiated...")
-
-    # Run the scan
-    controller = ScanController(quick=args.quick)
-    result = controller.run_scan()
-
-    # Output results
-    result_dict = result.to_dict()
-    from scanner.reporter import generate_json_report, generate_html_report
-
-    if args.output:
-        # Save to file (strip extension if user provided it to avoid double extensions like report.json.json)
-        base_output = args.output
-        if base_output.lower().endswith(".json"):
-            base_output = base_output[:-5]
-        elif base_output.lower().endswith(".html"):
-            base_output = base_output[:-5]
-
-        if args.format in ["json", "both"]:
-            generate_json_report(result, f"{base_output}.json")
-        if args.format in ["html", "both"]:
-            generate_html_report(result, f"{base_output}.html")
-    else:
-        # Default behavior when --output is not provided
-        if args.format in ["json", "both"]:
-            print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
-        if args.format in ["html", "both"]:
-            # Auto-save HTML report as rendered_dashboard.html for preview
-            generate_html_report(result, "rendered_dashboard.html")
-
-    # Print summary
-    RESET = "\033[0m"
-    BOLD = "\033[1m"
-    DIM = "\033[2m"
-    AMBER = "\033[38;5;214m"
     RED = "\033[31m"
     GREEN = "\033[32m"
     YELLOW = "\033[33m"
     BLUE = "\033[34m"
 
-    summary = result_dict.get("summary", {})
-    
-    # Select risk color based on score
-    risk_score = summary.get("overall_risk_score", 0.0)
-    if risk_score >= 75:
-        risk_color = RED + BOLD
-    elif risk_score >= 50:
-        risk_color = YELLOW + BOLD
-    elif risk_score >= 25:
-        risk_color = BLUE + BOLD
-    else:
-        risk_color = GREEN + BOLD
+    interactive = (len(sys.argv) == 1)
+    parser = build_parser()
 
-    print(f"\n{BOLD}{AMBER}╔══════════════════════════════════════════════════════════╗{RESET}")
-    print(f"{BOLD}{AMBER}║                    SCAN RESULT SUMMARY                   ║{RESET}")
-    print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
-    print(f"  {BOLD}Target Host:{RESET}      {result.hostname}")
-    print(f"  {BOLD}Operating System:{RESET} {result.os_info}")
-    print(f"  {BOLD}Total Findings:{RESET}   {summary.get('total_findings', 0)}")
-    print(f"  {BOLD}Risk Score:{RESET}       {risk_color}{risk_score}/100{RESET}")
-    print(f"  {BOLD}Scan Duration:{RESET}    {result.duration_formatted}")
-    print(f"  {BOLD}Scanners Run:{RESET}     {summary.get('modules_run', 0)}")
-    print(f"  {BOLD}Scanners OK:{RESET}      {GREEN}{summary.get('modules_succeeded', 0)}{RESET}")
-    print(f"  {BOLD}Scanners Failed:{RESET}  {RED if summary.get('modules_failed', 0) > 0 else RESET}{summary.get('modules_failed', 0)}{RESET}")
-    print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
-    print(f"{BOLD}{AMBER}║ MODULE RESULTS:                                          ║{RESET}")
-    print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
-    for mod in result.modules:
-        status_char = f"{GREEN}✓ SUCCESS{RESET}" if mod.status == "success" else (f"{RED}✗ FAILED{RESET}" if mod.status == "error" else f"{YELLOW}! SKIPPED{RESET}")
-        duration_str = f"{mod.duration_sec:.3f}s"
-        findings_str = f"({mod.findings_count} findings)" if mod.findings_count > 0 else ""
-        print(f"  [{mod.module_number:02d}] {mod.name:<18} : {status_char:<18} {duration_str:<8} {DIM}{findings_str}{RESET}")
-    print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
+    while True:
+        if interactive:
+            print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
+            print(f"{DIM}============================================================{RESET}")
+            print("Choose an option:")
+            print("  [1] Run Full Scan & Open HTML Dashboard (Recommended)")
+            print("  [2] Run Quick Scan & Open HTML Dashboard (Faster)")
+            print("  [3] Exit")
+            print(f"{DIM}============================================================{RESET}")
+            try:
+                choice = input(f"{BOLD}Select an option [1]: {RESET}").strip()
+            except (KeyboardInterrupt, EOFError):
+                print("\nExiting.")
+                sys.exit(0)
+
+            # Create standard args namespace for interactive options
+            class InteractiveArgs:
+                scan = False
+                quick = False
+                format = "both"
+                output = "report"
+                server = False
+                port = 8000
+                host = "0.0.0.0"
+                verbose = False
+
+            args = InteractiveArgs()
+            if not choice or choice == "1":
+                args.scan = True
+            elif choice == "2":
+                args.scan = True
+                args.quick = True
+            elif choice == "3":
+                print("Exiting.")
+                sys.exit(0)
+            else:
+                print("Invalid option. Please choose again.")
+                continue
+        else:
+            args = parser.parse_args()
+            # If command-line args were provided but neither scan nor server was set
+            if not args.scan and not args.server:
+                parser.print_help()
+                sys.exit(0)
+
+        # Setup logging
+        setup_logging(verbose=args.verbose)
+        logger = logging.getLogger("ai_scanner")
+
+        if args.server:
+            from scanner.server import ScanServer
+            server = ScanServer(host=args.host, port=args.port)
+            if interactive:
+                import webbrowser
+                webbrowser.open(f"http://localhost:{args.port}/")
+            server.start()
+            if not interactive:
+                sys.exit(0)
+            continue
+
+        print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
+        print(f"{DIM}============================================================{RESET}")
+        logger.info("Scan initiated...")
+
+        # Run the scan
+        controller = ScanController(quick=args.quick)
+        result = controller.run_scan()
+
+        # Output results
+        result_dict = result.to_dict()
+        from scanner.reporter import generate_json_report, generate_html_report
+
+        if args.output:
+            # Save to file (strip extension if user provided it to avoid double extensions like report.json.json)
+            base_output = args.output
+            if base_output.lower().endswith(".json"):
+                base_output = base_output[:-5]
+            elif base_output.lower().endswith(".html"):
+                base_output = base_output[:-5]
+
+            if args.format in ["json", "both"]:
+                generate_json_report(result, f"{base_output}.json")
+            if args.format in ["html", "both"]:
+                generate_html_report(result, f"{base_output}.html")
+        else:
+            # Default behavior when --output is not provided
+            if args.format in ["json", "both"]:
+                print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
+            if args.format in ["html", "both"]:
+                # Auto-save HTML report as rendered_dashboard.html for preview
+                generate_html_report(result, "rendered_dashboard.html")
+
+        summary = result_dict.get("summary", {})
+        
+        # Select risk color based on score
+        risk_score = summary.get("overall_risk_score", 0.0)
+        if risk_score >= 75:
+            risk_color = RED + BOLD
+        elif risk_score >= 50:
+            risk_color = YELLOW + BOLD
+        elif risk_score >= 25:
+            risk_color = BLUE + BOLD
+        else:
+            risk_color = GREEN + BOLD
+
+        print(f"\n{BOLD}{AMBER}╔══════════════════════════════════════════════════════════╗{RESET}")
+        print(f"{BOLD}{AMBER}║                    SCAN RESULT SUMMARY                   ║{RESET}")
+        print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
+        print(f"  {BOLD}Target Host:{RESET}      {result.hostname}")
+        print(f"  {BOLD}Operating System:{RESET} {result.os_info}")
+        print(f"  {BOLD}Total Findings:{RESET}   {summary.get('total_findings', 0)}")
+        print(f"  {BOLD}Risk Score:{RESET}       {risk_color}{risk_score}/100{RESET}")
+        print(f"  {BOLD}Scan Duration:{RESET}    {result.duration_formatted}")
+        print(f"  {BOLD}Scanners Run:{RESET}     {summary.get('modules_run', 0)}")
+        print(f"  {BOLD}Scanners OK:{RESET}      {GREEN}{summary.get('modules_succeeded', 0)}{RESET}")
+        print(f"  {BOLD}Scanners Failed:{RESET}  {RED if summary.get('modules_failed', 0) > 0 else RESET}{summary.get('modules_failed', 0)}{RESET}")
+        print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
+        print(f"{BOLD}{AMBER}║ MODULE RESULTS:                                          ║{RESET}")
+        print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
+        for mod in result.modules:
+            status_char = f"{GREEN}✓ SUCCESS{RESET}" if mod.status == "success" else (f"{RED}✗ FAILED{RESET}" if mod.status == "error" else f"{YELLOW}! SKIPPED{RESET}")
+            duration_str = f"{mod.duration_sec:.3f}s"
+            findings_str = f"({mod.findings_count} findings)" if mod.findings_count > 0 else ""
+            print(f"  [{mod.module_number:02d}] {mod.name:<18} : {status_char:<18} {duration_str:<8} {DIM}{findings_str}{RESET}")
+        print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
+
+        # Auto-open dashboard in browser if run interactively (no arguments passed)
+        if interactive and args.scan:
+            import webbrowser
+            from pathlib import Path
+            
+            report_file = "report.html"
+            if args.output:
+                base_output = args.output
+                if base_output.lower().endswith(".json"):
+                    base_output = base_output[:-5]
+                elif base_output.lower().endswith(".html"):
+                    base_output = base_output[:-5]
+                report_file = f"{base_output}.html"
+            else:
+                report_file = "rendered_dashboard.html"
+
+            report_path = Path(report_file).absolute()
+            if report_path.exists():
+                print(f"\n{GREEN}Opening HTML Dashboard in your browser...{RESET}")
+                webbrowser.open(report_path.as_uri())
+            else:
+                print(f"\n{RED}Error: Could not find HTML report at {report_path}{RESET}")
+            
+            try:
+                input(f"\n{BOLD}Press Enter to return to the main menu...{RESET}")
+            except (KeyboardInterrupt, EOFError):
+                print("\nExiting.")
+                sys.exit(0)
+
+        if not interactive:
+            break
 
 
 if __name__ == "__main__":

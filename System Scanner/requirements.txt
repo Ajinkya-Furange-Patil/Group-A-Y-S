@@ -1,9 +1,14 @@
 # AI Discovery Scanner — Pinned Dependencies
 # Install with: pip install -r requirements.txt
+#
+# Last tested with Python 3.12 / 3.14 on Windows 11
 
-# System introspection
+# System introspection (process, CPU, RAM, disk, network)
 psutil==7.2.2
 
-# HTML report templating
+# HTML report templating (Jinja2 + MarkupSafe dependency)
 Jinja2==3.1.6
 MarkupSafe==3.0.3
+
+# ── Optional: EXE Packaging (not needed at runtime) ────────────────
+# pyinstaller==6.12.0   # Uncomment to build dist/ai_scanner.exe
