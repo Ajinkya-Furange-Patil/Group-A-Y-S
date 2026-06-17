@@ -87,19 +87,25 @@ def run() -> tuple[list[Finding], ModuleInfo]:
 
         # ── Step 2: Check target directories ────────────────────────────
         for dir_name, desc in DIR_MAP.items():
-            dir_path = home / dir_name
-            if dir_path.exists() and dir_path.is_dir():
-                found_dirs[dir_name] = desc
-                logger.info("RuntimeScanner: Directory detected: %s (%s)", dir_name, desc)
+            try:
+                dir_path = home / dir_name
+                if dir_path.exists() and dir_path.is_dir():
+                    found_dirs[dir_name] = desc
+                    logger.info("RuntimeScanner: Directory detected: %s (%s)", dir_name, desc)
+            except (PermissionError, FileNotFoundError, OSError):
+                continue
 
         # Check local AppData on Windows for LM Studio
         if os.name == "nt":
             local_appdata = os.environ.get("LOCALAPPDATA")
             if local_appdata:
-                lm_local = pathlib.Path(local_appdata) / "lm-studio"
-                if lm_local.exists() and lm_local.is_dir():
-                    found_dirs["lmstudio"] = "LM Studio local files directory"
-                    logger.info("RuntimeScanner: Directory detected via AppData: %s (%s)", lm_local, "LM Studio local files directory")
+                try:
+                    lm_local = pathlib.Path(local_appdata) / "lm-studio"
+                    if lm_local.exists() and lm_local.is_dir():
+                        found_dirs["lmstudio"] = "LM Studio local files directory"
+                        logger.info("RuntimeScanner: Directory detected via AppData: %s (%s)", lm_local, "LM Studio local files directory")
+                except (PermissionError, FileNotFoundError, OSError):
+                    pass
 
 
         # ── Step 3: Produce Findings with cross-confirmation ──────────

@@ -120,6 +120,33 @@ class TestFileScanner(unittest.TestCase):
                 self.assertIn("lm_model.onnx", titles)
                 self.assertIn("cached_lm_model.safetensors", titles)
 
+    @patch("pathlib.Path.home")
+    def test_quick_mode_depth_one(self, mock_home):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = pathlib.Path(temp_dir)
+            mock_home.return_value = temp_path
+
+            # Create a file at top-level home (depth 1)
+            (temp_path / "model_top.gguf").write_bytes(b"top")
+
+            # Create a folder and file at depth 2
+            sub_dir = temp_path / "SubFolder"
+            sub_dir.mkdir()
+            (sub_dir / "model_sub.gguf").write_bytes(b"sub")
+
+            # Run standard scan (default recursive depth 10)
+            findings_normal, _ = file_scanner.run(quick=False)
+            titles_normal = [f.title for f in findings_normal]
+            self.assertIn("model_top.gguf", titles_normal)
+            self.assertIn("model_sub.gguf", titles_normal)
+
+            # Run quick scan (depth 1)
+            findings_quick, _ = file_scanner.run(quick=True)
+            titles_quick = [f.title for f in findings_quick]
+            self.assertIn("model_top.gguf", titles_quick)
+            # sub should be excluded since it is at depth 2 (beyond depth limit 1)
+            self.assertNotIn("model_sub.gguf", titles_quick)
+
 
 if __name__ == "__main__":
     unittest.main()

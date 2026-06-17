@@ -83,26 +83,36 @@ def _depth_limited_walk(
 
     Prunes excluded directories in-place.
     """
-    if not root_path.exists() or not root_path.is_dir():
+    try:
+        if not root_path.exists() or not root_path.is_dir():
+            return
+    except (PermissionError, FileNotFoundError, OSError):
         return
 
-    root_depth = len(root_path.parts)
-    for root, dirs, files in os.walk(root_path, topdown=True):
-        # Prune excluded directories and hidden directories
-        dirs[:] = [
-            d
-            for d in dirs
-            if d not in EXCLUDED_DIRS and not d.startswith(".")
-        ]
+    try:
+        root_depth = len(root_path.parts)
+        for root, dirs, files in os.walk(root_path, topdown=True, onerror=lambda e: None):
+            try:
+                # Prune excluded directories and hidden directories
+                dirs[:] = [
+                    d
+                    for d in dirs
+                    if d not in EXCLUDED_DIRS and not d.startswith(".")
+                ]
 
-        current_path = pathlib.Path(root)
-        current_depth = len(current_path.parts) - root_depth
+                current_path = pathlib.Path(root)
+                current_depth = len(current_path.parts) - root_depth
 
-        yield current_path, files
+                yield current_path, files
 
-        # Stop descending if we reached the depth limit
-        if current_depth >= max_depth:
-            dirs.clear()
+                # Stop descending if we reached the depth limit
+                if current_depth >= max_depth:
+                    dirs.clear()
+            except (PermissionError, FileNotFoundError, OSError):
+                dirs.clear()
+                continue
+    except Exception as e:
+        logger.warning("Error traversing directory %s: %s", root_path, e)
 
 
 def scan_directory(
@@ -221,7 +231,7 @@ def get_drive_targets() -> list[pathlib.Path]:
     return list(set(targets))
 
 
-def run() -> tuple[list[Finding], ModuleInfo]:
+def run(quick: bool = False) -> tuple[list[Finding], ModuleInfo]:
     """Execute the File Scanner module.
 
     Walks specific high-probability AI cache folders (HuggingFace, Ollama, Downloads)
@@ -248,36 +258,47 @@ def run() -> tuple[list[Finding], ModuleInfo]:
 
         # Define targets with search depth
         # For Hugging Face and Ollama we scan deeply since they are standard stores
-        targets = [
-            (home / ".cache" / "huggingface", 10),
-            (home / ".cache" / "lm-studio", 10),
-            (home / ".ollama", 10),
-            (home / "Downloads", 10),
-            (repo_root, 10),
-            # General home directory scan with a depth limit of 10
-            (home, 10),
-        ]
+        if quick:
+            targets = [
+                (home / ".cache" / "huggingface", 1),
+                (home / ".cache" / "lm-studio", 1),
+                (home / ".ollama", 1),
+                (home / "Downloads", 1),
+                (repo_root, 1),
+                # General home directory scan with a depth limit of 0 in quick mode
+                (home, 0),
+            ]
+            local_appdata = os.environ.get("LOCALAPPDATA")
+            if local_appdata:
+                targets.append((pathlib.Path(local_appdata) / "lm-studio", 1))
+        else:
+            targets = [
+                (home / ".cache" / "huggingface", 10),
+                (home / ".cache" / "lm-studio", 10),
+                (home / ".ollama", 10),
+                (home / "Downloads", 10),
+                (repo_root, 10),
+                # General home directory scan with a depth limit of 10
+                (home, 10),
+            ]
+            local_appdata = os.environ.get("LOCALAPPDATA")
+            if local_appdata:
+                targets.append((pathlib.Path(local_appdata) / "lm-studio", 10))
 
-        # Add Local AppData on Windows for local software cache (like lm-studio)
-        local_appdata = os.environ.get("LOCALAPPDATA")
-        if local_appdata:
-            targets.append((pathlib.Path(local_appdata) / "lm-studio", 10))
-
-
-        # Dynamically discover other drive directories
-        for drive_target in get_drive_targets():
-            try:
-                # Avoid duplicating home or repo_root
-                drive_target_res = drive_target.resolve()
-                home_res = home.resolve()
-                repo_res = repo_root.resolve()
-                if drive_target_res == home_res or drive_target_res == repo_res:
-                    continue
-                if drive_target_res == home_res.parent:
-                    continue
-                targets.append((drive_target, 10))
-            except Exception:
-                targets.append((drive_target, 10))
+            # Dynamically discover other drive directories
+            for drive_target in get_drive_targets():
+                try:
+                    # Avoid duplicating home or repo_root
+                    drive_target_res = drive_target.resolve()
+                    home_res = home.resolve()
+                    repo_res = repo_root.resolve()
+                    if drive_target_res == home_res or drive_target_res == repo_res:
+                        continue
+                    if drive_target_res == home_res.parent:
+                        continue
+                    targets.append((drive_target, 10))
+                except Exception:
+                    targets.append((drive_target, 10))
 
         for target_dir, max_depth in targets:
             if target_dir.exists() and target_dir.is_dir():
@@ -302,8 +323,11 @@ class FileScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
+    def __init__(self, quick: bool = False) -> None:
+        self.quick = quick
+
     def scan(self) -> list[Finding]:
-        findings, _ = run()
+        findings, _ = run(quick=self.quick)
         return findings
 
 

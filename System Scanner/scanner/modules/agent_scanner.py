@@ -68,26 +68,36 @@ def _depth_limited_walk(
 
     Prunes excluded directories in-place.
     """
-    if not root_path.exists() or not root_path.is_dir():
+    try:
+        if not root_path.exists() or not root_path.is_dir():
+            return
+    except (PermissionError, FileNotFoundError, OSError):
         return
 
-    root_depth = len(root_path.parts)
-    for root, dirs, files in os.walk(root_path, topdown=True):
-        # Prune directories in place to avoid walking into them
-        dirs[:] = [
-            d
-            for d in dirs
-            if d not in EXCLUDED_DIRS and not d.startswith(".")
-        ]
+    try:
+        root_depth = len(root_path.parts)
+        for root, dirs, files in os.walk(root_path, topdown=True, onerror=lambda e: None):
+            try:
+                # Prune directories in place to avoid walking into them
+                dirs[:] = [
+                    d
+                    for d in dirs
+                    if d not in EXCLUDED_DIRS and not d.startswith(".")
+                ]
 
-        current_path = pathlib.Path(root)
-        current_depth = len(current_path.parts) - root_depth
+                current_path = pathlib.Path(root)
+                current_depth = len(current_path.parts) - root_depth
 
-        yield current_path, files
+                yield current_path, files
 
-        # Stop descending if we reached the depth limit
-        if current_depth >= max_depth:
-            dirs.clear()
+                # Stop descending if we reached the depth limit
+                if current_depth >= max_depth:
+                    dirs.clear()
+            except (PermissionError, FileNotFoundError, OSError):
+                dirs.clear()
+                continue
+    except Exception as e:
+        logger.warning("Error traversing directory %s: %s", root_path, e)
 
 
 def scan_file(file_path: pathlib.Path) -> list[Finding]:

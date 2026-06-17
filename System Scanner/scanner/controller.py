@@ -43,11 +43,12 @@ class ScanController:
         result = controller.run_scan()
     """
 
-    def __init__(self) -> None:
+    def __init__(self, quick: bool = False) -> None:
         """Initialize the Scan Controller with engine and classifier instances."""
         self._engine = DiscoveryEngine()
         self._classifier = ClassificationEngine()
-        logger.info("Scan Controller initialized")
+        self._quick = quick
+        logger.info("Scan Controller initialized (quick=%s)", quick)
 
     def _register_modules(self) -> None:
         """Register all available scanner modules with the Discovery Engine.
@@ -67,7 +68,7 @@ class ScanController:
         # ── MODULE 02: File Scanner ──────────────────────────────────────
         try:
             from scanner.modules.file_scanner import FileScanner
-            self._engine.register_module(FileScanner())
+            self._engine.register_module(FileScanner(quick=self._quick))
             logger.info("Successfully registered MODULE 02: FileScanner")
         except ImportError:
             logger.debug("MODULE 02: FileScanner not available (ImportError)")

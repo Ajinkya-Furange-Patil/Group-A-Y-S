@@ -78,6 +78,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run a full AI discovery scan",
     )
     parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Enable quick scan mode (file scanner only scans top-level home dirs)",
+    )
+    parser.add_argument(
         "--format",
         choices=["json", "html", "both"],
         default="json",
@@ -135,7 +140,7 @@ def main() -> None:
     logger.info("Scan initiated...")
 
     # Run the scan
-    controller = ScanController()
+    controller = ScanController(quick=args.quick)
     result = controller.run_scan()
 
     # Output results
@@ -201,8 +206,9 @@ def main() -> None:
     print(f"{BOLD}{AMBER}╟──────────────────────────────────────────────────────────╢{RESET}")
     for mod in result.modules:
         status_char = f"{GREEN}✓ SUCCESS{RESET}" if mod.status == "success" else (f"{RED}✗ FAILED{RESET}" if mod.status == "error" else f"{YELLOW}! SKIPPED{RESET}")
+        duration_str = f"{mod.duration_sec:.3f}s"
         findings_str = f"({mod.findings_count} findings)" if mod.findings_count > 0 else ""
-        print(f"  [{mod.module_number:02d}] {mod.name:<18} : {status_char:<18} {DIM}{findings_str}{RESET}")
+        print(f"  [{mod.module_number:02d}] {mod.name:<18} : {status_char:<18} {duration_str:<8} {DIM}{findings_str}{RESET}")
     print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
 
 

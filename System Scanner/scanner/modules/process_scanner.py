@@ -176,7 +176,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                     )
                     findings.append(finding)
 
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess, PermissionError, OSError):
                 continue
 
         module_info.status = "success"
