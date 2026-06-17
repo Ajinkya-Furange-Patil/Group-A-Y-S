@@ -1,13 +1,30 @@
 # 🔍 AI Discovery Scanner
 
-A modular, cross-platform AI detection system designed to scan host machines and identify AI frameworks, models, processes, runtimes, agents, and API keys.
+A modular, cross-platform AI detection system that scans host machines to identify AI frameworks, models, processes, runtimes, agents, and exposed API keys — with a visual cyber-themed dashboard and local network remote scanning capability.
+
+> **Team:** Group A-Y-S  
+> **Version:** v1.0.0  
+> **License:** MIT
 
 ---
 
-## 🏗️ Project Architecture & Flow
+## ✨ Key Features
+
+- **7 Parallel Scanner Modules** — System info, files, processes, packages, agents, runtimes, and API keys
+- **Threaded Discovery Engine** — All modules execute concurrently via `ThreadPoolExecutor`
+- **Rule-Based Classification Engine** — Categorizes findings with confidence scores and risk levels
+- **Interactive HTML Dashboard** — Glassmorphic cyber-themed report with dark/light themes
+- **Local Network Remote Scanning** — Start an HTTP server, scan a friend's machine over Wi-Fi with consent
+- **Quick Scan Mode** — Depth-limited scanning for fast demo runs
+- **Exception Hardened** — Gracefully handles restricted paths, access denied, and encoding errors
+- **Single-File EXE** — Packagable via PyInstaller for deployment without Python
+
+---
+
+## 🏗️ Architecture
 
 ```
-UI (CLI / HTML)
+UI (CLI / HTML / Network Server)
        ↓  trigger scan
 Scan Controller
        ↓  dispatch modules
@@ -17,52 +34,54 @@ Classification Engine
        ↓  classified items (Confidence & Severity)
 Report Generator ── JSON + HTML
        ↓  render dashboard
-AI Discovery Dashboard (Glassmorphic Web UI)
+AI Discovery Dashboard (Cyber-Themed Web UI)
 ```
 
-The data flow is:
-`UI ➔ Scan Controller ➔ Discovery Engine ➔ 7 Scanners (Parallel) ➔ Raw Findings ➔ Classification ➔ Report Generator ➔ Dashboard`
-
 ---
 
-## 📅 Project Progress & Sprint Status
-
-### **DAY 1 — Scaffold & Foundation (Completed)**
-- [x] **Project Scaffolding**: Structured the core package directories and empty `__init__.py` files.
-- [x] **Data Contract Definition**: Created `Finding`, `ScanResult`, and `ModuleInfo` models in `scanner/models.py`.
-- [x] **CLI Setup**: Built `main.py` CLI parser supporting `--scan`, `--format`, `--output`, and `--verbose` arguments.
-- [x] **Terminal Encoding Patch**: Reconfigured output streams to UTF-8 on startup to avoid encoding crashes when rendering emojis on Windows cmd/powershell.
-- [x] **System Scanner Module (Module 01)**: Fully implemented by Person B to collect hardware specs, CPU/RAM percentages, storage partitions, IP addresses, and detect active GPUs.
-- [x] **Jinja2 Dashboard Template**: Created `dashboard.html.j2` with glassmorphic cards, dynamic metrics summary, interactive finding disclosures, and client-side searching/filtering.
-
-### **DAY 2 — Parallel Execution & Core Scanners (Next Up)**
-- [ ] **Discovery Engine**: ThreadPoolExecutor-based parallel execution of registered scanners.
-- [ ] **Classification Engine**: Rule-based categorization engine (Model, Runtime, Agent, Framework, Service, Config).
-- [ ] **File Scanner (Module 02)**: Multi-threaded directory traversal detecting GGUF, Safetensors, PyTorch, ONNX, and CKPT models.
-- [ ] **Process Scanner (Module 03)**: Introspecting active runtimes (Ollama, LM Studio, vLLM, custom python scripts).
-- [ ] **Report Generator (JSON)**: Structured JSON compiler.
-
----
-
-## 📁 Project Directory Layout
+## 📁 Project Structure
 
 ```
 System Scanner/
-├── main.py                    # CLI entry point with argparse & formatting
-├── requirements.txt           # Project environment dependencies
+├── main.py                        # CLI entry point (--scan, --server, --quick, etc.)
+├── requirements.txt               # Pinned Python dependencies
 ├── scanner/
-│   ├── __init__.py            # Core package descriptor
-│   ├── models.py              # Shared dataclasses (Finding, ScanResult, ModuleInfo)
-│   ├── controller.py          # Central scan controller orchestrating pipeline
-│   ├── engine.py              # Parallel Discovery Engine (ThreadPool Dispatcher)
-│   ├── classifier.py          # Classification Engine
-│   ├── modules/               # 7 Scanner Modules
+│   ├── __init__.py                # Package descriptor (v1.0.0)
+│   ├── models.py                  # Shared dataclasses (Finding, ScanResult, ModuleInfo)
+│   ├── controller.py              # Scan Controller — orchestrates the full pipeline
+│   ├── engine.py                  # Discovery Engine — ThreadPoolExecutor parallel dispatch
+│   ├── classifier.py              # Classification Engine — rule-based categorization
+│   ├── server.py                  # Local network HTTP server for remote scanning
+│   ├── modules/
 │   │   ├── __init__.py
-│   │   └── system_scanner.py  # MODULE 01: Host hardware & metadata collector
+│   │   ├── system_scanner.py      # MODULE 01: Host hardware & metadata
+│   │   ├── file_scanner.py        # MODULE 02: AI model files on disk
+│   │   ├── process_scanner.py     # MODULE 03: Running AI processes
+│   │   ├── package_scanner.py     # MODULE 04: Installed AI pip packages
+│   │   ├── agent_scanner.py       # MODULE 05: AI agent code patterns
+│   │   ├── runtime_scanner.py     # MODULE 06: Active AI runtimes (ports & folders)
+│   │   └── api_scanner.py         # MODULE 07: Exposed AI API keys & credentials
 │   └── reporter/
 │       ├── __init__.py
+│       ├── report_generator.py    # JSON & HTML report compiler
 │       └── templates/
-│           └── dashboard.html.j2 # Jinja2 HTML report dashboard layout
+│           ├── dashboard.html.j2  # Cyber-themed findings dashboard
+│           └── consent.html.j2    # Remote scan authorization portal
+├── tests/                         # Unit tests (47 tests)
+│   ├── test_agent_scanner.py
+│   ├── test_api_scanner.py
+│   ├── test_classifier.py
+│   ├── test_controller.py
+│   ├── test_engine.py
+│   ├── test_file_scanner.py
+│   ├── test_package_scanner.py
+│   ├── test_process_scanner.py
+│   ├── test_runtime_scanner.py
+│   └── test_server.py
+├── examples/                      # Sample scan outputs for review
+│   ├── sample_report.json
+│   └── sample_report.html
+└── dist/                          # PyInstaller output (ai_scanner.exe)
 ```
 
 ---
@@ -70,184 +89,251 @@ System Scanner/
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- Python 3.8 or higher
-- Windows, macOS, or Linux
+- Python 3.10 or higher
+- Windows 10/11, macOS, or Linux
 
 ### 2. Environment Setup
-Clone the repository and install dependencies inside a virtual environment:
 
 ```bash
 # Clone the repository
 git clone https://github.com/Ajinkya-Furange-Patil/Group-A-Y-S.git
 cd "Group-A-Y-S/System Scanner"
 
-# Create a virtual environment
+# Create and activate virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# On Windows:
+# Windows:
 venv\Scripts\activate
-# On macOS/Linux:
+
+# macOS/Linux:
 source venv/bin/activate
 
-# Install requirements
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Running the Scanner
-To execute the scanner via the CLI:
+### 3. Verify Installation
 
 ```bash
-# Print help menu and options
-python main.py -h
+python -c "import psutil; import jinja2; print('All dependencies OK')"
+```
 
-# Perform a scan (stub mode for Day 1 modules)
+---
+
+## 📖 Usage Examples
+
+### Run a Full Scan (JSON output to terminal)
+
+```bash
 python main.py --scan
+```
 
-# Perform a scan with verbose debug logging
+### Run a Full Scan with JSON + HTML Reports
+
+```bash
+python main.py --scan --format both --output report
+```
+This generates `report.json` and `report.html` in the current directory.
+
+### Quick Scan Mode (Fast Demo)
+
+```bash
+python main.py --scan --quick --format both
+```
+Limits directory traversal depth for instant results (~1 second for file scanning).
+
+### Verbose Debug Logging
+
+```bash
 python main.py --scan --verbose
 ```
 
-### 4. Running the Frontend (HTML Dashboard)
-To generate and view the visual dashboard locally:
-```bash
-# 1. Run a scan and compile findings to HTML
-python main.py --scan --format html
+### All CLI Options
 
-# 2. Spin up a local server to bypass file protocol browser security
-python -m http.server 8000
 ```
-Once the server is running, navigate to [http://localhost:8000/report.html](http://localhost:8000/report.html) to interact with the dashboard.
+usage: ai_scanner [-h] [--scan] [--quick] [--format {json,html,both}]
+                  [--output OUTPUT] [--server] [--port PORT] [--host HOST]
+                  [--verbose]
+
+🔍 AI Discovery Scanner — Detect AI frameworks, models, agents, and
+runtimes on your machine.
+
+options:
+  -h, --help            Show this help message and exit
+  --scan                Run a full AI discovery scan
+  --quick               Enable quick scan mode (top-level dirs only)
+  --format {json,html,both}
+                        Output format (default: json)
+  --output OUTPUT       Output file path (without extension)
+  --server              Start local HTTP server for remote scanning
+  --port PORT           Server port (default: 8000)
+  --host HOST           Server bind address (default: 0.0.0.0)
+  --verbose, -v         Enable verbose/debug logging
+```
 
 ---
 
-## 🤝 Collaboration Workflow & Git Branching
+## 🌐 Local Network Remote Scanning
 
-To keep code integrated smoothly, use the following flow:
+Scan a friend's machine over the same Wi-Fi network with consent-based authorization:
 
-### 1. Synchronize main
-Before working, pull the latest changes:
+### On the target machine (friend's laptop):
+
 ```bash
-git checkout main
-git pull origin main
+python main.py --server --port 8000
 ```
 
-### 2. Create a Feature Branch
-Check out a branch named after your role/task:
-```bash
-git checkout -b feature/cli-and-template-wireframe # (Person C, Day 1 example)
+Output:
+```
+🚀 AI DISCOVERY SCANNER SERVER ACTIVE
+============================================================
+  Local Access:      http://localhost:8000/
+  Network Access:    http://192.168.1.15:8000/
+  Host Interface:    0.0.0.0
+============================================================
 ```
 
-### 3. Push and Create Pull Request
-Once code has been local-tested:
+### From your machine:
+
+1. Open a browser and navigate to the **Network Access** URL (e.g., `http://192.168.1.15:8000/`)
+2. Review the scan scope and check the consent box
+3. Click **Authorize & Run Scan**
+4. The dashboard auto-redirects after scanning is complete
+
+Or use CLI:
 ```bash
-git add .
-git commit -m "Brief summary of changes"
-git push -u origin feature/your-branch-name
+# Trigger scan remotely
+curl "http://192.168.1.15:8000/run-scan?quick=false"
+
+# Download the HTML report
+curl -o friend_dashboard.html "http://192.168.1.15:8000/report"
+
+# Download the JSON results
+curl -o friend_report.json "http://192.168.1.15:8000/api/results"
 ```
-Open a PR on the GitHub repository and ask for at least **1 approval** before merging into `main`.
 
 ---
 
-## Testing - Day 1 (MODULE 01: System Scanner)
+## 🔬 The 7 Scanner Modules
 
-This section explains how to manually verify that **MODULE 01 - SystemScanner** is working correctly after cloning and setting up the environment.
-
-### What MODULE 01 Does
-- Detects your machine hostname, OS, IP address
-- Reads CPU (cores, frequency, usage %), RAM (total, available, used %)
-- Lists all disk partitions (device, size, free space)
-- Detects your GPU via nvidia-smi (NVIDIA) or wmic (Windows fallback)
-- Returns structured Finding objects conforming to the shared data contract
+| # | Module | What It Detects | Key Technique |
+|---|--------|----------------|---------------|
+| 01 | **SystemScanner** | Hostname, OS, CPU, RAM, GPU, disk partitions, IP | `platform`, `psutil`, `nvidia-smi` / `wmic` |
+| 02 | **FileScanner** | `.gguf`, `.safetensors`, `.pt`, `.pth`, `.onnx`, `.ckpt`, `.h5` model files | Depth-limited `os.walk` with exclusion pruning |
+| 03 | **ProcessScanner** | Running `ollama`, `lmstudio`, `llama.cpp`, `vllm`, AI python scripts | `psutil.process_iter()` with cmdline inspection |
+| 04 | **PackageScanner** | `torch`, `tensorflow`, `transformers`, `langchain`, `openai`, `anthropic`, etc. | `pip list --format=json` + `importlib.metadata` fallback |
+| 05 | **AgentScanner** | `from langchain`, `Agent(`, `Crew(`, `AssistantAgent(`, AI import patterns in `.py` files | Regex code scanning across project directories |
+| 06 | **RuntimeScanner** | Ports `11434`, `8000`, `5000`, `8080` + `.ollama`, `lmstudio` directories | `socket.connect_ex()` + directory existence checks |
+| 07 | **APIScanner** | OpenAI, Anthropic, Google, NVIDIA, Cloudflare, HuggingFace, AWS, GitHub tokens in `.env`, `.yaml`, `.py`, `.json` files | Pattern-based regex with masking for secure reporting |
 
 ---
 
-### Test Command 1 - Run MODULE 01 Standalone
+## 🧪 Running Tests
 
-Run the system scanner in isolation. No full pipeline or database needed.
-
-**Make sure you are inside the `System Scanner/` project directory first.**
+The project includes **47 unit tests** covering all modules, the engine, classifier, controller, and HTTP server.
 
 ```bash
-# Windows - using the virtual environment
-.\venv\Scripts\python -m scanner.modules.system_scanner
-
-# macOS / Linux
-./venv/bin/python -m scanner.modules.system_scanner
+python -m unittest discover -s tests
 ```
 
-**Expected Output:**
+Expected output:
 ```
-Running MODULE 01 - SystemScanner standalone test...
+Ran 47 tests in 15.xxx s
 
-Module Status : success
-Duration      : 0.6xx s
-Findings count: 2
-
-[xxxxxxxx] Host Machine: YOUR-HOSTNAME
-  Category : System Info
-  Risk     : info
-  Details  :
-{
-    "hostname": "YOUR-HOSTNAME",
-    "ip_address": "192.168.x.x",
-    "os": { ... },
-    "cpu": { ... },
-    "ram": { ... },
-    "disks": [ ... ]
-}
-
-[xxxxxxxx] GPU Detected: NVIDIA GeForce GTX XXXX    <- only if GPU is present
-  Category : System Info
-  ...
+OK
 ```
-
-**Pass Criteria:**
-- `Module Status` is `success` (not `error`)
-- At least **1 finding** is printed (the host machine finding)
-- The `hostname` field matches your actual machine name
-- No Python tracebacks or import errors appear
 
 ---
 
-### Test Command 2 - Run Full CLI (Day 1 stub mode)
+## 📊 Sample CLI Output
+
+```
+🔍 AI DISCOVERY SCANNER v1.0.0
+============================================================
+
+╔══════════════════════════════════════════════════════════╗
+║                    SCAN RESULT SUMMARY                   ║
+╚══════════════════════════════════════════════════════════╝
+  Target Host:      AJINKYA-PATIL
+  Operating System: Windows 11 (x64)
+  Total Findings:   47
+  Risk Score:       63.3/100
+  Scan Duration:    1m 40.56s
+  Scanners Run:     7
+  Scanners OK:      7
+  Scanners Failed:  0
+╟──────────────────────────────────────────────────────────╢
+║ MODULE RESULTS:                                          ║
+╟──────────────────────────────────────────────────────────╢
+  [01] SystemScanner      : ✓ SUCCESS 0.706s   (2 findings)
+  [02] FileScanner        : ✓ SUCCESS 5.370s   (2 findings)
+  [03] ProcessScanner     : ✓ SUCCESS 0.053s
+  [04] PackageScanner     : ✓ SUCCESS 1.733s
+  [05] AgentScanner       : ✓ SUCCESS 40.242s  (10 findings)
+  [06] RuntimeScanner     : ✓ SUCCESS 1.544s   (1 findings)
+  [07] APIScanner         : ✓ SUCCESS 100.219s (32 findings)
+╚══════════════════════════════════════════════════════════╝
+```
+
+---
+
+## 📦 Building the EXE (PyInstaller)
+
+To produce a single standalone executable that runs without Python installed:
 
 ```bash
-# Windows
-.\venv\Scripts\python main.py --scan --verbose
-
-# macOS / Linux
-./venv/bin/python main.py --scan --verbose
+pip install pyinstaller
+pyinstaller --onefile --name ai_scanner main.py \
+    --add-data "scanner/reporter/templates/*;scanner/reporter/templates/"
 ```
 
-**Pass Criteria:**
-- CLI starts without crashing
-- Help menu works: `python main.py -h`
-- No `ModuleNotFoundError` for `psutil` or `jinja2`
+The output EXE will be in `dist/ai_scanner.exe`.
 
----
-
-### Test Command 3 - Verify psutil is Installed
-
+Test it:
 ```bash
-# Windows
-.\venv\Scripts\python -c "import psutil; print(psutil.__version__)"
-
-# macOS / Linux
-./venv/bin/python -c "import psutil; print(psutil.__version__)"
+dist\ai_scanner.exe --scan --format both --output report
 ```
-
-**Pass Criteria:**
-- Prints a version number like `5.9.x` or `7.x.x` with no ImportError
 
 ---
 
-### Common Issues and Fixes
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/your-feature`
+3. **Commit** your changes: `git commit -m "Add your feature"`
+4. **Push** to the branch: `git push origin feature/your-feature`
+5. **Open** a Pull Request with at least **1 approval** before merging
+
+### Code Standards
+- All public functions must have docstrings
+- Use `pathlib.Path` for cross-platform path handling
+- Wrap filesystem/process I/O in `try/except` (PermissionError, FileNotFoundError, OSError)
+- Run `python -m unittest discover -s tests` before pushing
+
+---
+
+## ⚠️ Known Issues & Troubleshooting
 
 | Issue | Cause | Fix |
 |-------|-------|-----|
-| `ModuleNotFoundError: No module named psutil` | venv not activated or pip install not run | Run `pip install -r requirements.txt` inside the venv |
-| `ModuleNotFoundError: No module named scanner` | Running from wrong directory | `cd` into `System Scanner/` (where the `scanner/` folder lives) |
-| `Module Status: error` in output | Unexpected exception in scanner | Check the `error_message` field printed below status |
-| GPU finding missing | No GPU or drivers not installed | Expected — only 1 finding (host machine) is still a pass |
-| Emoji rendering broken in Windows cmd | Default cp1252 encoding | Use PowerShell or Windows Terminal, or run `chcp 65001` first |
+| `ModuleNotFoundError: psutil` | venv not activated | Run `pip install -r requirements.txt` inside the venv |
+| `ModuleNotFoundError: scanner` | Running from wrong directory | `cd` into `System Scanner/` (where `scanner/` folder lives) |
+| Emoji rendering broken in cmd | Default cp1252 encoding | Use PowerShell or Windows Terminal, or run `chcp 65001` first |
+| GPU finding missing | No GPU or drivers not installed | Expected — SystemScanner still reports host info |
+| Port 8000 in use (server mode) | Another service on the port | Use `--port 8080` or another free port |
+
+---
+
+## 👥 Team
+
+| Member | Role | Focus |
+|--------|------|-------|
+| **Person A** | Lead / Backend Architect | Controller, Engine, Classifier, Integration |
+| **Person B** | Module Developer | All 7 Scanner Modules |
+| **Person C** | UI / Report / Packaging | Dashboard, CLI, Server, README, PyInstaller |
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
