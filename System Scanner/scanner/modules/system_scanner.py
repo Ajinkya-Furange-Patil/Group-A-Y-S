@@ -11,6 +11,7 @@ Author: Person B
 Day: 1
 """
 
+import logging
 import platform
 import socket
 import time
@@ -21,6 +22,8 @@ try:
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
 
 from scanner.models import Finding, FindingCategory, ModuleInfo, RiskLevel
 
@@ -125,6 +128,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
           - List[Finding]: findings produced (system info findings)
           - ModuleInfo:    execution metadata for this module run
     """
+    logger.info("SystemScanner: Starting host metadata collection...")
     module_info = ModuleInfo(name=MODULE_NAME, module_number=MODULE_NUMBER)
     findings: list[Finding] = []
     start_time = time.monotonic()
@@ -138,10 +142,13 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         architecture = platform.machine()
         processor = platform.processor() or "N/A"
         python_version = platform.python_version()
+        logger.debug("Querying IP address, CPU info, RAM info, and disk partitions...")
         ip_address = _get_ip_address()
         cpu_info = _get_cpu_info()
         ram_info = _get_ram_info()
         disk_info = _get_disk_info()
+
+        logger.info("SystemScanner: Target identified as hostname=%s, OS=%s", hostname, os_name)
 
         # ── Build the primary System Info finding ───────────────────────
         system_finding = Finding(
@@ -172,6 +179,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             },
         )
         findings.append(system_finding)
+        logger.debug("SystemScanner: Main system details recorded.")
 
         # ── GPU detection (best-effort, non-blocking) ───────────────────
         gpu_info = _detect_gpu()
@@ -194,12 +202,15 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         module_info.status = "success"
 
     except Exception as exc:  # pragma: no cover — catch-all for unexpected errors
+        logger.error("SystemScanner: Unexpected error encountered: %s", exc, exc_info=True)
         module_info.status = "error"
         module_info.error_message = str(exc)
 
     finally:
-        module_info.duration_sec = time.monotonic() - start_time
+        duration = time.monotonic() - start_time
+        module_info.duration_sec = duration
         module_info.findings_count = len(findings)
+        logger.info("SystemScanner: Completed in %.3fs with %d findings", duration, len(findings))
 
     return findings, module_info
 
@@ -215,9 +226,11 @@ def _detect_gpu() -> dict[str, Any] | None:
         Dictionary with GPU info if detected, else None.
     """
     import subprocess
+    logger.debug("SystemScanner: Performing best-effort GPU detection...")
 
     # ── Attempt 1: nvidia-smi (works on any OS with NVIDIA drivers) ──
     try:
+        logger.debug("SystemScanner: Trying nvidia-smi query...")
         result = subprocess.run(
             [
                 "nvidia-smi",
@@ -230,19 +243,22 @@ def _detect_gpu() -> dict[str, Any] | None:
         )
         if result.returncode == 0 and result.stdout.strip():
             parts = [p.strip() for p in result.stdout.strip().split(",")]
-            return {
+            gpu_data = {
                 "name": parts[0] if len(parts) > 0 else "NVIDIA GPU",
                 "vram_mb": parts[1] if len(parts) > 1 else "N/A",
                 "driver_version": parts[2] if len(parts) > 2 else "N/A",
                 "vendor": "NVIDIA",
                 "detection_method": "nvidia-smi",
             }
-    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
-        pass  # nvidia-smi not available — try next method
+            logger.info("SystemScanner: NVIDIA GPU detected: %s", gpu_data["name"])
+            return gpu_data
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as e:
+        logger.debug("SystemScanner: nvidia-smi check skipped/failed: %s", e)
 
     # ── Attempt 2: wmic (Windows only) ───────────────────────────────
     if platform.system() == "Windows":
         try:
+            logger.debug("SystemScanner: Trying WMIC video controller query...")
             result = subprocess.run(
                 ["wmic", "path", "win32_VideoController", "get", "Name,AdapterRAM"],
                 capture_output=True,
@@ -264,16 +280,20 @@ def _detect_gpu() -> dict[str, Any] | None:
                         vram_mb = round(int(vram_bytes) / (1024 ** 2), 0)
                     except (ValueError, TypeError):
                         vram_mb = "N/A"
-                    return {
+                    gpu_data = {
                         "name": gpu_name,
                         "vram_mb": vram_mb,
                         "vendor": "Unknown",
                         "detection_method": "wmic",
                     }
-        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
-            pass
+                    logger.info("SystemScanner: GPU detected via WMIC: %s", gpu_data["name"])
+                    return gpu_data
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as e:
+            logger.debug("SystemScanner: WMIC check failed: %s", e)
 
+    logger.debug("SystemScanner: No GPU detected.")
     return None
+
 
 
 # ── Standalone test ────────────────────────────────────────────────────────
