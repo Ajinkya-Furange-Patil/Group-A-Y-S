@@ -125,6 +125,24 @@ class TestProcessScanner(unittest.TestCase):
         self.assertEqual(f_python.details["pid"], 1003)
         self.assertEqual(f_python.details["matched_keyword"], "langchain")
 
+    @patch("psutil.process_iter")
+    def test_process_scanner_wrapper(self, mock_process_iter):
+        proc_ollama = MockProcess(
+            pid=1001,
+            name="ollama.exe",
+            cmdline=["ollama", "serve"],
+            exe="ollama.exe",
+        )
+        mock_process_iter.return_value = [proc_ollama]
+
+        scanner = process_scanner.ProcessScanner()
+        self.assertEqual(scanner.MODULE_NAME, "ProcessScanner")
+        self.assertEqual(scanner.MODULE_NUMBER, 3)
+
+        findings = scanner.scan()
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].title, "ollama.exe")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,6 +12,7 @@ Day: 3
 from __future__ import annotations
 
 import logging
+import os
 import pathlib
 import socket
 import time
@@ -90,6 +91,16 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             if dir_path.exists() and dir_path.is_dir():
                 found_dirs[dir_name] = desc
                 logger.info("RuntimeScanner: Directory detected: %s (%s)", dir_name, desc)
+
+        # Check local AppData on Windows for LM Studio
+        if os.name == "nt":
+            local_appdata = os.environ.get("LOCALAPPDATA")
+            if local_appdata:
+                lm_local = pathlib.Path(local_appdata) / "lm-studio"
+                if lm_local.exists() and lm_local.is_dir():
+                    found_dirs["lmstudio"] = "LM Studio local files directory"
+                    logger.info("RuntimeScanner: Directory detected via AppData: %s (%s)", lm_local, "LM Studio local files directory")
+
 
         # ── Step 3: Produce Findings with cross-confirmation ──────────
         # Check 3.1: Ollama confirmation

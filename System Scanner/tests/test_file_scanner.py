@@ -92,6 +92,34 @@ class TestFileScanner(unittest.TestCase):
             self.assertIn("downloaded_model.gguf", titles)
             self.assertIn("cached_model.safetensors", titles)
 
+    @patch("pathlib.Path.home")
+    def test_wrapper_and_env_targets(self, mock_home):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = pathlib.Path(temp_dir)
+            mock_home.return_value = temp_path
+
+            # Mock local appdata path to be in our temp directory
+            mock_appdata = temp_path / "LocalAppData"
+            mock_lm_studio = mock_appdata / "lm-studio"
+            mock_lm_studio.mkdir(parents=True)
+            (mock_lm_studio / "lm_model.onnx").write_bytes(b"lm")
+
+            with patch.dict("os.environ", {"LOCALAPPDATA": str(mock_appdata)}):
+                # Create standard folders under mocked home
+                cache_lm = temp_path / ".cache" / "lm-studio"
+                cache_lm.mkdir(parents=True)
+                (cache_lm / "cached_lm_model.safetensors").write_bytes(b"cached_lm")
+
+                # Instantiate and scan
+                scanner = file_scanner.FileScanner()
+                self.assertEqual(scanner.MODULE_NAME, "FileScanner")
+                self.assertEqual(scanner.MODULE_NUMBER, 2)
+                
+                findings = scanner.scan()
+                titles = [f.title for f in findings]
+                self.assertIn("lm_model.onnx", titles)
+                self.assertIn("cached_lm_model.safetensors", titles)
+
 
 if __name__ == "__main__":
     unittest.main()

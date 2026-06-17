@@ -250,12 +250,19 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         # For Hugging Face and Ollama we scan deeply since they are standard stores
         targets = [
             (home / ".cache" / "huggingface", 10),
+            (home / ".cache" / "lm-studio", 10),
             (home / ".ollama", 10),
             (home / "Downloads", 10),
             (repo_root, 10),
             # General home directory scan with a depth limit of 10
             (home, 10),
         ]
+
+        # Add Local AppData on Windows for local software cache (like lm-studio)
+        local_appdata = os.environ.get("LOCALAPPDATA")
+        if local_appdata:
+            targets.append((pathlib.Path(local_appdata) / "lm-studio", 10))
+
 
         # Dynamically discover other drive directories
         for drive_target in get_drive_targets():
@@ -287,6 +294,17 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         module_info.findings_count = len(findings)
 
     return findings, module_info
+
+
+class FileScanner:
+    """Wrapper class for Module 02 FileScanner to conform to the Discovery Engine interface."""
+
+    MODULE_NAME = MODULE_NAME
+    MODULE_NUMBER = MODULE_NUMBER
+
+    def scan(self) -> list[Finding]:
+        findings, _ = run()
+        return findings
 
 
 if __name__ == "__main__":
