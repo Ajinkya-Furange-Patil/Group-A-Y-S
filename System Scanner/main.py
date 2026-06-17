@@ -28,13 +28,36 @@ def setup_logging(verbose: bool = False) -> None:
     Args:
         verbose: If True, set log level to DEBUG. Otherwise, INFO.
     """
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
-        datefmt="%H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout)],
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+
+    # Clear existing handlers to prevent duplicate logging
+    root_logger.handlers = []
+
+    # Console Handler: level controlled by verbose flag
+    console_level = logging.DEBUG if verbose else logging.INFO
+    console_formatter = logging.Formatter(
+        fmt="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+        datefmt="%H:%M:%S"
     )
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(console_level)
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
+
+    # File Handler: always log DEBUG details for thorough diagnostics
+    log_file = "ai_scanner.log"
+    try:
+        file_formatter = logging.Formatter(
+            fmt="%(asctime)s [%(levelname)s] %(name)s (%(filename)s:%(lineno)d) - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(file_formatter)
+        root_logger.addHandler(file_handler)
+    except Exception as e:
+        print(f"Warning: Could not initialize log file '{log_file}': {e}", file=sys.stderr)
 
 
 def build_parser() -> argparse.ArgumentParser:

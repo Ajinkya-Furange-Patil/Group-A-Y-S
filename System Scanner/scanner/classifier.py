@@ -33,6 +33,8 @@ class ClassificationEngine:
         Returns:
             The classified finding.
         """
+        logger.debug("Classifying finding: '%s' (Source: %s, Module: %s)", finding.title, finding.source, finding.module_name)
+        
         # If the finding already has classification, use it as a default baseline
         category = finding.category if finding.category else FindingCategory.UNKNOWN
         risk_level = finding.risk_level if finding.risk_level else RiskLevel.INFO
@@ -48,15 +50,20 @@ class ClassificationEngine:
             # Exposing API keys is a significant risk
             risk_level = RiskLevel.HIGH
             confidence = 0.95
+            provider = "Unknown"
             if "openai" in title_lower or "openai" in desc_lower or "openai" in source_lower:
                 category = FindingCategory.CONFIGURATION
                 finding.details["provider"] = "OpenAI"
+                provider = "OpenAI"
             elif "anthropic" in title_lower or "anthropic" in desc_lower or "anthropic" in source_lower:
                 category = FindingCategory.CONFIGURATION
                 finding.details["provider"] = "Anthropic"
+                provider = "Anthropic"
             elif "google" in title_lower or "google" in desc_lower or "google" in source_lower:
                 category = FindingCategory.CONFIGURATION
                 finding.details["provider"] = "Google"
+                provider = "Google"
+            logger.info("  [MATCH] Rule 1 (API Keys & Secrets) -> Category: %s, Risk: %s, Confidence: %.2f (Provider: %s)", category, risk_level, confidence, provider)
 
         # ── Rule 2: AI Models & Weights (File Scanner) ──────────────────
         elif finding.module_name == "FileScanner" or any(ext in source_lower for ext in [".gguf", ".safetensors", ".pt", ".pth", ".onnx", ".ckpt", ".h5"]):
@@ -69,6 +76,7 @@ class ClassificationEngine:
                 risk_level = RiskLevel.LOW     # Normal framework caches (e.g. HuggingFace)
             else:
                 risk_level = RiskLevel.INFO
+            logger.info("  [MATCH] Rule 2 (AI Models & Weights) -> Category: %s, Risk: %s, Confidence: %.2f", category, risk_level, confidence)
 
         # ── Rule 3: LLM Runtimes (Runtime Scanner / Process Scanner) ────
         elif finding.module_name in ["RuntimeScanner", "ProcessScanner"] or any(kw in title_lower or kw in desc_lower for kw in ["ollama", "lmstudio", "lm studio", "vllm", "llama.cpp"]):
@@ -79,6 +87,7 @@ class ClassificationEngine:
                 risk_level = RiskLevel.MEDIUM
             else:
                 risk_level = RiskLevel.LOW
+            logger.info("  [MATCH] Rule 3 (LLM Runtimes) -> Category: %s, Risk: %s, Confidence: %.2f", category, risk_level, confidence)
 
         # ── Rule 4: ML/AI Libraries & Frameworks (Package Scanner) ──────
         elif finding.module_name == "PackageScanner" or any(kw in title_lower for kw in ["torch", "tensorflow", "transformers", "scikit-learn", "keras"]):
@@ -89,18 +98,24 @@ class ClassificationEngine:
                 category = FindingCategory.ML_FRAMEWORK
             confidence = 0.90
             risk_level = RiskLevel.INFO
+            logger.info("  [MATCH] Rule 4 (ML/AI Libraries & Frameworks) -> Category: %s, Risk: %s, Confidence: %.2f", category, risk_level, confidence)
 
         # ── Rule 5: AI Agents & Frameworks (Agent Scanner) ─────────────
         elif finding.module_name == "AgentScanner" or any(kw in title_lower or kw in desc_lower for kw in ["agent", "crew", "crewai", "autogen", "langchain", "llama-index"]):
             category = FindingCategory.AI_AGENT
             confidence = 0.85
             risk_level = RiskLevel.MEDIUM  # Agents have execution capabilities
+            logger.info("  [MATCH] Rule 5 (AI Agents) -> Category: %s, Risk: %s, Confidence: %.2f", category, risk_level, confidence)
 
         # ── Rule 6: System Info Fallback (System Scanner) ────────────────
         elif finding.module_name == "SystemScanner" or category == FindingCategory.SYSTEM_INFO:
             category = FindingCategory.SYSTEM_INFO
             risk_level = RiskLevel.INFO
             confidence = 1.0
+            logger.info("  [MATCH] Rule 6 (System Info Fallback) -> Category: %s, Risk: %s, Confidence: %.2f", category, risk_level, confidence)
+        
+        else:
+            logger.debug("  [NO MATCH] Finding default classification preserved -> Category: %s, Risk: %s, Confidence: %.2f", category, risk_level, confidence)
 
         # Update the finding fields
         finding.category = category
@@ -118,9 +133,17 @@ class ClassificationEngine:
         Returns:
             The list of findings with category, risk_level, and confidence populated.
         """
-        logger.info("Classification Engine: Classifying %d findings...", len(findings))
+        logger.info("Classification Engine: Starting classification of %d raw findings...", len(findings))
         classified = []
         for finding in findings:
             classified.append(self.classify_single(finding))
+
+        # Log a simple breakdown
+        category_counts = {}
+        for f in classified:
+            category_counts[f.category.value] = category_counts.get(f.category.value, 0) + 1
+        
+        logger.info("Classification Engine: Completed. Breakdown by category: %s", category_counts)
         return classified
+
 

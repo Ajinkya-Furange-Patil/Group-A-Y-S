@@ -52,42 +52,79 @@ class ScanController:
     def _register_modules(self) -> None:
         """Register all available scanner modules with the Discovery Engine.
 
-        Note:
-            Day 1 stub — no modules registered yet. As Person B implements
-            each module, they will be imported and registered here.
+        Attempts to load modules dynamically to support seamless parallel development.
         """
+        logger.info("Starting module registration...")
+
         # ── MODULE 01: System Scanner ────────────────────────────────────
-        from scanner.modules.system_scanner import SystemScanner
-        self._engine.register_module(SystemScanner())
+        try:
+            from scanner.modules import system_scanner
+            self._engine.register_module(system_scanner)
+            logger.info("Successfully registered MODULE 01: SystemScanner")
+        except ImportError as e:
+            logger.error("Failed to import MODULE 01: SystemScanner: %s", e)
 
         # ── MODULE 02: File Scanner ──────────────────────────────────────
-        from scanner.modules import file_scanner
-        self._engine.register_module(file_scanner)
+        try:
+            from scanner.modules.file_scanner import FileScanner
+            self._engine.register_module(FileScanner())
+            logger.info("Successfully registered MODULE 02: FileScanner")
+        except ImportError:
+            logger.debug("MODULE 02: FileScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 02: FileScanner: %s", e, exc_info=True)
 
         # ── MODULE 03: Process Scanner ───────────────────────────────────
-        from scanner.modules import process_scanner
-        self._engine.register_module(process_scanner)
+        try:
+            from scanner.modules.process_scanner import ProcessScanner
+            self._engine.register_module(ProcessScanner())
+            logger.info("Successfully registered MODULE 03: ProcessScanner")
+        except ImportError:
+            logger.debug("MODULE 03: ProcessScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 03: ProcessScanner: %s", e, exc_info=True)
 
         # ── MODULE 04: Package Scanner ───────────────────────────────────
-        # Will be added by Person B (Day 3)
-        # from scanner.modules.package_scanner import PackageScanner
-        # self._engine.register_module(PackageScanner())
+        try:
+            from scanner.modules.package_scanner import PackageScanner
+            self._engine.register_module(PackageScanner())
+            logger.info("Successfully registered MODULE 04: PackageScanner")
+        except ImportError:
+            logger.debug("MODULE 04: PackageScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 04: PackageScanner: %s", e, exc_info=True)
 
         # ── MODULE 05: Agent Scanner ─────────────────────────────────────
-        # Will be added by Person B (Day 3)
-        # from scanner.modules.agent_scanner import AgentScanner
-        # self._engine.register_module(AgentScanner())
+        try:
+            from scanner.modules.agent_scanner import AgentScanner
+            self._engine.register_module(AgentScanner())
+            logger.info("Successfully registered MODULE 05: AgentScanner")
+        except ImportError:
+            logger.debug("MODULE 05: AgentScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 05: AgentScanner: %s", e, exc_info=True)
 
         # ── MODULE 06: Runtime Scanner ───────────────────────────────────
-        # Will be added by Person B (Day 3)
-        # from scanner.modules.runtime_scanner import RuntimeScanner
-        # self._engine.register_module(RuntimeScanner())
+        try:
+            from scanner.modules.runtime_scanner import RuntimeScanner
+            self._engine.register_module(RuntimeScanner())
+            logger.info("Successfully registered MODULE 06: RuntimeScanner")
+        except ImportError:
+            logger.debug("MODULE 06: RuntimeScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 06: RuntimeScanner: %s", e, exc_info=True)
 
         # ── MODULE 07: API Scanner ───────────────────────────────────────
-        from scanner.modules.api_scanner import APIScanner
-        self._engine.register_module(APIScanner())
+        try:
+            from scanner.modules.api_scanner import APIScanner
+            self._engine.register_module(APIScanner())
+            logger.info("Successfully registered MODULE 07: APIScanner")
+        except ImportError:
+            logger.debug("MODULE 07: APIScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 07: APIScanner: %s", e, exc_info=True)
 
-        logger.info("Module registration complete. Registered %d modules.", len(self._engine._modules))
+        logger.info("Module registration complete. Registered %d active modules.", len(self._engine._modules))
 
     def run_scan(self) -> ScanResult:
         """Execute the full AI Discovery scan pipeline.
@@ -108,11 +145,14 @@ class ScanController:
         scan_start = time.time()
 
         # Initialize result with host metadata
-        machine = platform.machine()
-        arch = "x64" if machine == "AMD64" else machine
+        hostname = socket.gethostname()
+        os_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+        logger.info("Target Machine: %s", hostname)
+        logger.info("Operating System: %s", os_info)
+
         result = ScanResult(
-            hostname=socket.gethostname(),
-            os_info=f"{platform.system()} {platform.release()} ({arch})",
+            hostname=hostname,
+            os_info=os_info,
         )
 
         try:
@@ -121,17 +161,19 @@ class ScanController:
             self._register_modules()
 
             # Step 2: Run all modules through the Discovery Engine
-            logger.info("[2/3] Running Discovery Engine...")
+            logger.info("[2/3] Running Discovery Engine on %d modules...", len(self._engine._modules))
             all_findings, module_infos = self._engine.run_all()
             result.modules = module_infos
+            logger.info("Discovery Engine complete. Found %d raw findings.", len(all_findings))
 
             # Step 3: Classify findings
             logger.info("[3/3] Running Classification Engine...")
             classified_findings = self._classifier.classify(all_findings)
             result.findings = classified_findings
+            logger.info("Classification Engine complete. Processed %d findings.", len(classified_findings))
 
         except Exception as e:
-            logger.error("Scan pipeline error: %s", e, exc_info=True)
+            logger.error("Scan pipeline encountered a top-level error: %s", e, exc_info=True)
 
         finally:
             result.total_duration_sec = time.time() - scan_start
@@ -139,10 +181,12 @@ class ScanController:
 
         logger.info("=" * 60)
         logger.info(
-            "Scan Complete - %d findings in %.2fs",
+            "Scan Complete - %d findings in %.2fs (Risk Score: %s/100)",
             len(result.findings),
             result.total_duration_sec,
+            result.summary.get("overall_risk_score", 0.0),
         )
         logger.info("=" * 60)
 
         return result
+
