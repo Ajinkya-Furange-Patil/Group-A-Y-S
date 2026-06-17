@@ -696,7 +696,7 @@
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: 523ee944</span>
+        <span class="scan-badge">Scan ID: 753d4b30</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -707,25 +707,25 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <span class="metric-header">Discovered Artifacts</span>
-        <span class="metric-value">7</span>
+        <span class="metric-value">16</span>
         <span class="metric-footer">Total items detected</span>
       </div>
       
       <div class="metric-card critical-risk">
         <span class="metric-header">Security Risk Score</span>
-        <span class="metric-value">46.4</span>
+        <span class="metric-value">48.4</span>
         <span class="metric-footer">Out of 100 max</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">105.56s</span>
+        <span class="metric-value">9.56s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Scanner Status</span>
-        <span class="metric-value">4/4</span>
+        <span class="metric-value">5/5</span>
         <span class="metric-footer">Active modules OK</span>
       </div>
     </div>
@@ -744,22 +744,24 @@
           <select id="filter-category" class="filter-select">
             <option value="all">All Categories</option>
             
+            <option value="AI Agent">AI Agent (10)</option>
+            
             <option value="System Info">System Info (2)</option>
             
-            <option value="AI Model">AI Model (1)</option>
+            <option value="LLM Runtime">LLM Runtime (1)</option>
             
-            <option value="Configuration">Configuration (4)</option>
+            <option value="Configuration">Configuration (3)</option>
             
           </select>
           
           <select id="filter-risk" class="filter-select">
             <option value="all">All Risk Levels</option>
             
+            <option value="medium">MEDIUM (11)</option>
+            
             <option value="info">INFO (2)</option>
             
-            <option value="low">LOW (1)</option>
-            
-            <option value="high">HIGH (4)</option>
+            <option value="high">HIGH (3)</option>
             
           </select>
         </div>
@@ -767,6 +769,436 @@
         <!-- Findings List -->
         <div class="findings-list" id="findings-list">
           
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: LangChain Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 25 (LangChain Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:25</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.235485</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 25,
+  "matched_pattern": "LangChain Import",
+  "snippet": "from langchain.chat_models import ChatOpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: CrewAI Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 26 (CrewAI Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:26</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.236112</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 26,
+  "matched_pattern": "CrewAI Import",
+  "snippet": "from crewai import Agent"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: Agent Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 30 (Agent Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:30</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.236551</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 30,
+  "matched_pattern": "Agent Instantiation",
+  "snippet": "agent = Agent(role=\"researcher\", goal=\"find info\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: Crew Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 31 (Crew Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:31</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.237235</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 31,
+  "matched_pattern": "Crew Instantiation",
+  "snippet": "crew = Crew(agents=[agent], tasks=[])"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: AssistantAgent Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 32 (AssistantAgent Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:32</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.238007</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 32,
+  "matched_pattern": "AssistantAgent Instantiation",
+  "snippet": "assistant = AssistantAgent(name=\"autogen_assistant\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: CrewAI Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 81 (CrewAI Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:81</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.239263</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 81,
+  "matched_pattern": "CrewAI Import",
+  "snippet": "(home_dir / \"home_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: LangChain Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 82 (LangChain Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:82</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.239976</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 82,
+  "matched_pattern": "LangChain Import",
+  "snippet": "(workspace_dir / \"project_script.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: LangChain Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 87 (LangChain Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:87</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.241403</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 87,
+  "matched_pattern": "LangChain Import",
+  "snippet": "(excluded_dir / \"dependency.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: CrewAI Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 92 (CrewAI Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:92</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.242462</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 92,
+  "matched_pattern": "CrewAI Import",
+  "snippet": "(deep_home_dir / \"deep_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: Agent Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_classifier.py' at line 103 (Agent Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py:103</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T10:55:36.246717</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py",
+  "line_number": 103,
+  "matched_pattern": "Agent Instantiation",
+  "snippet": "description=\"Found CrewAI code patterns: Agent(role=\u0027Researcher\u0027)\","
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
             
             <div class="finding-card" 
                  data-category="System Info" 
@@ -796,7 +1228,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:11:38.725369</span>
+                  <span class="fd-value">2026-06-17T10:55:36.724936</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -804,25 +1236,25 @@
   "cpu": {
     "cpu_freq_mhz": 2688.0,
     "cpu_logical_cores": 12,
-    "cpu_percent_usage": 29.6,
+    "cpu_percent_usage": 43.6,
     "cpu_physical_cores": 6
   },
   "disks": [
     {
       "device": "C:\\",
       "filesystem": "NTFS",
-      "free_gb": 236.99,
+      "free_gb": 242.33,
       "mountpoint": "C:\\",
       "total_gb": 425.44,
-      "used_percent": 44.3
+      "used_percent": 43.0
     },
     {
       "device": "D:\\",
       "filesystem": "NTFS",
-      "free_gb": 39.96,
+      "free_gb": 40.1,
       "mountpoint": "D:\\",
       "total_gb": 50.0,
-      "used_percent": 20.1
+      "used_percent": 19.8
     }
   ],
   "hostname": "AJINKYA-PATIL",
@@ -836,9 +1268,9 @@
   },
   "python_version": "3.14.3",
   "ram": {
-    "available_gb": 0.8,
+    "available_gb": 0.65,
     "total_gb": 7.65,
-    "used_percent": 89.6
+    "used_percent": 91.5
   }
 }</pre>
                   
@@ -874,7 +1306,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:11:39.355605</span>
+                  <span class="fd-value">2026-06-17T10:55:36.796240</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -891,17 +1323,17 @@
             </div>
             
             <div class="finding-card" 
-                 data-category="AI Model" 
-                 data-risk="low">
+                 data-category="LLM Runtime" 
+                 data-risk="medium">
               
               <div class="finding-header" onclick="toggleFinding(this)">
                 <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-low"></div>
-                  <span class="finding-title">model.safetensors</span>
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Active LLM Service Port: 8080</span>
                 </div>
                 <div class="finding-meta">
-                  <span class="tag tag-category">AI Model</span>
-                  <span class="tag tag-risk-low">LOW</span>
+                  <span class="tag tag-category">LLM Runtime</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
                   <span class="expand-icon">▼</span>
                 </div>
               </div>
@@ -909,25 +1341,23 @@
               <div class="finding-body">
                 <div class="finding-details-grid">
                   <span class="fd-label">Description</span>
-                  <span class="fd-value">Discovered AI model file: model.safetensors (420.05 MB)</span>
+                  <span class="fd-value">An active service was detected listening on port 8080 (llama.cpp / LocalAI Server). This port is commonly used by local LLM APIs, services, or model servers.</span>
 
                   <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">127.0.0.1:8080</span>
 
                   <span class="fd-label">Confidence</span>
-                  <span class="fd-value">95%</span>
+                  <span class="fd-value">90%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:11:38.218248</span>
+                  <span class="fd-value">2026-06-17T10:55:37.783708</span>
                   
                   
                   <span class="fd-label">Metadata</span>
                   <pre class="fd-code">{
-  "extension": ".safetensors",
-  "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
-  "file_size_bytes": 440449768,
-  "file_size_formatted": "420.05 MB",
-  "last_modified": "2026-05-08T14:07:45.875645"
+  "host": "127.0.0.1",
+  "label": "llama.cpp / LocalAI Server",
+  "port": 8080
 }</pre>
                   
                 </div>
@@ -962,7 +1392,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:11:50.267775</span>
+                  <span class="fd-value">2026-06-17T10:55:37.418598</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1005,7 +1435,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:11:50.267806</span>
+                  <span class="fd-value">2026-06-17T10:55:37.418625</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1014,48 +1444,6 @@
   "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
   "line_number": 48,
   "masked_key": "AKIA...MPLE"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="Configuration" 
-                 data-risk="high">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-high"></div>
-                  <span class="finding-title">Environment Variable: ANTIGRAVITY_CSRF_TOKEN</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">Configuration</span>
-                  <span class="tag tag-risk-high">HIGH</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Active environment variable 'ANTIGRAVITY_CSRF_TOKEN' contains a potential Unknown credential.</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">env://ANTIGRAVITY_CSRF_TOKEN</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">95%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:13:23.574177</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "credential_type": "Unknown Environment Credential",
-  "env_var_name": "ANTIGRAVITY_CSRF_TOKEN",
-  "masked_key": "env_key...769d"
 }</pre>
                   
                 </div>
@@ -1090,7 +1478,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-16T18:13:23.574248</span>
+                  <span class="fd-value">2026-06-17T10:55:45.666016</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1122,11 +1510,11 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Operating System</span>
-              <span class="meta-val">Windows 11 (x64)</span>
+              <span class="meta-val">Windows 11 (AMD64)</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-16T18:11:38.138889</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-17T10:55:36.159224</span>
             </div>
           </div>
         </section>
@@ -1142,7 +1530,7 @@
                 <span class="module-name">SystemScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">1.190s</span>
+                <span class="module-duration">0.599s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">2</span>
@@ -1152,26 +1540,40 @@
             
             <div class="module-row">
               <div class="module-info">
-                <span class="module-num">02</span>
-                <span class="module-name">FileScanner</span>
+                <span class="module-num">04</span>
+                <span class="module-name">PackageScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">9.602s</span>
+                <span class="module-duration">0.503s</span>
                 <span class="status-badge status-success">success</span>
-                
-                <span class="findings-count-badge">1</span>
                 
               </div>
             </div>
             
             <div class="module-row">
               <div class="module-info">
-                <span class="module-num">03</span>
-                <span class="module-name">ProcessScanner</span>
+                <span class="module-num">05</span>
+                <span class="module-name">AgentScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.046s</span>
+                <span class="module-duration">0.118s</span>
                 <span class="status-badge status-success">success</span>
+                
+                <span class="findings-count-badge">10</span>
+                
+              </div>
+            </div>
+            
+            <div class="module-row">
+              <div class="module-info">
+                <span class="module-num">06</span>
+                <span class="module-name">RuntimeScanner</span>
+              </div>
+              <div class="module-meta">
+                <span class="module-duration">1.583s</span>
+                <span class="status-badge status-success">success</span>
+                
+                <span class="findings-count-badge">1</span>
                 
               </div>
             </div>
@@ -1182,10 +1584,10 @@
                 <span class="module-name">APIScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">105.375s</span>
+                <span class="module-duration">9.467s</span>
                 <span class="status-badge status-success">success</span>
                 
-                <span class="findings-count-badge">4</span>
+                <span class="findings-count-badge">3</span>
                 
               </div>
             </div>
