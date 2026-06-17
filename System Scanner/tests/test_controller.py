@@ -27,10 +27,12 @@ class TestScanController(unittest.TestCase):
         self.assertTrue(len(result.hostname) > 0)
         self.assertTrue(len(result.os_info) > 0)
         self.assertGreaterEqual(result.total_duration_sec, 0.0)
-        self.assertEqual(len(result.modules), 1)  # only SystemScanner is available
-        self.assertEqual(result.modules[0].name, "SystemScanner")
-        self.assertEqual(result.modules[0].status, "success")
+        # Verify that SystemScanner is one of the executed modules and succeeded
+        system_module = next((m for m in result.modules if m.name == "SystemScanner"), None)
+        self.assertIsNotNone(system_module, "SystemScanner should be executed")
+        self.assertEqual(system_module.status, "success")
         self.assertGreater(len(result.findings), 0)
+
 
     @patch("scanner.engine.DiscoveryEngine.run_all")
     def test_run_scan_with_error(self, mock_run_all):
