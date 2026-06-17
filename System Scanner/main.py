@@ -159,8 +159,8 @@ def main() -> None:
         if args.format in ["json", "both"]:
             print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
         if args.format in ["html", "both"]:
-            # Auto-save HTML report as report.html for preview
-            generate_html_report(result, "report.html")
+            # Auto-save HTML report as rendered_dashboard.html for preview
+            generate_html_report(result, "rendered_dashboard.html")
 
     # Print summary
     RESET = "\033[0m"
@@ -192,7 +192,7 @@ def main() -> None:
     print(f"  {BOLD}Operating System:{RESET} {result.os_info}")
     print(f"  {BOLD}Total Findings:{RESET}   {summary.get('total_findings', 0)}")
     print(f"  {BOLD}Risk Score:{RESET}       {risk_color}{risk_score}/100{RESET}")
-    print(f"  {BOLD}Scan Duration:{RESET}    {result.total_duration_sec:.2f} seconds")
+    print(f"  {BOLD}Scan Duration:{RESET}    {result.duration_formatted}")
     print(f"  {BOLD}Scanners Run:{RESET}     {summary.get('modules_run', 0)}")
     print(f"  {BOLD}Scanners OK:{RESET}      {GREEN}{summary.get('modules_succeeded', 0)}{RESET}")
     print(f"  {BOLD}Scanners Failed:{RESET}  {RED if summary.get('modules_failed', 0) > 0 else RESET}{summary.get('modules_failed', 0)}{RESET}")

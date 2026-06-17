@@ -135,12 +135,16 @@ def run() -> tuple[list[Finding], ModuleInfo]:
 
     try:
         # ── Gather all platform data ────────────────────────────────────
-        hostname = socket.gethostname()
-        os_name = platform.system()
-        os_version = platform.version()
-        os_release = platform.release()
-        machine = platform.machine()
-        architecture = "x64" if machine == "AMD64" else machine
+        hostname = socket.gethostname() or "Unknown Host"
+        os_name = platform.system() or "Unknown OS"
+        os_version = platform.version() or ""
+        os_release = platform.release() or ""
+        machine = platform.machine() or ""
+        architecture = machine
+        if machine == "AMD64":
+            architecture = "x64"
+        elif not machine:
+            architecture = "Unknown"
         processor = platform.processor() or "N/A"
         python_version = platform.python_version()
         logger.debug("Querying IP address, CPU info, RAM info, and disk partitions...")
