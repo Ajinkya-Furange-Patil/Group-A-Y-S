@@ -696,7 +696,7 @@
       </div>
       
       <div class="header-actions">
-        <span class="scan-badge">Scan ID: 753d4b30</span>
+        <span class="scan-badge">Scan ID: f089f958</span>
         <button class="btn-toggle" id="theme-toggle">
           <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
@@ -707,19 +707,19 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <span class="metric-header">Discovered Artifacts</span>
-        <span class="metric-value">16</span>
+        <span class="metric-value">45</span>
         <span class="metric-footer">Total items detected</span>
       </div>
       
       <div class="metric-card critical-risk">
         <span class="metric-header">Security Risk Score</span>
-        <span class="metric-value">48.4</span>
+        <span class="metric-value">65.6</span>
         <span class="metric-footer">Out of 100 max</span>
       </div>
 
       <div class="metric-card">
         <span class="metric-header">Execution Time</span>
-        <span class="metric-value">9.56s</span>
+        <span class="metric-value">39.27s</span>
         <span class="metric-footer">Wall-clock duration</span>
       </div>
 
@@ -744,24 +744,24 @@
           <select id="filter-category" class="filter-select">
             <option value="all">All Categories</option>
             
-            <option value="AI Agent">AI Agent (10)</option>
-            
             <option value="System Info">System Info (2)</option>
             
             <option value="LLM Runtime">LLM Runtime (1)</option>
             
-            <option value="Configuration">Configuration (3)</option>
+            <option value="AI Agent">AI Agent (10)</option>
+            
+            <option value="Configuration">Configuration (32)</option>
             
           </select>
           
           <select id="filter-risk" class="filter-select">
             <option value="all">All Risk Levels</option>
             
-            <option value="medium">MEDIUM (11)</option>
-            
             <option value="info">INFO (2)</option>
             
-            <option value="high">HIGH (3)</option>
+            <option value="medium">MEDIUM (11)</option>
+            
+            <option value="high">HIGH (32)</option>
             
           </select>
         </div>
@@ -769,436 +769,6 @@
         <!-- Findings List -->
         <div class="findings-list" id="findings-list">
           
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: LangChain Import</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 25 (LangChain Import).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:25</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.235485</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 25,
-  "matched_pattern": "LangChain Import",
-  "snippet": "from langchain.chat_models import ChatOpenAI"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: CrewAI Import</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 26 (CrewAI Import).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:26</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.236112</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 26,
-  "matched_pattern": "CrewAI Import",
-  "snippet": "from crewai import Agent"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: Agent Instantiation</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 30 (Agent Instantiation).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:30</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.236551</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 30,
-  "matched_pattern": "Agent Instantiation",
-  "snippet": "agent = Agent(role=\"researcher\", goal=\"find info\")"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: Crew Instantiation</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 31 (Crew Instantiation).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:31</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.237235</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 31,
-  "matched_pattern": "Crew Instantiation",
-  "snippet": "crew = Crew(agents=[agent], tasks=[])"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: AssistantAgent Instantiation</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 32 (AssistantAgent Instantiation).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:32</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.238007</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 32,
-  "matched_pattern": "AssistantAgent Instantiation",
-  "snippet": "assistant = AssistantAgent(name=\"autogen_assistant\")"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: CrewAI Import</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 81 (CrewAI Import).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:81</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.239263</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 81,
-  "matched_pattern": "CrewAI Import",
-  "snippet": "(home_dir / \"home_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: LangChain Import</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 82 (LangChain Import).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:82</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.239976</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 82,
-  "matched_pattern": "LangChain Import",
-  "snippet": "(workspace_dir / \"project_script.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: LangChain Import</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 87 (LangChain Import).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:87</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.241403</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 87,
-  "matched_pattern": "LangChain Import",
-  "snippet": "(excluded_dir / \"dependency.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: CrewAI Import</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 92 (CrewAI Import).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:92</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.242462</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 92,
-  "matched_pattern": "CrewAI Import",
-  "snippet": "(deep_home_dir / \"deep_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
-            
-            <div class="finding-card" 
-                 data-category="AI Agent" 
-                 data-risk="medium">
-              
-              <div class="finding-header" onclick="toggleFinding(this)">
-                <div class="finding-title-section">
-                  <div class="finding-risk-indicator risk-medium"></div>
-                  <span class="finding-title">Agent Usage: Agent Instantiation</span>
-                </div>
-                <div class="finding-meta">
-                  <span class="tag tag-category">AI Agent</span>
-                  <span class="tag tag-risk-medium">MEDIUM</span>
-                  <span class="expand-icon">▼</span>
-                </div>
-              </div>
-
-              <div class="finding-body">
-                <div class="finding-details-grid">
-                  <span class="fd-label">Description</span>
-                  <span class="fd-value">Potential AI Agent signature detected in script 'test_classifier.py' at line 103 (Agent Instantiation).</span>
-
-                  <span class="fd-label">Source location</span>
-                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py:103</span>
-
-                  <span class="fd-label">Confidence</span>
-                  <span class="fd-value">85%</span>
-
-                  <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.246717</span>
-                  
-                  
-                  <span class="fd-label">Metadata</span>
-                  <pre class="fd-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py",
-  "line_number": 103,
-  "matched_pattern": "Agent Instantiation",
-  "snippet": "description=\"Found CrewAI code patterns: Agent(role=\u0027Researcher\u0027)\","
-}</pre>
-                  
-                </div>
-              </div>
-            </div>
             
             <div class="finding-card" 
                  data-category="System Info" 
@@ -1228,7 +798,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.724936</span>
+                  <span class="fd-value">2026-06-17T11:50:17.215916</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1236,25 +806,25 @@
   "cpu": {
     "cpu_freq_mhz": 2688.0,
     "cpu_logical_cores": 12,
-    "cpu_percent_usage": 43.6,
+    "cpu_percent_usage": 51.2,
     "cpu_physical_cores": 6
   },
   "disks": [
     {
       "device": "C:\\",
       "filesystem": "NTFS",
-      "free_gb": 242.33,
+      "free_gb": 238.93,
       "mountpoint": "C:\\",
       "total_gb": 425.44,
-      "used_percent": 43.0
+      "used_percent": 43.8
     },
     {
       "device": "D:\\",
       "filesystem": "NTFS",
-      "free_gb": 40.1,
+      "free_gb": 39.83,
       "mountpoint": "D:\\",
       "total_gb": 50.0,
-      "used_percent": 19.8
+      "used_percent": 20.3
     }
   ],
   "hostname": "AJINKYA-PATIL",
@@ -1268,9 +838,9 @@
   },
   "python_version": "3.14.3",
   "ram": {
-    "available_gb": 0.65,
+    "available_gb": 0.39,
     "total_gb": 7.65,
-    "used_percent": 91.5
+    "used_percent": 94.9
   }
 }</pre>
                   
@@ -1306,7 +876,7 @@
                   <span class="fd-value">100%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:36.796240</span>
+                  <span class="fd-value">2026-06-17T11:50:17.283954</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1350,7 +920,7 @@
                   <span class="fd-value">90%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:37.783708</span>
+                  <span class="fd-value">2026-06-17T11:50:18.228186</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1358,6 +928,524 @@
   "host": "127.0.0.1",
   "label": "llama.cpp / LocalAI Server",
   "port": 8080
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: LangChain Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 25 (LangChain Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:25</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.758126</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 25,
+  "matched_pattern": "LangChain Import",
+  "snippet": "from langchain.chat_models import ChatOpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: CrewAI Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 26 (CrewAI Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:26</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.759019</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 26,
+  "matched_pattern": "CrewAI Import",
+  "snippet": "from crewai import Agent"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: Agent Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 30 (Agent Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:30</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.759586</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 30,
+  "matched_pattern": "Agent Instantiation",
+  "snippet": "agent = Agent(role=\"researcher\", goal=\"find info\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: Crew Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 31 (Crew Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:31</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.760340</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 31,
+  "matched_pattern": "Crew Instantiation",
+  "snippet": "crew = Crew(agents=[agent], tasks=[])"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: AssistantAgent Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 32 (AssistantAgent Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:32</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.761122</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 32,
+  "matched_pattern": "AssistantAgent Instantiation",
+  "snippet": "assistant = AssistantAgent(name=\"autogen_assistant\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: CrewAI Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 81 (CrewAI Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:81</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.761867</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 81,
+  "matched_pattern": "CrewAI Import",
+  "snippet": "(home_dir / \"home_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: LangChain Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 82 (LangChain Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:82</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.762650</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 82,
+  "matched_pattern": "LangChain Import",
+  "snippet": "(workspace_dir / \"project_script.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: LangChain Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 87 (LangChain Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:87</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.763584</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 87,
+  "matched_pattern": "LangChain Import",
+  "snippet": "(excluded_dir / \"dependency.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: CrewAI Import</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 92 (CrewAI Import).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:92</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.764506</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
+  "line_number": 92,
+  "matched_pattern": "CrewAI Import",
+  "snippet": "(deep_home_dir / \"deep_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="AI Agent" 
+                 data-risk="medium">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-medium"></div>
+                  <span class="finding-title">Agent Usage: Agent Instantiation</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">AI Agent</span>
+                  <span class="tag tag-risk-medium">MEDIUM</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Potential AI Agent signature detected in script 'test_classifier.py' at line 103 (Agent Instantiation).</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py:103</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">85%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:16.767741</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py",
+  "line_number": 103,
+  "matched_pattern": "Agent Instantiation",
+  "snippet": "description=\"Found CrewAI code patterns: Agent(role=\u0027Researcher\u0027)\","
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 21.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:21</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:24.915231</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+  "line_number": 21,
+  "masked_key": "sk-...5678",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 30.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:30</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:24.915464</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+  "line_number": 30,
+  "masked_key": "sk-...ef12",
+  "provider": "OpenAI"
 }</pre>
                   
                 </div>
@@ -1392,7 +1480,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:37.418598</span>
+                  <span class="fd-value">2026-06-17T11:50:24.915907</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1435,7 +1523,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:37.418625</span>
+                  <span class="fd-value">2026-06-17T11:50:24.915942</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1444,6 +1532,1183 @@
   "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
   "line_number": 48,
   "masked_key": "AKIA...MPLE"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 69.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:69</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:24.916441</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
+  "line_number": 69,
+  "masked_key": "sk-...es12",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'C:/Users/Ajinkya Patil/main.c7d1f819.js' at line 2.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">C:/Users/Ajinkya Patil/main.c7d1f819.js:2</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:25.053536</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "C:/Users/Ajinkya Patil/main.c7d1f819.js",
+  "line_number": 2,
+  "masked_key": "AIzaSy...p9uE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/AY/First try/.env.example' at line 15.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/AY/First try/.env.example:15</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:38.310022</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/AY/First try/.env.example",
+  "line_number": 15,
+  "masked_key": "sk-...4633",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/AY/First try/server/.env' at line 14.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/AY/First try/server/.env:14</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:38.341834</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/AY/First try/server/.env",
+  "line_number": 14,
+  "masked_key": "sk-...4633",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py' at line 23.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py:23</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:41.639228</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py",
+  "line_number": 23,
+  "masked_key": "key...x9t5"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/College Work/Learning Platform/google-services.json' at line 23.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/College Work/Learning Platform/google-services.json:23</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:42.179793</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/College Work/Learning Platform/google-services.json",
+  "line_number": 23,
+  "masked_key": "AIzaSy...56H4",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/aa.js' at line 46652.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Personal Work/GLM 5.1 Testing/aa.js:46652</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:42.863298</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Personal Work/GLM 5.1 Testing/aa.js",
+  "line_number": 46652,
+  "masked_key": "AIzaSy...p9uE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Cloudflare User Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Cloudflare User Token was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py' at line 6.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py:6</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:42.912647</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Cloudflare User Token",
+  "file_path": "D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py",
+  "line_number": 6,
+  "masked_key": "cfut_...c476"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed NVIDIA API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a NVIDIA API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/nvidia.py' at line 12.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Personal Work/GLM 5.1 Testing/API/nvidia.py:12</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:42.913211</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "NVIDIA API Key",
+  "file_path": "D:/Personal Work/GLM 5.1 Testing/API/nvidia.py",
+  "line_number": 12,
+  "masked_key": "nvapi-...Hbmk"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py' at line 4.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py:4</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:42.913674</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py",
+  "line_number": 4,
+  "masked_key": "sk-...4633",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Personal Work/RAG/llm_engine.py' at line 8.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Personal Work/RAG/llm_engine.py:8</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:42.914695</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/Personal Work/RAG/llm_engine.py",
+  "line_number": 8,
+  "masked_key": "sk-...4633",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 28.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:28</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.086423</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 28,
+  "masked_key": "sk-...4633",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed OpenAI API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 68.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:68</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.086813</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "OpenAI API Key",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 68,
+  "masked_key": "sk-...4633",
+  "provider": "OpenAI"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 222.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:222</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.088970</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 222,
+  "masked_key": "AIzaSy...Q2HE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 223.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:223</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.089002</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 223,
+  "masked_key": "key...6mEQ"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 237.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:237</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.089195</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 237,
+  "masked_key": "AIzaSy...Q2HE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 238.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:238</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.089352</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 238,
+  "masked_key": "key...6mEQ"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 262.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:262</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.089776</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 262,
+  "masked_key": "AIzaSy...Q2HE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 263.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/img - api/all_env_data.txt:263</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.089900</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
+  "line_number": 263,
+  "masked_key": "key...6mEQ"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science/backend/.env' at line 8.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/V4 Science/backend/.env:8</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.116591</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Professional Webiste/V4 Science/backend/.env",
+  "line_number": 8,
+  "masked_key": "AIzaSy...Q2HE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science/backend/.env' at line 9.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/V4 Science/backend/.env:9</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.116640</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Professional Webiste/V4 Science/backend/.env",
+  "line_number": 9,
+  "masked_key": "key...6mEQ"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science/frontend/.env.local' at line 11.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/V4 Science/frontend/.env.local:11</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.165229</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Professional Webiste/V4 Science/frontend/.env.local",
+  "line_number": 11,
+  "masked_key": "AIzaSy...Q2HE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science/frontend/.env.local' at line 12.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/V4 Science/frontend/.env.local:12</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.165290</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Professional Webiste/V4 Science/frontend/.env.local",
+  "line_number": 12,
+  "masked_key": "key...6mEQ"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science - Copy/backend/.env' at line 3.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/V4 Science - Copy/backend/.env:3</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.295887</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/Professional Webiste/V4 Science - Copy/backend/.env",
+  "line_number": 3,
+  "masked_key": "AIzaSy...Q2HE",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Generic API Key/Token</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science - Copy/backend/.env' at line 4.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/Professional Webiste/V4 Science - Copy/backend/.env:4</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:43.295947</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Generic API Key/Token",
+  "file_path": "D:/Professional Webiste/V4 Science - Copy/backend/.env",
+  "line_number": 4,
+  "masked_key": "key...6mEQ"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Exposed Google AI/Gemini API Key</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/RoadMap DFIR/Extension/SmartFill/popup.js' at line 4.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">D:/RoadMap DFIR/Extension/SmartFill/popup.js:4</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:55.856040</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Google AI/Gemini API Key",
+  "file_path": "D:/RoadMap DFIR/Extension/SmartFill/popup.js",
+  "line_number": 4,
+  "masked_key": "AIzaSy...phjk",
+  "provider": "Google"
+}</pre>
+                  
+                </div>
+              </div>
+            </div>
+            
+            <div class="finding-card" 
+                 data-category="Configuration" 
+                 data-risk="high">
+              
+              <div class="finding-header" onclick="toggleFinding(this)">
+                <div class="finding-title-section">
+                  <div class="finding-risk-indicator risk-high"></div>
+                  <span class="finding-title">Environment Variable: ANTIGRAVITY_CSRF_TOKEN</span>
+                </div>
+                <div class="finding-meta">
+                  <span class="tag tag-category">Configuration</span>
+                  <span class="tag tag-risk-high">HIGH</span>
+                  <span class="expand-icon">▼</span>
+                </div>
+              </div>
+
+              <div class="finding-body">
+                <div class="finding-details-grid">
+                  <span class="fd-label">Description</span>
+                  <span class="fd-value">Active environment variable 'ANTIGRAVITY_CSRF_TOKEN' contains a potential Unknown credential.</span>
+
+                  <span class="fd-label">Source location</span>
+                  <span class="fd-value" style="font-family: var(--font-mono); font-size: 0.8rem;">env://ANTIGRAVITY_CSRF_TOKEN</span>
+
+                  <span class="fd-label">Confidence</span>
+                  <span class="fd-value">95%</span>
+
+                  <span class="fd-label">Detection time</span>
+                  <span class="fd-value">2026-06-17T11:50:55.857273</span>
+                  
+                  
+                  <span class="fd-label">Metadata</span>
+                  <pre class="fd-code">{
+  "credential_type": "Unknown Environment Credential",
+  "env_var_name": "ANTIGRAVITY_CSRF_TOKEN",
+  "masked_key": "env_key...f7a6"
 }</pre>
                   
                 </div>
@@ -1478,7 +2743,7 @@
                   <span class="fd-value">95%</span>
 
                   <span class="fd-label">Detection time</span>
-                  <span class="fd-value">2026-06-17T10:55:45.666016</span>
+                  <span class="fd-value">2026-06-17T11:50:55.857308</span>
                   
                   
                   <span class="fd-label">Metadata</span>
@@ -1510,11 +2775,11 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Operating System</span>
-              <span class="meta-val">Windows 11 (AMD64)</span>
+              <span class="meta-val">Windows 11 (x64)</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Scan Initiated</span>
-              <span class="meta-val" style="font-size: 0.8rem;">2026-06-17T10:55:36.159224</span>
+              <span class="meta-val" style="font-size: 0.8rem;">2026-06-17T11:50:16.646985</span>
             </div>
           </div>
         </section>
@@ -1530,7 +2795,7 @@
                 <span class="module-name">SystemScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.599s</span>
+                <span class="module-duration">0.595s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">2</span>
@@ -1544,7 +2809,7 @@
                 <span class="module-name">PackageScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.503s</span>
+                <span class="module-duration">0.570s</span>
                 <span class="status-badge status-success">success</span>
                 
               </div>
@@ -1556,7 +2821,7 @@
                 <span class="module-name">AgentScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">0.118s</span>
+                <span class="module-duration">6.799s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">10</span>
@@ -1570,7 +2835,7 @@
                 <span class="module-name">RuntimeScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">1.583s</span>
+                <span class="module-duration">1.536s</span>
                 <span class="status-badge status-success">success</span>
                 
                 <span class="findings-count-badge">1</span>
@@ -1584,10 +2849,10 @@
                 <span class="module-name">APIScanner</span>
               </div>
               <div class="module-meta">
-                <span class="module-duration">9.467s</span>
+                <span class="module-duration">39.169s</span>
                 <span class="status-badge status-success">success</span>
                 
-                <span class="findings-count-badge">3</span>
+                <span class="findings-count-badge">32</span>
                 
               </div>
             </div>

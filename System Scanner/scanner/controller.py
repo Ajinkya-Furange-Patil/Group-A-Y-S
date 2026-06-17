@@ -146,7 +146,23 @@ class ScanController:
 
         # Initialize result with host metadata
         hostname = socket.gethostname()
-        os_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+        system = platform.system()
+        release = platform.release()
+        machine = platform.machine()
+        if machine == "AMD64":
+            machine = "x64"
+
+        os_parts = []
+        if system:
+            os_parts.append(system)
+        if release:
+            os_parts.append(release)
+        os_info = " ".join(os_parts)
+        if machine:
+            os_info += f" ({machine})"
+        if not os_info:
+            os_info = "Unknown OS"
+
         logger.info("Target Machine: %s", hostname)
         logger.info("Operating System: %s", os_info)
 

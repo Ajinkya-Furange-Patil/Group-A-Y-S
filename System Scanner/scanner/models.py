@@ -216,6 +216,16 @@ class ScanResult:
             "overall_risk_score": round(avg_risk, 1),
         }
 
+    @property
+    def duration_formatted(self) -> str:
+        """Return a human-readable duration string."""
+        sec = self.total_duration_sec
+        if sec < 60:
+            return f"{sec:.2f}s"
+        mins = int(sec // 60)
+        remaining = sec % 60
+        return f"{mins}m {remaining:.2f}s"
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize the entire scan result to a plain dictionary for JSON output."""
         self.compute_summary()
@@ -225,6 +235,7 @@ class ScanResult:
             "hostname": self.hostname,
             "os_info": self.os_info,
             "total_duration_sec": round(self.total_duration_sec, 3),
+            "total_duration_formatted": self.duration_formatted,
             "summary": self.summary,
             "modules": [m.to_dict() for m in self.modules],
             "findings": [f.to_dict() for f in self.findings],
