@@ -1,0 +1,488 @@
+# Enterprise Artificial Intelligence Agent Discovery, Governance, and Risk Assessment Framework
+
+The rapid integration of Artificial Intelligence (AI) agents into enterprise environments fundamentally alters the architecture of digital operations and introduces unprecedented vectors for operational, legal, and cybersecurity risks. Unlike traditional deterministic software applications, AI agents possess autonomous reasoning capabilities, execute dynamic workflows, and actively interface with local operating systems, corporate networks, and external cloud infrastructure. For an enterprise operating within the highly regulated jurisdiction of Mumbai, Maharashtra, India, the deployment of such technologies without rigorous oversight constitutes a severe liability. The prevailing regulatory environment—anchored by the Digital Personal Data Protection (DPDP) Act, 2023, the Securities and Exchange Board of India (SEBI) Cybersecurity and Cyber Resilience Framework (CSCRF), and the Indian Computer Emergency Response Team (CERT-In) guidelines—demands absolute visibility into the digital supply chain.
+
+The phenomenon of unmonitored generative AI usage, frequently categorised as "Shadow AI," inflates the average financial impact of a corporate data breach by approximately INR 17.9 million. Under the DPDP Act, the inadvertent submission of a prompt containing personally identifiable information (PII) into an unsanctioned public large language model (LLM) constitutes a reportable personal data breach. Such incidents expose the enterprise, acting as a Data Fiduciary, to regulatory penalties reaching up to INR 250 crore for failing to implement reasonable security safeguards under Section 8(5) of the Act. Concurrently, CERT-In directions mandate the reporting of cybersecurity incidents within a highly restrictive six-hour window following detection, coupled with an uncompromising 180-day retention requirement for Information and Communication Technology (ICT) logs. SEBI’s CSCRF further escalates these obligations for market participants, mandating the maintenance of a Software Bill of Materials (SBOM) for all critical applications and requiring board-level accountability for cyber risk management.
+
+To neutralise these systemic vulnerabilities, this report delivers the architectural blueprint for an Enterprise AI Agent Discovery and Governance Module. This module is engineered to systematically identify, classify, validate, and assess AI agents running across the enterprise endpoint fleet. The ensuing analysis meticulously evaluates whether detected agents are authorised, identifies their publishers and governing licenses, verifies enterprise policy compliance, and calculates a rigorous risk carrying capacity assessment tailored for the Indian corporate sector.
+
+## Phase 1: Authorised Versus Unauthorised Agent Detection Framework
+
+The foundational requirement of the governance module is the continuous, ubiquitous discovery of AI agents deployed across corporate endpoints. Because AI capabilities manifest across a vast spectrum of software architectures—ranging from compiled binaries and Electron desktop applications to distributed Kubernetes deployments and local foundation models—the detection engine must utilise multi-layered telemetry across Windows, macOS, and Linux environments.
+
+The detection module must interrogate the filesystem and active memory to identify executables and running processes associated with known AI agents. Applications such as the ChatGPT Desktop client utilise the Electron framework, spawning multiple background processes. On macOS, these appear within the primary application bundle at /Applications/ChatGPT.app under nomenclature such as ChatGPT Helper and ChatGPT Helper (Renderer). On Windows systems, the application is distributed via the Microsoft Store and establishes a persistent background executable named ChatGPTHelper.exe, typically located deep within the user profile at C:\Users\<Username>\AppData\Local\Programs\ChatGPT\resources\app.asar.unpacked\. Similarly, the Claude Desktop application registers an App Execution Alias on Windows, resolving to C:\Users\<Username>\AppData\Local\Microsoft\WindowsApps\Claude.exe, which can often conflict with command-line interface equivalents if not properly managed. Enterprise-integrated agents, such as Microsoft Copilot, demand registry-level inspection; administrators can verify its presence or enforce its suppression by querying the package MICROSOFT.COPILOT or monitoring the Windows Registry key HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot\TurnOffWindowsCopilot. GitHub Copilot, operating as an integrated development environment (IDE) extension, manifests as the copilot-agent executable, maintaining active JSON-RPC communications with the host editor.
+
+Command-line interfaces and development artifacts represent a secondary, highly volatile detection surface. Developer-focused AI agents are routinely installed globally via the Node Package Manager (NPM), Python's Pip, or macOS Homebrew. The Gemini CLI, installed via the @google/gemini-cli NPM package, executes under the gemini or gemini-cli.cmd binaries. The detection engine must scan global package installation prefixes, such as C:\Users\<Username>\AppData\Roaming\npm\ on Windows or ~/.local/bin/ on Unix-based systems, to locate these binaries. The OpenAI Codex CLI exhibits a similar footprint, installing via the @openai/codex package and placing its codex.exe executable in local application data directories. Python-native agents, such as Open Interpreter, CrewAI, and AutoGPT, require the module to parse virtual environments, Pip manifests, and Poetry configurations. The module must identify structural markers indicative of agentic orchestration, such as crew.py or tasks.yaml for CrewAI, and Python module executions (python -m autogpt) operating alongside containerised artifacts like docker-compose.yml for AutoGPT.
+
+The rapid normalisation of the Model Context Protocol (MCP) necessitates the scanning of agent configurations and manifests. MCP serves as a universal standard connecting AI assistants to local and remote external tools. The presence of MCP configuration files is a definitive indicator of an active, tool-utilising AI agent. The governance module must systematically index the filesystem for .mcp.json, mcp-config.json, and client-specific configuration stores. Recognised default paths include ~/.deepagents/.mcp.json for deep learning frameworks, ~/.copilot/mcp-config.json for GitHub CLI integrations, and %APPDATA%\Claude\claude_desktop_config.json for Anthropic ecosystems.
+
+Furthermore, the detection mechanism must account for local AI models and embedded runtimes. Internal engineering teams increasingly deploy local LLMs to process sensitive intellectual property without transmitting data to external cloud providers. The detection engine must monitor for local inference servers and substantial model weight directories. The Ollama runtime, for instance, establishes a persistent background daemon listening on port 11434 and caches model files in predictable locations such as C:\Users\%username%\.ollama\models on Windows or /usr/share/ollama/.ollama/models on Linux. LM Studio, another prevalent local inference engine, defaults to port 1234 and exposes the lms command-line utility. Identifying these embedded runtimes is critical for assessing endpoint hardware utilisation and verifying that local inference adheres to corporate access controls.
+
+## Phase 2: Vendor Verification and Ecosystem Topography
+
+Upon the successful detection of an AI agent, the governance framework must programmatically validate the provenance and authenticity of the software. This phase involves resolving the publisher identity, verifying the official repository or vendor distribution portal, and confirming the status of the tool against established enterprise whitelists. Within the Indian regulatory paradigm, the SEBI CSCRF explicitly mandates the continuous generation of an SBOM for all critical applications, rendering vendor verification an indispensable compliance function.
+
+The vendor verification process begins by classifying the detected artifacts into macro-ecosystems, predominantly focusing on the major cloud providers and the open-source community. For agents originating from the Microsoft ecosystem—encompassing the standard Copilot, Azure AI Foundry Agents, and Semantic Kernel deployments—the module must verify cryptographic signatures binding the executables to the Microsoft Corporation. Azure AI Agents and Semantic Kernel components are deeply integrated into enterprise application development, requiring the module to trace package origins to official NuGet repositories or authorised Azure endpoints. Verification of the Google ecosystem, which includes Gemini, the Gemini CLI, and Vertex AI Agents, necessitates evaluating NPM package origins (e.g., verifying @google/gemini-cli against public registries) and ensuring network traffic is directed toward authenticated Google Cloud endpoints rather than consumer APIs. The OpenAI ecosystem, featuring the ChatGPT Desktop client, the OpenAI Agents SDK (openai-agents Python package), and the Codex CLI, requires similar validation. The module must confirm that the ChatGPT application is legitimately sourced from the Microsoft Store or official Apple DMG distributions, avoiding impersonation threats.
+
+The critical necessity of vendor verification is highlighted by the vulnerability of the AI software supply chain. Malicious actors have successfully executed sophisticated attacks by publishing trojanised packages masquerading as legitimate AI tooling. A notable precedent involves a malicious NPM package named codexui-android, which posed as a remote user interface for the OpenAI Codex. While maintaining a benign public GitHub repository, the attackers published obfuscated, malicious code directly to the NPM registry to exfiltrate long-lived developer authentication tokens. To combat such threats, the discovery module must cross-reference installed artifact hashes against known, secure baselines, ensuring that the deployed version aligns exactly with the vendor's official release.
+
+## Phase 3: License Identification and Legal Compliance Analysis
+
+The integration of AI agents introduces highly complex legal, intellectual property, and contractual liabilities. The governance framework must accurately extract the licensing metadata associated with every detected agent, evaluate its compatibility with enterprise operations, and codify the resulting obligations.
+
+Commercial AI agents, such as Microsoft 365 Copilot, GitHub Copilot, and ChatGPT Enterprise, are governed by proprietary Software as a Service (SaaS) agreements and End User License Agreements (EULAs). These frameworks inherently prohibit source modification and redistribution. However, they are fundamentally designed for enterprise adoption, providing explicit indemnification against copyright infringement claims arising from AI-generated outputs. Crucially, these enterprise subscription licenses define rigorous data retention and processing boundaries; vendors like Microsoft and OpenAI contractually commit to excluding enterprise customer data, prompts, and contextual artifacts from their foundational model training pipelines.
+
+Conversely, the open-source AI ecosystem relies on a bifurcated licensing model, balancing permissive frameworks with highly restrictive, copyleft variants. Agents such as Open Interpreter, CrewAI, and the OpenAI Agents SDK are distributed under permissive licenses, predominantly Apache 2.0 and the MIT License. These licenses are universally compatible with enterprise environments, granting the enterprise absolute freedom to modify the source code, deploy the software commercially, and redistribute derivative works without incurring obligations to publicly disclose proprietary corporate code.
+
+The compliance engine must systematically flag and isolate agents governed by restrictive or unconventional licenses. A primary example is the AutoGPT ecosystem. While the original standalone AutoGPT agent operates under the permissive MIT license, the overarching AutoGPT Platform architecture is governed by the Polyform Shield License. The Polyform Shield is explicitly engineered to restrict commercial entities from creating competing software products or offering direct, externalised access to the platform outside the host organisation. Furthermore, community-driven forks of open-source frameworks frequently adopt the GNU Affero General Public License (AGPL v3). The AGPL imposes severe "copyleft contamination" risks; it mandates that any modifications made to the software, even if solely deployed internally as a network-accessible SaaS application, must be fully open-sourced and provided to all interacting users. Integrating AGPL-licensed agents into proprietary enterprise workflows creates catastrophic intellectual property exposure.
+
+| Agent Framework | License Designation | Commercial Use Permitted | Source Modification Permitted | Redistribution Permitted |
+
+|---|---|---|---|---|
+
+| CrewAI | MIT License | Yes | Yes | Yes |
+
+| AutoGPT (Platform) | Polyform Shield | Restricted (No competing services) | Yes | Restricted |
+
+| GitHub Copilot | Proprietary SaaS | Limited (Subscription required) | No | No |
+
+| Open Interpreter | Apache 2.0 | Yes | Yes | Yes |
+
+| OpenAI Agents SDK | MIT License | Yes | Yes | Yes |
+
+| Gemini CLI | Apache 2.0 | Yes | Yes | Yes |
+
+## Phase 4: Risk Carrying Capacity Assessment Methodology
+
+To quantify the threat landscape, every detected agent must undergo a rigorous risk profiling process. The framework calculates a composite risk profile across five interdependent dimensions: Security, Data Privacy, Compliance, Supply Chain, and Operational impact. The final score is aggregated on a 0 to 100 scale. Scores between 0–20 indicate Low Risk, 21–40 indicate Moderate Risk, 41–60 signify High Risk, 61–80 denote Very High Risk, and 81–100 categorise the agent as a Critical Risk demanding immediate containment.
+
+| Risk Dimension | Evaluation Criteria and Investigative Questions |
+
+|---|---|
+
+| **Security Risk** | Can the agent autonomously execute system commands? Does it possess read/write access to the local filesystem? Can it access internal corporate network resources? Is it capable of invoking external APIs or modifying operating system configurations? |
+
+| **Data Privacy Risk** | Does the agent transmit data to external, unvetted endpoints? Are cloud APIs utilised for inference? Does the vendor store user data or retain prompts for model training? Are third-party telemetry services active within the agent's binary? |
+
+| **Compliance Risk** | Does the agent's operation violate the DPDP Act (unauthorised processing of personal data)? Are CERT-In 6-hour incident reporting requirements compromised by obscured agent activity? Does the deployment contravene SEBI CSCRF mandates regarding least-privilege access and continuous SOC monitoring? |
+
+| **Supply Chain Risk** | Does the agent rely on a vast tree of open-source dependencies? Is the maintainer identity unknown or pseudonymous? Are the software releases cryptographically unverified? Do the underlying packages exhibit known, unpatched vulnerabilities (CVEs)? |
+
+| **Operational Risk** | Does the agent exhibit non-deterministic, unbounded resource consumption (e.g., infinite LLM reasoning loops)? Is the maintenance burden excessively high due to rapid, breaking version changes? Does the architecture force the enterprise into inflexible vendor lock-in? |
+
+The Model Context Protocol (MCP) significantly elevates the security risk dimension. While MCP facilitates modular tool integration, the specification inherently lacks mandatory client-side validation of server-provided metadata. This architectural gap allows attackers to execute MCP Configuration Poisoning; by introducing malicious .mcp/config.json files into a codebase, an attacker can force a developer's local AI agent to automatically connect to hostile external servers, exposing the endpoint without requiring any user interaction beyond opening the infected repository. Similarly, autonomous agents that generate and execute raw code (such as Bash scripts or Python modules) on the host machine introduce critical security risks. If an agent is subjected to a prompt injection attack, the resulting malicious payload is executed natively with the privileges of the host user, enabling rapid lateral movement and systemic compromise.
+
+Data privacy and compliance risks are deeply intertwined within the Indian jurisdiction. The DPDP Act prescribes punitive financial penalties for the unauthorised external transmission of personal data. Consumer-grade, cloud-tethered agents routinely retain user prompts to refine subsequent foundation models; if an employee inadvertently pastes proprietary financial data or customer PII into such an interface, the enterprise commits a definitive breach of the DPDP Act. Furthermore, the SEBI CSCRF dictates that regulated entities must maintain an active Security Operations Centre (SOC) capable of detecting anomalous activity. Unauthorised AI agents operating as "Shadow AI" evade standard proxy logging and endpoint detection, rendering the enterprise non-compliant with SEBI mandates and technically incapable of meeting the CERT-In requirement to report cyber incidents within six hours of occurrence.
+
+## Phase 5: Final Governance and Risk Profiling Reports
+
+The ensuing governance reports represent the minimum required deliverables for executive review. They apply the discovery, licensing, and risk assessment methodologies established in the preceding phases to the specifically requested portfolio of enterprise and open-source AI agents.
+
+### The Microsoft Enterprise Ecosystem
+
+Microsoft's suite of AI products demonstrates a stark dichotomy between consumer-grade applications and highly regulated enterprise deployments.
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | Microsoft Copilot (Consumer) |
+
+| **Vendor** | Microsoft |
+
+| **Version/Platform** | Windows Native Appx / Web Application |
+
+| **Installation Path** | Managed via Windows Feature updates (MICROSOFT.COPILOT). |
+
+| **Running Status** | Active (Background service) |
+
+| **Authorization Status** | **Requires Review (Often Shadow IT)** |
+
+| **License Type** | Proprietary EULA |
+
+| **Enterprise Compatible** | Limited |
+
+| **Restrictions** | Standard consumer data usage policies apply. |
+
+| **Security Risk Score** | 15 (Browser sandboxed, limited local execution) |
+
+| **Compliance Risk Score** | 75 (High risk of DPDP violation if PII is inputted by employees) |
+
+| **Data Risk Score** | 80 (Data may be utilised for broad service improvements) |
+
+| **Operational Risk Score** | 10 (Highly stable) |
+
+| **Total Risk Score** | **65 (Very High Risk)** |
+
+| **Recommendation** | **Block / Replace exclusively with Microsoft 365 Copilot** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | Microsoft 365 Copilot |
+
+| **Vendor** | Microsoft |
+
+| **Version/Platform** | Integrated within Office 365 Client Applications |
+
+| **Installation Path** | Cloud-delivered capability within M365 Desktop Apps |
+
+| **Running Status** | Active |
+
+| **Authorization Status** | **Authorized** |
+
+| **License Type** | Enterprise Subscription License |
+
+| **Enterprise Compatible** | Yes |
+
+| **Restrictions** | Requires stringent Microsoft Purview data labelling to prevent internal oversharing. |
+
+| **Security Risk Score** | 30 (Accesses vast internal Graph API data; requires meticulous access control) |
+
+| **Compliance Risk Score** | 10 (Fully DPDP compliant; data residency maintained in Pune/Chennai) |
+
+| **Data Risk Score** | 10 (Tenant isolated; absolutely no model training) |
+
+| **Operational Risk Score** | 15 (Predictable cloud orchestration) |
+
+| **Total Risk Score** | **25 (Moderate Risk)** |
+
+| **Recommendation** | **Approved with Continuous Monitoring** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | GitHub Copilot |
+
+| **Vendor** | GitHub (Microsoft) |
+
+| **Version/Platform** | VS Code / Visual Studio Extension |
+
+| **Installation Path** | %USERPROFILE%\.vscode\extensions\ |
+
+| **Running Status** | Active (copilot-agent executable operating over JSON-RPC) |
+
+| **Authorization Status** | **Authorized** |
+
+| **License Type** | Enterprise Subscription License |
+
+| **Enterprise Compatible** | Yes (Specifically the Enterprise/Business Tiers) |
+
+| **Restrictions** | Omitted from model training under enterprise contracts. |
+
+| **Security Risk Score** | 40 (Executes local workspace analysis; integrates with external MCP servers) |
+
+| **Compliance Risk Score** | 20 (GitHub Enterprise Cloud supports data residency options) |
+
+| **Data Risk Score** | 15 (Telemetry and code snippets are not retained in Enterprise tiers) |
+
+| **Operational Risk Score** | 15 (Agent mode iteratively loops, potential for high API usage) |
+
+| **Total Risk Score** | **30 (Moderate Risk)** |
+
+| **Recommendation** | **Approved with Continuous Monitoring** |
+
+**Executive Synthesis for Microsoft:** The transition from consumer to enterprise tiers within the Microsoft ecosystem is non-negotiable for Indian corporations. Microsoft 365 Copilot and GitHub Copilot (Enterprise) are architected to satisfy sovereign regulatory demands. Microsoft explicitly supports data residency at rest within its Azure data centres located in Pune, Mumbai, and Chennai. This infrastructure alignment ensures that data processing complies with the DPDP Act and satisfies the SEBI CSCRF mandates regarding the geographical containment of sensitive financial data. The consumer variant of Windows Copilot, however, lacks these tenant-level isolations and must be systematically disabled across the endpoint fleet using AppLocker policies or registry modifications to prevent unintended data exfiltration.
+
+### The Google Agent Ecosystem
+
+Google's offerings span broad web-based chat interfaces and highly specialised, terminal-native developer tools.
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | Google Gemini (Web/Workspace) |
+
+| **Vendor** | Google |
+
+| **Version/Platform** | Cloud Application |
+
+| **Installation Path** | Web Browser Execution |
+
+| **Running Status** | Active (On Demand) |
+
+| **Authorization Status** | **Requires Review** |
+
+| **License Type** | Proprietary EULA |
+
+| **Enterprise Compatible** | Conditional (Requires specific Google Workspace Enterprise configurations) |
+
+| **Restrictions** | Personal accounts default to data retention for model training. |
+
+| **Security Risk Score** | 15 (No local system execution) |
+
+| **Compliance Risk Score** | 60 (High risk of shadow IT usage via personal Google accounts) |
+
+| **Data Risk Score** | 70 (Consumer tiers pose severe DPDP leakage risks) |
+
+| **Operational Risk Score** | 10 (Reliable cloud uptime) |
+
+| **Total Risk Score** | **45 (High Risk)** |
+
+| **Recommendation** | **Audit Workspace Tier and Block Consumer Access** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | Google Gemini CLI |
+
+| **Vendor** | Google (Open Source Division) |
+
+| **Version/Platform** | Node.js Command Line Interface |
+
+| **Installation Path** | ~/.local/bin/gemini or %APPDATA%\npm\gemini.cmd |
+
+| **Running Status** | Active (npx execution or global installation) |
+
+| **Authorization Status** | **Requires Review** |
+
+| **License Type** | Apache 2.0 |
+
+| **Enterprise Compatible** | Yes (Codebase is permissive; backend routing dictates compliance) |
+
+| **Restrictions** | Free tier usage sunsets mid-2026; requires paid enterprise backend. |
+
+| **Security Risk Score** | 75 (Operates directly within the terminal; can read/write files and execute shell commands) |
+
+| **Compliance Risk Score** | 80 (Authentication via personal Google accounts bypasses corporate logging entirely) |
+
+| **Data Risk Score** | 85 (Transmits local repository context to external APIs; high intellectual property risk) |
+
+| **Operational Risk Score** | 40 (Requires Node.js 20+; potential dependency management overhead) |
+
+| **Total Risk Score** | **68 (Very High Risk)** |
+
+| **Recommendation** | **Block unless strictly bound to Vertex AI Enterprise Credentials** |
+
+**Executive Synthesis for Google:** The Gemini CLI presents a complex governance challenge. As an open-source, terminal-first AI agent, it is designed to automate engineering workflows by reading local codebases and executing commands directly within the developer's shell. The critical failure point lies in authentication. If developers authenticate the CLI using personal Google accounts to access the free tier, all prompts, proprietary source code, and local context are transmitted outside the corporate boundary under consumer privacy policies. This creates a massive intellectual property vulnerability and a direct violation of the DPDP Act. The Gemini CLI can only be approved if identity and access management policies forcefully restrict its backend routing exclusively to enterprise-managed Vertex AI endpoints, thereby inheriting Google Cloud's enterprise data protection agreements.
+
+### The OpenAI Agent Ecosystem
+
+OpenAI's toolset ranges from standalone desktop applications to embeddable software development kits designed to build custom agents.
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | OpenAI ChatGPT Desktop |
+
+| **Vendor** | OpenAI |
+
+| **Version/Platform** | macOS / Windows Native Application |
+
+| **Installation Path** | /Applications/ChatGPT.app or AppData\Local\Programs\ChatGPT\ |
+
+| **Running Status** | Active (ChatGPTHelper.exe daemon) |
+
+| **Authorization Status** | **Requires Review** |
+
+| **License Type** | Proprietary EULA |
+
+| **Enterprise Compatible** | Yes (Exclusively via ChatGPT Enterprise or Edu tiers) |
+
+| **Restrictions** | Consumer tiers retain data. |
+
+| **Security Risk Score** | 45 (Desktop application supports local MCP server integration, expanding the attack surface) |
+
+| **Compliance Risk Score** | 30 (OpenAI now supports data residency for Enterprise clients, mitigating cross-border transfer risks) |
+
+| **Data Risk Score** | 20 (Enterprise tier explicitly excludes customer content from model training) |
+
+| **Operational Risk Score** | 15 (Stable application lifecycle) |
+
+| **Total Risk Score** | **35 (Moderate Risk)** |
+
+| **Recommendation** | **Approved with Monitoring (Mandate Enterprise Tier Authentication)** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | OpenAI Codex CLI |
+
+| **Vendor** | OpenAI |
+
+| **Version/Platform** | Rust Binary / NPM Wrapper |
+
+| **Installation Path** | @openai/codex via NPM or direct binary download |
+
+| **Running Status** | Active (Command-line execution, codex exec) |
+
+| **Authorization Status** | **Requires Review** |
+
+| **License Type** | Apache 2.0 (For the CLI wrapper) |
+
+| **Enterprise Compatible** | Yes (If configured with enterprise API keys) |
+
+| **Restrictions** | None on the client side. |
+
+| **Security Risk Score** | 80 (Capable of running headless in CI/CD pipelines; executes code autonomously; high supply chain attack vector) |
+
+| **Compliance Risk Score** | 65 (Difficult to audit headless executions; potential for unlogged API exfiltration) |
+
+| **Data Risk Score** | 50 (Transmits local code; relies entirely on the privacy settings of the provided API key) |
+
+| **Operational Risk Score** | 40 (Requires continuous monitoring of API token consumption and persistent sessions) |
+
+| **Total Risk Score** | **60 (High Risk)** |
+
+| **Recommendation** | **Requires Review (Restrict from unmonitored CI/CD pipelines)** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | OpenAI Agents SDK |
+
+| **Vendor** | OpenAI |
+
+| **Version/Platform** | Python Framework (openai-agents) |
+
+| **Installation Path** | Virtual Environment (pip install openai-agents) |
+
+| **Running Status** | Passive (Library invoked during custom agent execution) |
+
+| **Authorization Status** | **Authorized** |
+
+| **License Type** | MIT License |
+
+| **Enterprise Compatible** | Yes |
+
+| **Restrictions** | None |
+
+| **Security Risk Score** | 35 (Inherits the security posture of the custom Python application built around it; supports both Hosted and Local MCP) |
+
+| **Compliance Risk Score** | 20 (Data residency is managed via the underlying OpenAI API configuration) |
+
+| **Data Risk Score** | 20 (API payload data is strictly governed by enterprise agreements) |
+
+| **Operational Risk Score** | 15 (Lightweight SDK, relies on stable underlying infrastructure) |
+
+| **Total Risk Score** | **25 (Moderate Risk)** |
+
+| **Recommendation** | **Approved for Internal Development Teams** |
+
+**Executive Synthesis for OpenAI:** The deployment of OpenAI products hinges on leveraging their newly expanded enterprise data governance capabilities. OpenAI now offers data residency and inference residency for ChatGPT Enterprise and API platform customers, allowing Indian enterprises to store in-scope customer content at rest within supported regions, alleviating severe DPDP concerns. The ChatGPT Desktop application must be strictly configured to authenticate against the corporate tenant to inherit these protections.
+
+The Codex CLI presents a far more insidious risk profile. Developers frequently utilise the codex exec command to deploy the agent headlessly within Continuous Integration/Continuous Deployment (CI/CD) pipelines. This grants an autonomous agent the capability to read repositories and execute terminal commands without human oversight. If an attacker injects a malicious prompt into a codebase processed by codex exec, the agent could inadvertently execute destructive commands on the build server. Furthermore, the reliance on NPM for distribution exposes the enterprise to supply chain attacks, as evidenced by the codexui-android incident. Conversely, the OpenAI Agents SDK is an MIT-licensed Python framework that provides developers with a structured, observable method for building multi-agent workflows, supporting both hosted and local MCP tools, making it a highly secure choice for internal engineering teams.
+
+### The Open Source and Autonomous Frameworks
+
+The open-source ecosystem is defined by a fundamental divide between predictable, workflow-driven orchestration and unconstrained, recursive autonomy.
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | CrewAI |
+
+| **Vendor** | CrewAI Inc. / Community |
+
+| **Version/Platform** | Python Framework |
+
+| **Installation Path** | Virtual Environment (pip install crewai) |
+
+| **Running Status** | Active (Python script execution) |
+
+| **Authorization Status** | **Authorized** |
+
+| **License Type** | MIT License |
+
+| **Enterprise Compatible** | Yes |
+
+| **Restrictions** | Advanced enterprise features (RBAC, Fleet Console) require paid commercial licenses. |
+
+| **Security Risk Score** | 35 (Executes predefined tasks; tools are tightly scoped to specific agent roles) |
+
+| **Compliance Risk Score** | 25 (Sequential workflows are highly auditable, supporting CERT-In log retention mandates) |
+
+| **Data Risk Score** | 40 (Data flows predictably between agents, but requires developer discipline to prevent sensitive data logging) |
+
+| **Operational Risk Score** | 30 (Requires local compute resources; predictable API token consumption) |
+
+| **Total Risk Score** | **35 (Moderate Risk)** |
+
+| **Recommendation** | **Approved with Monitoring** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | Open Interpreter |
+
+| **Vendor** | Open Interpreter Community |
+
+| **Version/Platform** | Python / Rust Hybrid |
+
+| **Installation Path** | Local binary or Python scripts directory (~/.openinterpreter) |
+
+| **Running Status** | Active (Interactive terminal session) |
+
+| **Authorization Status** | **Unauthorized** |
+
+| **License Type** | Apache 2.0 |
+
+| **Enterprise Compatible** | Yes (Legally), No (Technically/Security) |
+
+| **Restrictions** | None |
+
+| **Security Risk Score** | 95 (Explicitly designed to write and execute raw Python, Javascript, and shell code on the user's local machine without robust sandboxing) |
+
+| **Compliance Risk Score** | 85 (Direct terminal execution bypasses all standard data loss prevention (DLP) and monitoring controls, violating SEBI CSCRF) |
+
+| **Data Risk Score** | 90 (Sends massive amounts of local console output and system telemetry directly to the LLM) |
+
+| **Operational Risk Score** | 70 (Can destabilise host systems through unintended software installations or file deletions) |
+
+| **Total Risk Score** | **85 (Critical Risk)** |
+
+| **Recommendation** | **Block Immediately** |
+
+| Agent Profile | Details |
+
+|---|---|
+
+| **Agent Name** | AutoGPT |
+
+| **Vendor** | Significant Gravitas |
+
+| **Version/Platform** | Python / Docker |
+
+| **Installation Path** | Cloned repository, Docker containers (docker-compose.yml) |
+
+| **Running Status** | Active (Continuous background loop) |
+
+| **Authorization Status** | **Unauthorized** |
+
+| **License Type** | Polyform Shield License (Platform) / MIT (Core) |
+
+| **Enterprise Compatible** | No (Polyform Shield strictly limits commercial deployment in competitive scenarios) |
+
+| **Restrictions** | Prohibition on creating competing services or offering externalised access. |
+
+| **Security Risk Score** | 100 (Unconstrained recursive execution; agent attempts to solve overarching goals by autonomously downloading code, browsing the web, and executing scripts) |
+
+| **Compliance Risk Score** | 100 (Unpredictable logic creates insurmountable DPDP and CERT-In reporting liabilities; impossible to audit prior to execution) |
+
+| **Data Risk Score** | 95 (Highly prone to hallucination-driven data exfiltration to external APIs) |
+
+| **Operational Risk Score** | 90 (Infinite reasoning loops routinely consume massive API token budgets, resulting in severe financial spikes) |
+
+| **Total Risk Score** | **95 (Critical Risk)** |
+
+| **Recommendation** | **Block Immediately** |
+
+**Executive Synthesis for Open Source Agents:** The architectural divide within the open-source community dictates the enterprise security posture. CrewAI is architected around deterministic, role-playing agents executing sequential or hierarchical tasks (e.g., a "Researcher" agent passing structured data to a "Writer" agent). Because CrewAI's execution graph is predefined, security teams can accurately map data flows, implement necessary guardrails, and maintain comprehensive audit logs that satisfy SEBI CSCRF and CERT-In mandates.
+
+Conversely, Open Interpreter and AutoGPT act as unconstrained autonomous entities. Open Interpreter’s defining feature is its ability to translate natural language into raw code and execute it directly on the host machine's terminal. This architecture effectively hands the LLM root-level access to the local operating system, bypassing all established Data Loss Prevention (DLP) software and network proxies. AutoGPT exacerbates this risk through recursive autonomy; given a high-level goal, it continuously prompts itself to write code, search the internet, and execute commands until it believes the goal is met. This unpredictable behaviour inevitably leads to unintended data exposure, making it impossible to guarantee that personal data is not inadvertently exfiltrated, risking severe DPDP penalties. These unbridled execution models violate the fundamental principles of least-privilege architecture and must be aggressively blocked at the endpoint level.
+
+## Strategic Conclusions and Operational Recommendations
+
+The deployment of the AI Agent Discovery and Governance Module is not merely an exercise in technological optimisation; it is a critical defensive necessity dictated by the evolving legal and cyber threat landscape in India. As the telemetry and architectural analysis demonstrates, AI agents transcend the traditional boundaries of software applications. They are dynamic, non-deterministic entities capable of silently accessing internal file systems, orchestrating complex network requests via the Model Context Protocol, and autonomously altering host configurations.
+
+To navigate this landscape while preserving operational agility, the enterprise must adopt a binary governance stance. Cloud-tethered agents that guarantee local data residency and strict tenant isolation (e.g., Microsoft 365 Copilot) alongside predictable, deterministic open-source orchestrators (e.g., CrewAI, OpenAI Agents SDK) should form the sanctioned AI software catalogue. Conversely, unsandboxed, fully autonomous local agents (e.g., AutoGPT, Open Interpreter) must be explicitly banned and actively suppressed by endpoint detection and response (EDR) platforms. By institutionalising the discovery, licensing evaluation, and risk scoring methodologies outlined in this framework, the enterprise ensures systemic integrity, safeguards proprietary intellectual property, and maintains unassailable compliance with the DPDP Act, SEBI CSCRF, and CERT-In mandates.
+

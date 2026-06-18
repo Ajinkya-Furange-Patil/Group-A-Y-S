@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GNU Copyleft Licenses &amp; AI Agent Risks</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap');
+
+    :root {
+      /* Light Theme Variables */
+      --bg-gradient-1: #f8fafc;
+      --bg-gradient-2: #f1f5f9;
+      --bg-gradient-3: #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(148, 163, 184, 0.15);
+      --text-main: #0f172a;
+      --text-sub: #334155;
+      --text-muted: #64748b;
+      
+      --primary: #4f46e5;
+      --primary-glow: rgba(79, 70, 229, 0.15);
+      --secondary: #0891b2;
+      
+      --low-risk-bg: rgba(16, 185, 129, 0.1);
+      --low-risk-text: #059669;
+      --low-risk-border: rgba(16, 185, 129, 0.2);
+      
+      --mod-risk-bg: rgba(245, 158, 11, 0.1);
+      --mod-risk-text: #d97706;
+      --mod-risk-border: rgba(245, 158, 11, 0.2);
+      
+      --high-risk-bg: rgba(249, 115, 22, 0.1);
+      --high-risk-text: #ea580c;
+      --high-risk-border: rgba(249, 115, 22, 0.2);
+      
+      --crit-risk-bg: rgba(239, 68, 68, 0.1);
+      --crit-risk-text: #dc2626;
+      --crit-risk-border: rgba(239, 68, 68, 0.2);
+
+      --shadow: 0 4px 20px rgba(99, 102, 241, 0.05), 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 30px rgba(99, 102, 241, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+      --blur: blur(16px) saturate(180%);
+      --radius: 12px;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme Variables */
+      --bg-gradient-1: #090d16;
+      --bg-gradient-2: #0b111e;
+      --bg-gradient-3: #020617;
+      --card-bg: rgba(15, 23, 42, 0.8);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      --primary: #818cf8;
+      --primary-glow: rgba(129, 140, 248, 0.2);
+      --secondary: #22d3ee;
+      
+      --low-risk-bg: rgba(52, 211, 153, 0.12);
+      --low-risk-text: #34d399;
+      --low-risk-border: rgba(52, 211, 153, 0.3);
+      
+      --mod-risk-bg: rgba(251, 191, 36, 0.12);
+      --mod-risk-text: #fbbf24;
+      --mod-risk-border: rgba(251, 191, 36, 0.3);
+      
+      --high-risk-bg: rgba(251, 146, 60, 0.12);
+      --high-risk-text: #fb923c;
+      --high-risk-border: rgba(251, 146, 60, 0.3);
+      
+      --crit-risk-bg: rgba(248, 113, 113, 0.12);
+      --crit-risk-text: #f87171;
+      --crit-risk-border: rgba(248, 113, 113, 0.3);
+
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient-1);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% 0%, var(--bg-gradient-2) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 10%, var(--bg-gradient-3) 0%, transparent 55%);
+      background-attachment: fixed;
+      color: var(--text-sub);
+      line-height: 1.625;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+
+    .glass {
+      background: var(--card-bg);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* Top Nav/Actions */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 13.5px;
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      transform: translateX(-3px);
+    }
+
+    /* Controls */
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    .theme-toggle-btn:hover {
+      transform: scale(1.05);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .theme-toggle-btn .sun { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .moon { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .sun { display: block; }
+
+    /* Header Panel */
+    .article-header {
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .article-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    /* Article Content Card */
+    .article-body {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .intro-text {
+      font-size: 16px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    /* License Items Grid / Accordion */
+    .license-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .license-item {
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      background: rgba(148, 163, 184, 0.03);
+      transition: all 0.2s;
+    }
+    .license-item:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(148, 163, 184, 0.05);
+    }
+
+    .license-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .license-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .risk-low { background: var(--low-risk-bg); color: var(--low-risk-text); border: 1px solid var(--low-risk-border); }
+    .risk-mod { background: var(--mod-risk-bg); color: var(--mod-risk-text); border: 1px solid var(--mod-risk-border); }
+    .risk-high { background: var(--high-risk-bg); color: var(--high-risk-text); border: 1px solid var(--high-risk-border); }
+    .risk-crit { background: var(--crit-risk-bg); color: var(--crit-risk-text); border: 1px solid var(--crit-risk-border); }
+
+    .license-desc {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Key terms / highlighted definitions */
+    .highlight-term {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    /* Strategic Summary Callout */
+    .callout-box {
+      background: rgba(16, 185, 129, 0.05);
+      border-left: 4px solid var(--low-risk-text);
+      border-radius: 0 8px 8px 0;
+      padding: 24px;
+    }
+    .callout-title {
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--low-risk-text);
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Interactive License Risk Checker Tool */
+    .tool-card {
+      padding: 30px;
+    }
+
+    .tool-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+    .tool-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .tool-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .license-select {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      transition: border-color 0.2s;
+    }
+    .license-select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Result Panel */
+    .result-panel {
+      margin-top: 10px;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+      animation: slideDown 0.3s ease-out forwards;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result-desc {
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .article-header { padding: 24px; }
+      .article-body { padding: 24px; }
+      .title { font-size: 22px; }
+      .tool-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header Navigation Actions -->
+    <div class="top-nav">
+      <a href="research1.html" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Governance Framework
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+        <svg class="moon" viewBox="0 0 24 24"><path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-9 8.3-9.9.5-.1.9.3.8.8-.4 2.3.2 4.7 1.6 6.7 1.2 1.6 3 2.7 5.1 3.2.5.1.8.6.6 1.1-1.3 4.6-5.5 7.9-10.2 8.1zm-3.7-2c3 .7 6.1-.5 7.8-3.1-1.6-.7-2.9-1.9-3.7-3.4-.9-1.6-1.3-3.4-1.1-5.3-2.6 1.2-4.2 3.8-4.2 6.8 0 4.1 3.4 7.5 7.5 7.5l.2-.1z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+      </button>
+    </div>
+
+    <!-- Header Panel -->
+    <header class="article-header glass">
+      <div class="meta-tag">Deep-Dive Assessment // Legal Risks</div>
+      <h1 class="title">GNU Family Licenses in AI Agents &amp; Models</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="article-body glass">
+      <p class="intro-text">
+        The GNU family of licenses (GPL, AGPL, LGPL) utilizes a "copyleft" mechanism, which fundamentally requires that if you use, modify, and distribute the software, your derivative work must also be published under the same open-source terms. In the context of AI models and AI agents, these licenses introduce significant legal and intellectual property considerations for enterprises:
+      </p>
+
+      <!-- Licenses Grid -->
+      <div class="license-list">
+        
+        <!-- GPL -->
+        <div class="license-item">
+          <div class="license-hdr">
+            <span class="license-name">GNU General Public License (GPL)</span>
+            <span class="risk-badge risk-high">High Risk</span>
+          </div>
+          <div class="license-desc">
+            The standard GPL requires that if you distribute software containing GPL code, your entire project must be open-sourced under the GPL. However, if an AI model or agent is merely hosted on a cloud server as a service (SaaS) and the binary is not distributed to clients, it historically bypassed this disclosure requirement, which is known as the <span class="highlight-term">"SaaS loophole"</span>.
+          </div>
+        </div>
+
+        <!-- AGPL -->
+        <div class="license-item">
+          <div class="license-hdr">
+            <span class="license-name">GNU Affero General Public License (AGPL)</span>
+            <span class="risk-badge risk-crit">Critical Risk</span>
+          </div>
+          <div class="license-desc">
+            The AGPL was specifically designed to close the SaaS loophole. If an enterprise modifies an AGPL-licensed AI agent or model and allows users to interact with it over a network (such as through a web application, internal portal, or API), the enterprise is legally obligated to release the complete source code of their modified version. Integrating an AGPL agent into an enterprise workflow creates a severe risk of <span class="highlight-term">"copyleft contamination,"</span> which could force the company to publicly open-source its proprietary codebase.
+          </div>
+        </div>
+
+        <!-- LGPL -->
+        <div class="license-item">
+          <div class="license-hdr">
+            <span class="license-name">GNU Lesser General Public License (LGPL)</span>
+            <span class="risk-badge risk-mod">Moderate Risk</span>
+          </div>
+          <div class="license-desc">
+            This is a milder variant that allows proprietary software to link to an LGPL library without having to open-source the entire proprietary application. However, any direct modifications made to the LGPL library itself must still be published.
+          </div>
+        </div>
+
+        <!-- AI Models and Training Data -->
+        <div class="license-item">
+          <div class="license-hdr">
+            <span class="license-name">AI Models and Training Data Implications</span>
+            <span class="risk-badge risk-high">Complex Legal / High Risk</span>
+          </div>
+          <div class="license-desc">
+            A major ongoing legal debate surrounds AI foundation models trained on GPL or AGPL repositories. It remains unresolved in many jurisdictions whether the resulting AI model weights constitute a <span class="highlight-term">"derivative work"</span> of the training data. If courts determine they are derivative works, models trained on copyleft code could automatically inherit those strict licensing obligations.
+          </div>
+        </div>
+
+        <!-- AI Agent Output Risks -->
+        <div class="license-item">
+          <div class="license-hdr">
+            <span class="license-name">AI Agent Output and Contamination Risks</span>
+            <span class="risk-badge risk-high">Developer Output Risk</span>
+          </div>
+          <div class="license-desc">
+            When developers use AI coding agents, the AI may generate code snippets that closely mirror the copyleft-licensed code it was trained on. If an enterprise developer unknowingly accepts and commits GPL-generated code into a proprietary codebase, the application could become contaminated, potentially leading to copyright infringement claims and forced source-code disclosure.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Strategy Callout -->
+      <div class="callout-box">
+        <div class="callout-title">Enterprise Compliance Standard</div>
+        <p>Because of these strict obligations, enterprises generally avoid GPL/AGPL components in proprietary stacks and prefer AI agents and models governed by "permissive" licenses, such as MIT or Apache 2.0. Permissive licenses (used by frameworks like CrewAI and Open Interpreter) allow for commercial use, integration, and modification without requiring the enterprise to release its proprietary source code.</p>
+      </div>
+
+    </main>
+
+    <!-- License Compatibility Checker Tool -->
+    <section class="tool-card glass">
+      <div class="tool-title">⚖️ Interactive License Risk Assessment</div>
+      <div class="tool-subtitle">Select an open-source or commercial license to check enterprise compatibility.</div>
+      
+      <div class="tool-form">
+        <div class="select-wrapper">
+          <select id="licenseSelector" class="license-select" onchange="checkLicenseRisk()">
+            <option value="" disabled selected>Choose a license type...</option>
+            <option value="mit">MIT License</option>
+            <option value="apache">Apache License 2.0</option>
+            <option value="lgpl">GNU LGPL</option>
+            <option value="gpl">GNU GPL</option>
+            <option value="agpl">GNU AGPL</option>
+            <option value="polyform">Polyform Shield License</option>
+            <option value="proprietary">Proprietary Commercial SaaS</option>
+          </select>
+        </div>
+
+        <div id="resultPanel" class="result-panel">
+          <div id="resTitle" class="result-title"></div>
+          <div id="resDesc" class="result-desc"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2026 Enterprise AI Agent Governance Framework. Mumbai, India.</p>
+    </footer>
+
+  </div>
+
+  <script>
+    // Theme Toggle Functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', targetTheme);
+      localStorage.setItem('theme', targetTheme);
+    }
+
+    // Set saved theme on load
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Interactive checker database
+    const licenseDb = {
+      mit: {
+        title: "MIT License — Low Risk (Approved)",
+        class: "risk-low",
+        desc: "Permissive license. Full commercial use, source code modification, and redistribution are allowed without any copyleft requirements. Ideal for proprietary enterprise stacks."
+      },
+      apache: {
+        title: "Apache 2.0 — Low Risk (Approved)",
+        class: "risk-low",
+        desc: "Permissive license that also includes an express grant of patent rights. Full commercial use and modifications are allowed without disclosing proprietary code."
+      },
+      lgpl: {
+        title: "GNU LGPL — Moderate Risk (Requires Review)",
+        class: "risk-mod",
+        desc: "Permissive copyleft. Allows your proprietary software to link to the library. However, if you directly modify the library's code itself, you must publish those changes under the LGPL."
+      },
+      gpl: {
+        title: "GNU GPL — High Risk (Banned for Proprietary)",
+        class: "risk-high",
+        desc: "Strong copyleft. If you distribute an application that links to or includes GPL code, the entire application's source code must be released under GPL terms. Allowed only for purely internal server use with no distribution."
+      },
+      agpl: {
+        title: "GNU AGPL — Critical Risk (Strictly Banned)",
+        class: "risk-crit",
+        desc: "Strong network copyleft. Closes the 'SaaS loophole'. If you modify and host AGPL code for remote network access, you must make your entire derivative work's source code public. Insurmountable risk of proprietary codebase contamination."
+      },
+      polyform: {
+        title: "Polyform Shield — High Risk (Restricted)",
+        class: "risk-high",
+        desc: "Source-available but non-commercial restriction. Explicitly forbids utilizing the software to build competing services or offering externalized instances of the tooling. Commercial deployment requires a customized commercial license."
+      },
+      proprietary: {
+        title: "Proprietary Commercial SaaS — Low to Moderate Risk",
+        class: "risk-mod",
+        desc: "Licensed under vendor EULA. Safe from copyleft requirements, but requires validation of data privacy agreements to ensure customer inputs are not harvested for foundation model training."
+      }
+    };
+
+    function checkLicenseRisk() {
+      const selector = document.getElementById('licenseSelector');
+      const val = selector.value;
+      const panel = document.getElementById('resultPanel');
+      const resTitle = document.getElementById('resTitle');
+      const resDesc = document.getElementById('resDesc');
+
+      if (!val || !licenseDb[val]) {
+        panel.style.display = 'none';
+        return;
+      }
+
+      const data = licenseDb[val];
+      panel.style.display = 'block';
+      
+      // Reset classes
+      panel.className = "result-panel";
+      panel.style.background = `var(--${data.class.split(' ')[1]}-bg)`;
+      panel.style.border = `1px solid var(--${data.class.split(' ')[1]}-border)`;
+
+      resTitle.innerHTML = `<span class="risk-badge ${data.class}">${data.title.split(' — ')[1] || 'Info'}</span> ${data.title.split(' — ')[0]}`;
+      resTitle.style.color = `var(--${data.class.split(' ')[1]}-text)`;
+      resDesc.innerHTML = data.desc;
+      resDesc.style.color = "var(--text-sub)";
+    }
+  </script>
+</body>
+</html>

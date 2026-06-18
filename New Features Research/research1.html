@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise AI Agent Governance Framework</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap');
+
+    :root {
+      /* Light Theme Variables */
+      --bg-gradient-1: #f8fafc;
+      --bg-gradient-2: #f1f5f9;
+      --bg-gradient-3: #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(148, 163, 184, 0.15);
+      --text-main: #0f172a;
+      --text-sub: #334155;
+      --text-muted: #64748b;
+      
+      --primary: #4f46e5;
+      --primary-glow: rgba(79, 70, 229, 0.15);
+      --secondary: #0891b2;
+      
+      --low-risk-bg: rgba(16, 185, 129, 0.1);
+      --low-risk-text: #059669;
+      --low-risk-border: rgba(16, 185, 129, 0.2);
+      
+      --mod-risk-bg: rgba(245, 158, 11, 0.1);
+      --mod-risk-text: #d97706;
+      --mod-risk-border: rgba(245, 158, 11, 0.2);
+      
+      --high-risk-bg: rgba(249, 115, 22, 0.1);
+      --high-risk-text: #ea580c;
+      --high-risk-border: rgba(249, 115, 22, 0.2);
+      
+      --crit-risk-bg: rgba(239, 68, 68, 0.1);
+      --crit-risk-text: #dc2626;
+      --crit-risk-border: rgba(239, 68, 68, 0.2);
+
+      --table-hdr: #f1f5f9;
+      --table-row-even: #f8fafc;
+      --shadow: 0 4px 20px rgba(99, 102, 241, 0.05), 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 30px rgba(99, 102, 241, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+      --blur: blur(16px) saturate(180%);
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme Variables */
+      --bg-gradient-1: #090d16;
+      --bg-gradient-2: #0b111e;
+      --bg-gradient-3: #020617;
+      --card-bg: rgba(15, 23, 42, 0.8);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      --primary: #818cf8;
+      --primary-glow: rgba(129, 140, 248, 0.2);
+      --secondary: #22d3ee;
+      
+      --low-risk-bg: rgba(52, 211, 153, 0.12);
+      --low-risk-text: #34d399;
+      --low-risk-border: rgba(52, 211, 153, 0.3);
+      
+      --mod-risk-bg: rgba(251, 191, 36, 0.12);
+      --mod-risk-text: #fbbf24;
+      --mod-risk-border: rgba(251, 191, 36, 0.3);
+      
+      --high-risk-bg: rgba(251, 146, 60, 0.12);
+      --high-risk-text: #fb923c;
+      --high-risk-border: rgba(251, 146, 60, 0.3);
+      
+      --crit-risk-bg: rgba(248, 113, 113, 0.12);
+      --crit-risk-text: #f87171;
+      --crit-risk-border: rgba(248, 113, 113, 0.3);
+
+      --table-hdr: #1e293b;
+      --table-row-even: #0f172a;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient-1);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% 0%, var(--bg-gradient-2) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 10%, var(--bg-gradient-3) 0%, transparent 55%);
+      background-attachment: fixed;
+      color: var(--text-sub);
+      line-height: 1.625;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Reading Progress Bar */
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      z-index: 10000;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0%;
+    }
+
+    /* Glass Effect Utility */
+    .glass {
+      background: var(--card-bg);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    /* Layout structure */
+    .app-container {
+      display: flex;
+      max-width: 1440px;
+      margin: 40px auto;
+      padding: 0 24px;
+      gap: 32px;
+      width: 100%;
+      position: relative;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 40px;
+      max-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .sidebar h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-left: 2px solid transparent;
+    }
+
+    .nav-item a:hover {
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .nav-item.active a {
+      background: var(--primary-glow);
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-item.sub-item a {
+      padding-left: 28px;
+      font-size: 12.5px;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex-grow: 1;
+      max-width: calc(100% - 332px);
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* Header Panel */
+    .header-panel {
+      position: relative;
+      overflow: hidden;
+      padding: 40px;
+    }
+    .header-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .doc-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .doc-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    /* Controls: Theme toggle & search */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    .theme-toggle-btn:hover {
+      transform: scale(1.05);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .theme-toggle-btn .sun { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .moon { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .sun { display: block; }
+
+    /* Badge rows */
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: var(--card-border);
+      color: var(--text-sub);
+      border: 1px solid var(--card-border);
+    }
+
+    .pill-badge.accent {
+      background: var(--primary-glow);
+      color: var(--primary);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    /* Document section formatting */
+    .section-card {
+      padding: 36px;
+      position: relative;
+    }
+
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin-bottom: 18px;
+    }
+    p:last-of-type {
+      margin-bottom: 0;
+    }
+
+    /* Bullet and list styling */
+    ul {
+      margin-bottom: 18px;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 24px 0;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--table-hdr);
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 14px 16px;
+      border-bottom: 2px solid var(--card-border);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-sub);
+    }
+
+    tr:nth-child(even) {
+      background: var(--table-row-even);
+    }
+
+    tr:hover {
+      background: rgba(99, 102, 241, 0.03);
+    }
+
+    /* Custom markup for risk alerts */
+    .risk-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .risk-low {
+      background: var(--low-risk-bg);
+      color: var(--low-risk-text);
+      border: 1px solid var(--low-risk-border);
+    }
+    .risk-mod {
+      background: var(--mod-risk-bg);
+      color: var(--mod-risk-text);
+      border: 1px solid var(--mod-risk-border);
+    }
+    .risk-high {
+      background: var(--high-risk-bg);
+      color: var(--high-risk-text);
+      border: 1px solid var(--high-risk-border);
+    }
+    .risk-crit {
+      background: var(--crit-risk-bg);
+      color: var(--crit-risk-text);
+      border: 1px solid var(--crit-risk-border);
+    }
+
+    /* Executive Synthesis Panel */
+    .synthesis-card {
+      margin-top: 24px;
+      background: rgba(99, 102, 241, 0.04);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+    }
+    .synthesis-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Profiles filter container */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+
+    .search-input {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
+      width: 100%;
+      max-width: 300px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+    }
+
+    .filter-tab {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .filter-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Profile grid cards */
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .profile-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      border-left: 4px solid transparent;
+      padding: 24px;
+    }
+    .profile-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .profile-card.risk-low-accent { border-left-color: var(--low-risk-text); }
+    .profile-card.risk-mod-accent { border-left-color: var(--mod-risk-text); }
+    .profile-card.risk-high-accent { border-left-color: var(--high-risk-text); }
+    .profile-card.risk-crit-accent { border-left-color: var(--crit-risk-text); }
+
+    .profile-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .profile-name-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .profile-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .profile-vendor {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      background: rgba(148, 163, 184, 0.1);
+      border-radius: 4px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .p-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .p-lbl {
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .p-val {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .score-breakdown-btn {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .score-breakdown {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--card-border);
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 12px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .score-breakdown.visible {
+      display: grid;
+    }
+
+    .scr-box {
+      text-align: center;
+      background: rgba(148, 163, 184, 0.05);
+      border-radius: 6px;
+      padding: 6px;
+    }
+    .scr-val {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .scr-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer styling */
+    footer {
+      margin-top: auto;
+      padding: 30px 24px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* Code highlights styling */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 90%;
+      background: rgba(148, 163, 184, 0.12);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .app-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+      }
+      .main-content {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .section-card {
+        padding: 24px;
+      }
+      .doc-title {
+        font-size: 24px;
+      }
+      .header-panel {
+        padding: 24px;
+      }
+      .profile-hdr {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-input {
+        max-width: 100%;
+      }
+      .filter-tabs {
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Reading Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="myBar"></div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar glass">
+      <h3>Governance Framework</h3>
+      <ul class="nav-list">
+        <li class="nav-item active"><a href="#introduction">Introduction</a></li>
+        <li class="nav-item"><a href="#phase1">Phase 1: Agent Detection</a></li>
+        <li class="nav-item"><a href="#phase2">Phase 2: Vendor Verification</a></li>
+        <li class="nav-item"><a href="#phase3">Phase 3: License Compliance</a></li>
+        <li class="nav-item"><a href="#phase4">Phase 4: Risk Methodology</a></li>
+        <li class="nav-item"><a href="#phase5">Phase 5: Governance Profiles</a></li>
+        <li class="nav-item sub-item"><a href="#microsoft-ecosystem">Microsoft Ecosystem</a></li>
+        <li class="nav-item sub-item"><a href="#google-ecosystem">Google Ecosystem</a></li>
+        <li class="nav-item sub-item"><a href="#openai-ecosystem">OpenAI Ecosystem</a></li>
+        <li class="nav-item sub-item"><a href="#opensource-ecosystem">Open Source Frameworks</a></li>
+        <li class="nav-item"><a href="#conclusions">Conclusions &amp; Recs</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Header Info Panel -->
+      <header class="header-panel glass" id="introduction">
+        <div class="header-top">
+          <div>
+            <div class="doc-meta">White Paper // Governance &amp; Risk Assessment</div>
+            <h1 class="doc-title">Enterprise AI Agent Discovery, Governance, &amp; Risk Assessment</h1>
+          </div>
+          <div class="controls">
+            <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+              <svg class="moon" viewBox="0 0 24 24"><path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-9 8.3-9.9.5-.1.9.3.8.8-.4 2.3.2 4.7 1.6 6.7 1.2 1.6 3 2.7 5.1 3.2.5.1.8.6.6 1.1-1.3 4.6-5.5 7.9-10.2 8.1zm-3.7-2c3 .7 6.1-.5 7.8-3.1-1.6-.7-2.9-1.9-3.7-3.4-.9-1.6-1.3-3.4-1.1-5.3-2.6 1.2-4.2 3.8-4.2 6.8 0 4.1 3.4 7.5 7.5 7.5l.2-.1z"/></svg>
+              <svg class="sun" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <p>The rapid integration of Artificial Intelligence (AI) agents into enterprise environments fundamentally alters the architecture of digital operations and introduces unprecedented vectors for operational, legal, and cybersecurity risks. Unlike traditional deterministic software applications, AI agents possess autonomous reasoning capabilities, execute dynamic workflows, and actively interface with local operating systems, corporate networks, and external cloud infrastructure. For an enterprise operating within the highly regulated jurisdiction of Mumbai, Maharashtra, India, the deployment of such technologies without rigorous oversight constitutes a severe liability. The prevailing regulatory environment—anchored by the Digital Personal Data Protection (DPDP) Act, 2023, the Securities and Exchange Board of India (SEBI) Cybersecurity and Cyber Resilience Framework (CSCRF), and the Indian Computer Emergency Response Team (CERT-In) guidelines—demands absolute visibility into the digital supply chain.</p>
+
+        <p>The phenomenon of unmonitored generative AI usage, frequently categorised as "Shadow AI," inflates the average financial impact of a corporate data breach by approximately INR 17.9 million. Under the DPDP Act, the inadvertent submission of a prompt containing personally identifiable information (PII) into an unsanctioned public large language model (LLM) constitutes a reportable personal data breach. Such incidents expose the enterprise, acting as a Data Fiduciary, to regulatory penalties reaching up to INR 250 crore for failing to implement reasonable security safeguards under Section 8(5) of the Act. Concurrently, CERT-In directions mandate the reporting of cybersecurity incidents within a highly restrictive six-hour window following detection, coupled with an uncompromising 180-day retention requirement for Information and Communication Technology (ICT) logs. SEBI’s CSCRF further escalates these obligations for market participants, mandating the maintenance of a Software Bill of Materials (SBOM) for all critical applications and requiring board-level accountability for cyber risk management.</p>
+
+        <p>To neutralise these systemic vulnerabilities, this report delivers the architectural blueprint for an Enterprise AI Agent Discovery and Governance Module. This module is engineered to systematically identify, classify, validate, and assess AI agents running across the enterprise endpoint fleet. The ensuing analysis meticulously evaluates whether detected agents are authorised, identifies their publishers and governing licenses, verifies enterprise policy compliance, and calculates a rigorous risk carrying capacity assessment tailored for the Indian corporate sector.</p>
+        
+        <div class="badge-row">
+          <span class="pill-badge accent">DPDP Act (2023) compliant</span>
+          <span class="pill-badge accent">SEBI CSCRF aligned</span>
+          <span class="pill-badge accent">CERT-In 6-Hr Ready</span>
+        </div>
+      </header>
+
+      <!-- Phase 1: Detection Framework -->
+      <section class="section-card glass" id="phase1">
+        <div class="section-num">Phase 01</div>
+        <h2 class="section-title">Authorised Versus Unauthorised Agent Detection Framework</h2>
+        
+        <p>The foundational requirement of the governance module is the continuous, ubiquitous discovery of AI agents deployed across corporate endpoints. Because AI capabilities manifest across a vast spectrum of software architectures—ranging from compiled binaries and Electron desktop applications to distributed Kubernetes deployments and local foundation models—the detection engine must utilise multi-layered telemetry across Windows, macOS, and Linux environments.</p>
+        
+        <p>The detection module must interrogate the filesystem and active memory to identify executables and running processes associated with known AI agents. Applications such as the ChatGPT Desktop client utilise the Electron framework, spawning multiple background processes. On macOS, these appear within the primary application bundle at <code>/Applications/ChatGPT.app</code> under nomenclature such as ChatGPT Helper and ChatGPT Helper (Renderer). On Windows systems, the application is distributed via the Microsoft Store and establishes a persistent background executable named <code>ChatGPTHelper.exe</code>, typically located deep within the user profile at <code>C:\Users\&lt;Username&gt;\AppData\Local\Programs\ChatGPT\resources\app.asar.unpacked\</code>. Similarly, the Claude Desktop application registers an App Execution Alias on Windows, resolving to <code>C:\Users\&lt;Username&gt;\AppData\Local\Microsoft\WindowsApps\Claude.exe</code>, which can often conflict with command-line interface equivalents if not properly managed. Enterprise-integrated agents, such as Microsoft Copilot, demand registry-level inspection; administrators can verify its presence or enforce its suppression by querying the package <code>MICROSOFT.COPILOT</code> or monitoring the Windows Registry key <code>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot\TurnOffWindowsCopilot</code>. GitHub Copilot, operating as an integrated development environment (IDE) extension, manifests as the <code>copilot-agent</code> executable, maintaining active JSON-RPC communications with the host editor.</p>
+        
+        <p>Command-line interfaces and development artifacts represent a secondary, highly volatile detection surface. Developer-focused AI agents are routinely installed globally via the Node Package Manager (NPM), Python's Pip, or macOS Homebrew. The Gemini CLI, installed via the <code>@google/gemini-cli</code> NPM package, executes under the <code>gemini</code> or <code>gemini-cli.cmd</code> binaries. The detection engine must scan global package installation prefixes, such as <code>C:\Users\&lt;Username&gt;\AppData\Roaming\npm\</code> on Windows or <code>~/.local/bin/</code> on Unix-based systems, to locate these binaries. The OpenAI Codex CLI exhibits a similar footprint, installing via the <code>@openai/codex</code> package and placing its <code>codex.exe</code> executable in local application data directories. Python-native agents, such as Open Interpreter, CrewAI, and AutoGPT, require the module to parse virtual environments, Pip manifests, and Poetry configurations. The module must identify structural markers indicative of agentic orchestration, such as <code>crew.py</code> or <code>tasks.yaml</code> for CrewAI, and Python module executions (<code>python -m autogpt</code>) operating alongside containerised artifacts like <code>docker-compose.yml</code> for AutoGPT.</p>
+        
+        <p>The rapid normalisation of the Model Context Protocol (MCP) necessitates the scanning of agent configurations and manifests. MCP serves as a universal standard connecting AI assistants to local and remote external tools. The presence of MCP configuration files is a definitive indicator of an active, tool-utilising AI agent. The governance module must systematically index the filesystem for <code>.mcp.json</code>, <code>mcp-config.json</code>, and client-specific configuration stores. Recognised default paths include <code>~/.deepagents/.mcp.json</code> for deep learning frameworks, <code>~/.copilot/mcp-config.json</code> for GitHub CLI integrations, and <code>%APPDATA%\Claude\claude_desktop_config.json</code> for Anthropic ecosystems.</p>
+        
+        <p>Furthermore, the detection mechanism must account for local AI models and embedded runtimes. Internal engineering teams increasingly deploy local LLMs to process sensitive intellectual property without transmitting data to external cloud providers. The detection engine must monitor for local inference servers and substantial model weight directories. The Ollama runtime, for instance, establishes a persistent background daemon listening on port 11434 and caches model files in predictable locations such as <code>C:\Users\%username%\.ollama\models</code> on Windows or <code>/usr/share/ollama/.ollama/models</code> on Linux. LM Studio, another prevalent local inference engine, defaults to port 1234 and exposes the <code>lms</code> command-line utility. Identifying these embedded runtimes is critical for assessing endpoint hardware utilisation and verifying that local inference adheres to corporate access controls.</p>
+      </section>
+
+      <!-- Phase 2: Vendor Verification -->
+      <section class="section-card glass" id="phase2">
+        <div class="section-num">Phase 02</div>
+        <h2 class="section-title">Vendor Verification and Ecosystem Topography</h2>
+        
+        <p>Upon the successful detection of an AI agent, the governance framework must programmatically validate the provenance and authenticity of the software. This phase involves resolving the publisher identity, verifying the official repository or vendor distribution portal, and confirming the status of the tool against established enterprise whitelists. Within the Indian regulatory paradigm, the SEBI CSCRF explicitly mandates the continuous generation of an SBOM for all critical applications, rendering vendor verification an indispensable compliance function.</p>
+        
+        <p>The vendor verification process begins by classifying the detected artifacts into macro-ecosystems, predominantly focusing on the major cloud providers and the open-source community. For agents originating from the Microsoft ecosystem—encompassing the standard Copilot, Azure AI Foundry Agents, and Semantic Kernel deployments—the module must verify cryptographic signatures binding the executables to the Microsoft Corporation. Azure AI Agents and Semantic Kernel components are deeply integrated into enterprise application development, requiring the module to trace package origins to official NuGet repositories or authorised Azure endpoints. Verification of the Google ecosystem, which includes Gemini, the Gemini CLI, and Vertex AI Agents, necessitates evaluating NPM package origins (e.g., verifying <code>@google/gemini-cli</code> against public registries) and ensuring network traffic is directed toward authenticated Google Cloud endpoints rather than consumer APIs. The OpenAI ecosystem, featuring the ChatGPT Desktop client, the OpenAI Agents SDK (<code>openai-agents</code> Python package), and the Codex CLI, requires similar validation. The module must confirm that the ChatGPT application is legitimately sourced from the Microsoft Store or official Apple DMG distributions, avoiding impersonation threats.</p>
+        
+        <p>The critical necessity of vendor verification is highlighted by the vulnerability of the AI software supply chain. Malicious actors have successfully executed sophisticated attacks by publishing trojanised packages masquerading as legitimate AI tooling. A notable precedent involves a malicious NPM package named <code>codexui-android</code>, which posed as a remote user interface for the OpenAI Codex. While maintaining a benign public GitHub repository, the attackers published obfuscated, malicious code directly to the NPM registry to exfiltrate long-lived developer authentication tokens. To combat such threats, the discovery module must cross-reference installed artifact hashes against known, secure baselines, ensuring that the deployed version aligns exactly with the vendor's official release.</p>
+      </section>
+
+      <!-- Phase 3: License Compliance -->
+      <section class="section-card glass" id="phase3">
+        <div class="section-num">Phase 03</div>
+        <h2 class="section-title">License Identification and Legal Compliance Analysis</h2>
+        
+        <p>The integration of AI agents introduces highly complex legal, intellectual property, and contractual liabilities. The governance framework must accurately extract the licensing metadata associated with every detected agent, evaluate its compatibility with enterprise operations, and codify the resulting obligations.</p>
+        
+        <p>Commercial AI agents, such as Microsoft 365 Copilot, GitHub Copilot, and ChatGPT Enterprise, are governed by proprietary Software as a Service (SaaS) agreements and End User License Agreements (EULAs). These frameworks inherently prohibit source modification and redistribution. However, they are fundamentally designed for enterprise adoption, providing explicit indemnification against copyright infringement claims arising from AI-generated outputs. Crucially, these enterprise subscription licenses define rigorous data retention and processing boundaries; vendors like Microsoft and OpenAI contractually commit to excluding enterprise customer data, prompts, and contextual artifacts from their foundational model training pipelines.</p>
+        
+        <p>Conversely, the open-source AI ecosystem relies on a bifurcated licensing model, balancing permissive frameworks with highly restrictive, copyleft variants. Agents such as Open Interpreter, CrewAI, and the OpenAI Agents SDK are distributed under permissive licenses, predominantly Apache 2.0 and the MIT License. These licenses are universally compatible with enterprise environments, granting the enterprise absolute freedom to modify the source code, deploy the software commercially, and redistribute derivative works without incurring obligations to publicly disclose proprietary corporate code.</p>
+        
+        <p>The compliance engine must systematically flag and isolate agents governed by restrictive or unconventional licenses. A primary example is the AutoGPT ecosystem. While the original standalone AutoGPT agent operates under the permissive MIT license, the overarching AutoGPT Platform architecture is governed by the Polyform Shield License. The Polyform Shield is explicitly engineered to restrict commercial entities from creating competing software products or offering direct, externalised access to the platform outside the host organisation. Furthermore, community-driven forks of open-source frameworks frequently adopt the GNU Affero General Public License (AGPL v3). The AGPL imposes severe "copyleft contamination" risks; it mandates that any modifications made to the software, even if solely deployed internally as a network-accessible SaaS application, must be fully open-sourced and provided to all interacting users. Integrating AGPL-licensed agents into proprietary enterprise workflows creates catastrophic intellectual property exposure.</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent Framework</th>
+                <th>License Designation</th>
+                <th>Commercial Use</th>
+                <th>Source Mod</th>
+                <th>Redistribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CrewAI</strong></td>
+                <td>MIT License</td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+              </tr>
+              <tr>
+                <td><strong>AutoGPT (Platform)</strong></td>
+                <td>Polyform Shield</td>
+                <td><span class="risk-badge risk-high">Restricted</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-high">Restricted</span></td>
+              </tr>
+              <tr>
+                <td><strong>GitHub Copilot</strong></td>
+                <td>Proprietary SaaS</td>
+                <td><span class="risk-badge risk-mod">Limited</span></td>
+                <td><span class="risk-badge risk-crit">No</span></td>
+                <td><span class="risk-badge risk-crit">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Open Interpreter</strong></td>
+                <td>Apache 2.0</td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+              </tr>
+              <tr>
+                <td><strong>OpenAI Agents SDK</strong></td>
+                <td>MIT License</td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+              </tr>
+              <tr>
+                <td><strong>Gemini CLI</strong></td>
+                <td>Apache 2.0</td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+                <td><span class="risk-badge risk-low">Yes</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Phase 4: Risk Capacity Methodology -->
+      <section class="section-card glass" id="phase4">
+        <div class="section-num">Phase 04</div>
+        <h2 class="section-title">Risk Carrying Capacity Assessment Methodology</h2>
+        
+        <p>To quantify the threat landscape, every detected agent must undergo a rigorous risk profiling process. The framework calculates a composite risk profile across five interdependent dimensions: Security, Data Privacy, Compliance, Supply Chain, and Operational impact. The final score is aggregated on a 0 to 100 scale. Scores between 0–20 indicate Low Risk, 21–40 indicate Moderate Risk, 41–60 signify High Risk, 61–80 denote Very High Risk, and 81–100 categorise the agent as a Critical Risk demanding immediate containment.</p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 25%;">Risk Dimension</th>
+                <th>Evaluation Criteria and Investigative Questions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Security Risk</strong></td>
+                <td>Can the agent autonomously execute system commands? Does it possess read/write access to the local filesystem? Can it access internal corporate network resources? Is it capable of invoking external APIs or modifying operating system configurations?</td>
+              </tr>
+              <tr>
+                <td><strong>Data Privacy Risk</strong></td>
+                <td>Does the agent transmit data to external, unvetted endpoints? Are cloud APIs utilised for inference? Does the vendor store user data or retain prompts for model training? Are third-party telemetry services active within the agent's binary?</td>
+              </tr>
+              <tr>
+                <td><strong>Compliance Risk</strong></td>
+                <td>Does the agent's operation violate the DPDP Act (unauthorised processing of personal data)? Are CERT-In 6-hour incident reporting requirements compromised by obscured agent activity? Does the deployment contravene SEBI CSCRF mandates regarding least-privilege access and continuous SOC monitoring?</td>
+              </tr>
+              <tr>
+                <td><strong>Supply Chain Risk</strong></td>
+                <td>Does the agent rely on a vast tree of open-source dependencies? Is the maintainer identity unknown or pseudonymous? Are the software releases cryptographically unverified? Do the underlying packages exhibit known, unpatched vulnerabilities (CVEs)?</td>
+              </tr>
+              <tr>
+                <td><strong>Operational Risk</strong></td>
+                <td>Does the agent exhibit non-deterministic, unbounded resource consumption (e.g., infinite LLM reasoning loops)? Is the maintenance burden excessively high due to rapid, breaking version changes? Does the architecture force the enterprise into inflexible vendor lock-in?</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The Model Context Protocol (MCP) significantly elevates the security risk dimension. While MCP facilitates modular tool integration, the specification inherently lacks mandatory client-side validation of server-provided metadata. This architectural gap allows attackers to execute MCP Configuration Poisoning; by introducing malicious <code>.mcp/config.json</code> files into a codebase, an attacker can force a developer's local AI agent to automatically connect to hostile external servers, exposing the endpoint without requiring any user interaction beyond opening the infected repository. Similarly, autonomous agents that generate and execute raw code (such as Bash scripts or Python modules) on the host machine introduce critical security risks. If an agent is subjected to a prompt injection attack, the resulting malicious payload is executed natively with the privileges of the host user, enabling rapid lateral movement and systemic compromise.</p>
+        
+        <p>Data privacy and compliance risks are deeply intertwined within the Indian jurisdiction. The DPDP Act prescribes punitive financial penalties for the unauthorised external transmission of personal data. Consumer-grade, cloud-tethered agents routinely retain user prompts to refine subsequent foundation models; if an employee inadvertently pastes proprietary financial data or customer PII into such an interface, the enterprise commits a definitive breach of the DPDP Act. Furthermore, the SEBI CSCRF dictates that regulated entities must maintain an active Security Operations Centre (SOC) capable of detecting anomalous activity. Unauthorised AI agents operating as "Shadow AI" evade standard proxy logging and endpoint detection, rendering the enterprise non-compliant with SEBI mandates and technically incapable of meeting the CERT-In requirement to report cyber incidents within six hours of occurrence.</p>
+      </section>
+
+      <!-- Phase 5: Final Governance and Risk Profiling Reports -->
+      <section class="section-card glass" id="phase5">
+        <div class="section-num">Phase 05</div>
+        <h2 class="section-title">Final Governance and Risk Profiling Reports</h2>
+        <p>The ensuing governance reports apply the discovery, licensing, and risk assessment methodologies established in the preceding phases to the specifically requested portfolio of enterprise and open-source AI agents.</p>
+        
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+          <input type="text" id="profileSearch" class="search-input" placeholder="Search agents or vendors..." onkeyup="filterProfiles()">
+          <div class="filter-tabs">
+            <span class="filter-tab active" onclick="setFilter('all', this)">All Tiers</span>
+            <span class="filter-tab" onclick="setFilter('low-mod', this)">Approved / Moderate</span>
+            <span class="filter-tab" onclick="setFilter('high-crit', this)">Review / Banned</span>
+          </div>
+        </div>
+
+        <!-- Profiles Container -->
+        <div class="profiles-grid" id="profilesContainer">
+
+          <!-- ================= MICROSOFT ECOSYSTEM ================= -->
+          <!-- Profile 1 -->
+          <div class="profile-card glass risk-high-accent" data-risk="high" data-vendor="microsoft" id="microsoft-ecosystem">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">Microsoft Copilot (Consumer)</span>
+                <span class="profile-vendor">Microsoft</span>
+              </div>
+              <span class="risk-badge risk-high">65 - Very High Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Windows Native Appx / Web App</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">Managed via Windows Feature updates</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Proprietary EULA</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (Background Service)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--high-risk-text)">Requires Review (Often Shadow IT)</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Block / Replace with 365 Enterprise</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">75</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">80</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">10</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 2 -->
+          <div class="profile-card glass risk-mod-accent" data-risk="moderate" data-vendor="microsoft">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">Microsoft 365 Copilot</span>
+                <span class="profile-vendor">Microsoft</span>
+              </div>
+              <span class="risk-badge risk-mod">25 - Moderate Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Integrated M365 Apps</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">Cloud-delivered M365 Desktop</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Enterprise Subscription License</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--low-risk-text)">Authorized</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Approved with Continuous Monitoring</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">30</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">10</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">10</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 3 -->
+          <div class="profile-card glass risk-mod-accent" data-risk="moderate" data-vendor="microsoft">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">GitHub Copilot</span>
+                <span class="profile-vendor">GitHub (Microsoft)</span>
+              </div>
+              <span class="risk-badge risk-mod">30 - Moderate Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">VS Code / VS Extension</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">%USERPROFILE%\.vscode\extensions\</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Enterprise Subscription License</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (copilot-agent daemon)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--low-risk-text)">Authorized</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Approved with Continuous Monitoring</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">40</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">20</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <div class="synthesis-card">
+            <div class="synthesis-title">🛡️ Microsoft Synthesis</div>
+            <p>The transition from consumer to enterprise tiers within the Microsoft ecosystem is non-negotiable for Indian corporations. Microsoft 365 Copilot and GitHub Copilot (Enterprise) are architected to satisfy sovereign regulatory demands. Microsoft explicitly supports data residency at rest within its Azure data centres located in Pune, Mumbai, and Chennai. This infrastructure alignment ensures that data processing complies with the DPDP Act and satisfies the SEBI CSCRF mandates regarding the geographical containment of sensitive financial data. The consumer variant of Windows Copilot, however, lacks these tenant-level isolations and must be systematically disabled across the endpoint fleet using AppLocker policies or registry modifications to prevent unintended data exfiltration.</p>
+          </div>
+
+
+          <!-- ================= GOOGLE ECOSYSTEM ================= -->
+          <!-- Profile 4 -->
+          <div class="profile-card glass risk-high-accent" data-risk="high" data-vendor="google" id="google-ecosystem">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">Google Gemini (Web/Workspace)</span>
+                <span class="profile-vendor">Google</span>
+              </div>
+              <span class="risk-badge risk-high">45 - High Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Cloud Application</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">Web Browser Execution</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Proprietary EULA</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (On Demand)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--high-risk-text)">Requires Review</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Audit Workspace Tier &amp; Block Consumer</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">60</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">70</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">10</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 5 -->
+          <div class="profile-card glass risk-high-accent" data-risk="high" data-vendor="google">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">Google Gemini CLI</span>
+                <span class="profile-vendor">Google</span>
+              </div>
+              <span class="risk-badge risk-high">68 - Very High Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Node.js CLI Wrapper</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">~/.local/bin/gemini or %APPDATA%\npm\</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Apache 2.0</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (npx / global install)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--high-risk-text)">Requires Review</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Block unless bound to Vertex AI Enterprise</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">75</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">80</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">85</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">40</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <div class="synthesis-card">
+            <div class="synthesis-title">🛡️ Google Synthesis</div>
+            <p>The Gemini CLI presents a complex governance challenge. As an open-source, terminal-first AI agent, it is designed to automate engineering workflows by reading local codebases and executing commands directly within the developer's shell. The critical failure point lies in authentication. If developers authenticate the CLI using personal Google accounts to access the free tier, all prompts, proprietary source code, and local context are transmitted outside the corporate boundary under consumer privacy policies. This creates a massive intellectual property vulnerability and a direct violation of the DPDP Act. The Gemini CLI can only be approved if identity and access management policies forcefully restrict its backend routing exclusively to enterprise-managed Vertex AI endpoints, thereby inheriting Google Cloud's enterprise data protection agreements.</p>
+          </div>
+
+
+          <!-- ================= OPENAI ECOSYSTEM ================= -->
+          <!-- Profile 6 -->
+          <div class="profile-card glass risk-mod-accent" data-risk="moderate" data-vendor="openai" id="openai-ecosystem">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">OpenAI ChatGPT Desktop</span>
+                <span class="profile-vendor">OpenAI</span>
+              </div>
+              <span class="risk-badge risk-mod">35 - Moderate Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">macOS / Windows App</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">/Applications/ChatGPT.app or AppData\Local\</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Proprietary EULA</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (ChatGPTHelper daemon)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--high-risk-text)">Requires Review</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Approved with Monitoring (Force Enterprise)</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">45</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">30</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">20</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 7 -->
+          <div class="profile-card glass risk-high-accent" data-risk="high" data-vendor="openai">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">OpenAI Codex CLI</span>
+                <span class="profile-vendor">OpenAI</span>
+              </div>
+              <span class="risk-badge risk-high">60 - High Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Rust Binary / NPM Wrapper</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">@openai/codex via NPM</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Apache 2.0 (CLI wrapper)</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (codex exec daemon)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--high-risk-text)">Requires Review</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Restrict from unmonitored CI/CD pipelines</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">80</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">65</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">50</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">40</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 8 -->
+          <div class="profile-card glass risk-mod-accent" data-risk="moderate" data-vendor="openai">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">OpenAI Agents SDK</span>
+                <span class="profile-vendor">OpenAI</span>
+              </div>
+              <span class="risk-badge risk-mod">25 - Moderate Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Python Framework</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">Virtual Env (openai-agents)</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">MIT License</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Passive (Invoked during run)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--low-risk-text)">Authorized</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Approved for Internal Development Teams</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">35</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">20</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">20</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">15</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <div class="synthesis-card">
+            <div class="synthesis-title">🛡️ OpenAI Synthesis</div>
+            <p>The deployment of OpenAI products hinges on leveraging their newly expanded enterprise data governance capabilities. OpenAI now offers data residency and inference residency for ChatGPT Enterprise and API platform customers, allowing Indian enterprises to store in-scope customer content at rest within supported regions, alleviating severe DPDP concerns. The ChatGPT Desktop application must be strictly configured to authenticate against the corporate tenant to inherit these protections.</p>
+            <p>The Codex CLI presents a far more insidious risk profile. Developers frequently utilise the codex exec command to deploy the agent headlessly within Continuous Integration/Continuous Deployment (CI/CD) pipelines. This grants an autonomous agent the capability to read repositories and execute terminal commands without human oversight. If an attacker injects a malicious prompt into a codebase processed by codex exec, the agent could inadvertently execute destructive commands on the build server. Furthermore, the reliance on NPM for distribution exposes the enterprise to supply chain attacks, as evidenced by the codexui-android incident. Conversely, the OpenAI Agents SDK is an MIT-licensed Python framework that provides developers with a structured, observable method for building multi-agent workflows, supporting both hosted and local MCP tools, making it a highly secure choice for internal engineering teams.</p>
+          </div>
+
+
+          <!-- ================= OPEN SOURCE ECOSYSTEM ================= -->
+          <!-- Profile 9 -->
+          <div class="profile-card glass risk-mod-accent" data-risk="moderate" data-vendor="opensource" id="opensource-ecosystem">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">CrewAI</span>
+                <span class="profile-vendor">CrewAI Inc. / Community</span>
+              </div>
+              <span class="risk-badge risk-mod">35 - Moderate Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Python Framework</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">Virtual Env (pip install crewai)</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">MIT License</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (Python execution)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--low-risk-text)">Authorized</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Approved with Monitoring</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">35</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">25</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">40</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">30</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 10 -->
+          <div class="profile-card glass risk-crit-accent" data-risk="critical" data-vendor="opensource">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">Open Interpreter</span>
+                <span class="profile-vendor">Community</span>
+              </div>
+              <span class="risk-badge risk-crit">85 - Critical Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Python / Rust Hybrid</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">~/.openinterpreter</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Apache 2.0</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (Terminal session)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--crit-risk-text)">Unauthorized</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Block Immediately</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">95</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">85</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">90</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">70</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <!-- Profile 11 -->
+          <div class="profile-card glass risk-crit-accent" data-risk="critical" data-vendor="opensource">
+            <div class="profile-hdr">
+              <div class="profile-name-box">
+                <span class="profile-name">AutoGPT</span>
+                <span class="profile-vendor">Significant Gravitas</span>
+              </div>
+              <span class="risk-badge risk-crit">95 - Critical Risk</span>
+            </div>
+            <div class="profile-grid">
+              <div class="p-item"><span class="p-lbl">Platform</span><span class="p-val">Python / Docker</span></div>
+              <div class="p-item"><span class="p-lbl">Path</span><span class="p-val">Cloned git repo / Docker containers</span></div>
+              <div class="p-item"><span class="p-lbl">License</span><span class="p-val">Polyform Shield / MIT</span></div>
+              <div class="p-item"><span class="p-lbl">Status</span><span class="p-val">Active (Continuous background loop)</span></div>
+              <div class="p-item"><span class="p-lbl">Authorization</span><span class="p-val" style="color: var(--crit-risk-text)">Unauthorized</span></div>
+              <div class="p-item"><span class="p-lbl">Recommendation</span><span class="p-val">Block Immediately</span></div>
+            </div>
+            <button class="score-breakdown-btn" onclick="toggleBreakdown(this)">
+              [+] View Risk Dimension Breakdown
+            </button>
+            <div class="score-breakdown">
+              <div class="scr-box"><div class="scr-val">100</div><div class="scr-lbl">Security</div></div>
+              <div class="scr-box"><div class="scr-val">100</div><div class="scr-lbl">Compliance</div></div>
+              <div class="scr-box"><div class="scr-val">95</div><div class="scr-lbl">Data Privacy</div></div>
+              <div class="scr-box"><div class="scr-val">90</div><div class="scr-lbl">Operational</div></div>
+            </div>
+          </div>
+
+          <div class="synthesis-card">
+            <div class="synthesis-title">🛡️ Open Source Synthesis</div>
+            <p>The architectural divide within the open-source community dictates the enterprise security posture. CrewAI is architected around deterministic, role-playing agents executing sequential or hierarchical tasks (e.g., a "Researcher" agent passing structured data to a "Writer" agent). Because CrewAI's execution graph is predefined, security teams can accurately map data flows, implement necessary guardrails, and maintain comprehensive audit logs that satisfy SEBI CSCRF and CERT-In mandates.</p>
+            <p>Conversely, Open Interpreter and AutoGPT act as unconstrained autonomous entities. Open Interpreter’s defining feature is its ability to translate natural language into raw code and execute it directly on the host machine's terminal. This architecture effectively hands the LLM root-level access to the local operating system, bypassing all established Data Loss Prevention (DLP) software and network proxies. AutoGPT exacerbates this risk through recursive autonomy; given a high-level goal, it continuously prompts itself to write code, search the internet, and execute commands until it believes the goal is met. This unpredictable behaviour inevitably leads to unintended data exposure, making it impossible to guarantee that personal data is not inadvertently exfiltrated, risking severe DPDP penalties. These unbridled execution models violate the fundamental principles of least-privilege architecture and must be aggressively blocked at the endpoint level.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Conclusions Section -->
+      <section class="section-card glass" id="conclusions">
+        <div class="section-num">Phase 06</div>
+        <h2 class="section-title">Strategic Conclusions and Operational Recommendations</h2>
+        
+        <p>The deployment of the AI Agent Discovery and Governance Module is not merely an exercise in technological optimisation; it is a critical defensive necessity dictated by the evolving legal and cyber threat landscape in India. As the telemetry and architectural analysis demonstrates, AI agents transcend the traditional boundaries of software applications. They are dynamic, non-deterministic entities capable of silently accessing internal file systems, orchestrating complex network requests via the Model Context Protocol, and autonomously altering host configurations.</p>
+        
+        <p>To navigate this landscape while preserving operational agility, the enterprise must adopt a binary governance stance. Cloud-tethered agents that guarantee local data residency and strict tenant isolation (e.g., Microsoft 365 Copilot) alongside predictable, deterministic open-source orchestrators (e.g., CrewAI, OpenAI Agents SDK) should form the sanctioned AI software catalogue. Conversely, unsandboxed, fully autonomous local agents (e.g., AutoGPT, Open Interpreter) must be explicitly banned and actively suppressed by endpoint detection and response (EDR) platforms. By institutionalising the discovery, licensing evaluation, and risk scoring methodologies outlined in this framework, the enterprise ensures systemic integrity, safeguards proprietary intellectual property, and maintains unassailable compliance with the DPDP Act, SEBI CSCRF, and CERT-In mandates.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 Enterprise AI Agent Governance Framework. Mumbai, India.</p>
+    <p style="margin-top: 4px; opacity: 0.6;">System Scanner Enterprise Integration // Localized Regulatory Verification</p>
+  </footer>
+
+  <script>
+    // Theme Toggle Functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', targetTheme);
+      localStorage.setItem('theme', targetTheme);
+    }
+
+    // Set saved theme on load
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Reading Progress Bar
+    window.onscroll = function() { updateProgress() };
+
+    function updateProgress() {
+      var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      var scrolled = (winScroll / height) * 100;
+      document.getElementById("myBar").style.width = scrolled + "%";
+    }
+
+    // Toggle Profile Risk Breakdown
+    function toggleBreakdown(btn) {
+      const breakdown = btn.nextElementSibling;
+      breakdown.classList.toggle('visible');
+      if (breakdown.classList.contains('visible')) {
+        btn.innerHTML = '[-] Hide Risk Dimension Breakdown';
+      } else {
+        btn.innerHTML = '[+] View Risk Dimension Breakdown';
+      }
+    }
+
+    // Interactive Filters
+    let currentFilter = 'all';
+
+    function setFilter(filter, el) {
+      // Toggle tabs active class
+      const tabs = document.querySelectorAll('.filter-tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      el.classList.add('active');
+
+      currentFilter = filter;
+      applyFilters();
+    }
+
+    function filterProfiles() {
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const query = document.getElementById('profileSearch').value.toLowerCase();
+      const cards = document.querySelectorAll('.profile-card');
+
+      cards.forEach(card => {
+        const title = card.querySelector('.profile-name').textContent.toLowerCase();
+        const vendor = card.dataset.vendor.toLowerCase();
+        const risk = card.dataset.risk; // 'low', 'moderate', 'high', 'critical'
+        
+        // Match Search Query
+        const matchesSearch = title.includes(query) || vendor.includes(query);
+
+        // Match Risk Tier Filter
+        let matchesRisk = false;
+        if (currentFilter === 'all') {
+          matchesRisk = true;
+        } else if (currentFilter === 'low-mod') {
+          matchesRisk = (risk === 'low' || risk === 'moderate');
+        } else if (currentFilter === 'high-crit') {
+          matchesRisk = (risk === 'high' || risk === 'critical');
+        }
+
+        if (matchesSearch && matchesRisk) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Sticky Nav Highlight Active Section on Scroll
+    const sections = document.querySelectorAll('section, header');
+    const navLi = document.querySelectorAll('.sidebar .nav-item');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= sectionTop - 120) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLi.forEach(li => {
+        li.classList.remove('active');
+        const href = li.querySelector('a').getAttribute('href').substring(1);
+        if (href === current) {
+          li.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
