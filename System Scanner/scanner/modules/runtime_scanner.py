@@ -28,6 +28,7 @@ MODULE_NUMBER = 6
 # Port mapping to common AI runtimes
 PORT_MAP = {
     11434: "Ollama (LLM Service)",
+    1234: "LM Studio (Local API Server)",
     8000: "vLLM / LocalAI / LiteLLM",
     5000: "Flask AI / Ollama Service",
     8080: "llama.cpp / LocalAI Server",

@@ -55,6 +55,7 @@ EXCLUDED_DIRS = {
 PATTERNS = {
     "LangChain Import": re.compile(r"\bfrom\s+langchain\b|\bimport\s+langchain\b"),
     "CrewAI Import": re.compile(r"\bfrom\s+crewai\b|\bimport\s+crewai\b"),
+    "AutoGen Import": re.compile(r"\bfrom\s+autogen\b|\bimport\s+autogen\b"),
     "Agent Instantiation": re.compile(r"\bAgent\s*\("),
     "Crew Instantiation": re.compile(r"\bCrew\s*\("),
     "AssistantAgent Instantiation": re.compile(r"\bAssistantAgent\s*\("),
