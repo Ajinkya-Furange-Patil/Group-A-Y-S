@@ -86,43 +86,53 @@ class APIScanner:
     MODULE_NAME = "APIScanner"
     MODULE_NUMBER = 7
 
-    def __init__(self, target_dir: str = ".") -> None:
+    def __init__(self, target_dir: str | None = None, max_depth: int | None = None) -> None:
         """Initialize the API Scanner and setup directories, exclusions, and regex patterns."""
-        self.target_dir = os.path.abspath(target_dir)
+        if target_dir:
+            self.target_dir = os.path.abspath(target_dir)
+            depth = max_depth if max_depth is not None else 5
+            self.targets = [(pathlib.Path(self.target_dir), depth)]
+        else:
+            self.target_dir = os.path.abspath(".")
 
-        # Resolve repository root dynamically if we are inside a git repository
-        repo_root = self.target_dir
-        path = pathlib.Path(self.target_dir).resolve()
-        for i, parent in enumerate([path] + list(path.parents)):
-            if i > 3:
-                break
-            if (parent / ".git").exists():
-                repo_root = str(parent)
-                break
+            # Resolve repository root dynamically if we are inside a git repository
+            repo_root = self.target_dir
+            path = pathlib.Path(self.target_dir).resolve()
+            for i, parent in enumerate([path] + list(path.parents)):
+                if i > 3:
+                    break
+                if (parent / ".git").exists():
+                    repo_root = str(parent)
+                    break
 
-        # Define targets to scan along with maximum depths
-        home = pathlib.Path.home()
-        self.targets = [
-            (home / "Downloads", 5),
-            (pathlib.Path(repo_root), 5),
-            (home, 3),  # general home scan last
-        ]
+            # Define targets to scan along with maximum depths
+            home = pathlib.Path.home()
+            dl_depth = max_depth if max_depth is not None else 5
+            repo_depth = max_depth if max_depth is not None else 5
+            home_depth = max_depth if max_depth is not None else 3
+            drive_depth = max_depth if max_depth is not None else 2
 
-        # Dynamically discover other drive directories
-        for drive_target in get_drive_targets():
-            try:
-                # Avoid duplicating home or repo_root
-                drive_target_res = drive_target.resolve()
-                home_res = home.resolve()
-                repo_res = pathlib.Path(repo_root).resolve()
-                if drive_target_res == home_res or drive_target_res == repo_res:
-                    continue
-                if drive_target_res == home_res.parent:
-                    continue
-                # Use a shallow depth of 2 for other drive directories to prevent scanning entire installations
-                self.targets.append((drive_target, 2))
-            except Exception:
-                self.targets.append((drive_target, 2))
+            self.targets = [
+                (home / "Downloads", dl_depth),
+                (pathlib.Path(repo_root), repo_depth),
+                (home, home_depth),  # general home scan last
+            ]
+
+            # Dynamically discover other drive directories
+            for drive_target in get_drive_targets():
+                try:
+                    # Avoid duplicating home or repo_root
+                    drive_target_res = drive_target.resolve()
+                    home_res = home.resolve()
+                    repo_res = pathlib.Path(repo_root).resolve()
+                    if drive_target_res == home_res or drive_target_res == repo_res:
+                        continue
+                    if drive_target_res == home_res.parent:
+                        continue
+                    # Use a shallow depth of 2 for other drive directories to prevent scanning entire installations
+                    self.targets.append((drive_target, drive_depth))
+                except Exception:
+                    self.targets.append((drive_target, drive_depth))
         
         # Regex patterns for matching API keys and credentials
         self.patterns = {

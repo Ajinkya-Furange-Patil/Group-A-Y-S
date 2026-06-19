@@ -43,12 +43,14 @@ class ScanController:
         result = controller.run_scan()
     """
 
-    def __init__(self, quick: bool = False) -> None:
+    def __init__(self, quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None) -> None:
         """Initialize the Scan Controller with engine and classifier instances."""
         self._engine = DiscoveryEngine()
         self._classifier = ClassificationEngine()
         self._quick = quick
-        logger.info("Scan Controller initialized (quick=%s)", quick)
+        self._scan_folder = scan_folder
+        self._max_depth = max_depth
+        logger.info("Scan Controller initialized (quick=%s, folder=%s, depth=%s)", quick, scan_folder, max_depth)
 
     def _register_modules(self) -> None:
         """Register all available scanner modules with the Discovery Engine.
@@ -68,7 +70,7 @@ class ScanController:
         # ── MODULE 02: File Scanner ──────────────────────────────────────
         try:
             from scanner.modules.file_scanner import FileScanner
-            self._engine.register_module(FileScanner(quick=self._quick))
+            self._engine.register_module(FileScanner(quick=self._quick, scan_folder=self._scan_folder, max_depth=self._max_depth))
             logger.info("Successfully registered MODULE 02: FileScanner")
         except ImportError:
             logger.debug("MODULE 02: FileScanner not available (ImportError)")
@@ -98,7 +100,7 @@ class ScanController:
         # ── MODULE 05: Agent Scanner ─────────────────────────────────────
         try:
             from scanner.modules.agent_scanner import AgentScanner
-            self._engine.register_module(AgentScanner())
+            self._engine.register_module(AgentScanner(scan_folder=self._scan_folder, max_depth=self._max_depth))
             logger.info("Successfully registered MODULE 05: AgentScanner")
         except ImportError:
             logger.debug("MODULE 05: AgentScanner not available (ImportError)")
@@ -118,7 +120,7 @@ class ScanController:
         # ── MODULE 07: API Scanner ───────────────────────────────────────
         try:
             from scanner.modules.api_scanner import APIScanner
-            self._engine.register_module(APIScanner())
+            self._engine.register_module(APIScanner(target_dir=self._scan_folder, max_depth=self._max_depth))
             logger.info("Successfully registered MODULE 07: APIScanner")
         except ImportError:
             logger.debug("MODULE 07: APIScanner not available (ImportError)")

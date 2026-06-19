@@ -318,7 +318,7 @@ def get_drive_targets() -> list[pathlib.Path]:
     return list(set(targets))
 
 
-def run(quick: bool = False) -> tuple[list[Finding], ModuleInfo]:
+def run(quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None) -> tuple[list[Finding], ModuleInfo]:
     """Execute the File Scanner module.
 
     Walks specific high-probability AI cache folders (HuggingFace, Ollama, Downloads)
@@ -344,53 +344,63 @@ def run(quick: bool = False) -> tuple[list[Finding], ModuleInfo]:
                 break
 
         # Define targets with search depth
-        # For Hugging Face and Ollama we scan deeply since they are standard stores
-        if quick:
-            targets = [
-                (home / ".cache" / "huggingface", 1),
-                (home / ".cache" / "lm-studio", 1),
-                (home / ".ollama", 1),
-                (home / "Downloads", 1),
-                (repo_root, 1),
-                # General home directory scan with a depth limit of 0 in quick mode
-                (home, 0),
-            ]
-            local_appdata = os.environ.get("LOCALAPPDATA")
-            if local_appdata:
-                targets.append((pathlib.Path(local_appdata) / "lm-studio", 1))
+        if scan_folder:
+            target_path = pathlib.Path(scan_folder).resolve()
+            depth = max_depth if max_depth is not None else (1 if quick else 5)
+            targets = [(target_path, depth)]
         else:
-            targets = [
-                (home / ".cache" / "huggingface", 5),
-                (home / ".cache" / "lm-studio", 5),
-                (home / ".ollama", 5),
-                (home / "Downloads", 5),
-                (repo_root, 5),
-                # General home directory scan with a depth limit of 3
-                (home, 3),
-            ]
-            local_appdata = os.environ.get("LOCALAPPDATA")
-            if local_appdata:
-                targets.append((pathlib.Path(local_appdata) / "lm-studio", 5))
+            # For Hugging Face and Ollama we scan deeply since they are standard stores
+            if quick:
+                hf_d = max_depth if max_depth is not None else 1
+                home_d = max_depth if max_depth is not None else 0
+                targets = [
+                    (home / ".cache" / "huggingface", hf_d),
+                    (home / ".cache" / "lm-studio", hf_d),
+                    (home / ".ollama", hf_d),
+                    (home / "Downloads", hf_d),
+                    (repo_root, hf_d),
+                    # General home directory scan with a depth limit of 0 in quick mode
+                    (home, home_d),
+                ]
+                local_appdata = os.environ.get("LOCALAPPDATA")
+                if local_appdata:
+                    targets.append((pathlib.Path(local_appdata) / "lm-studio", hf_d))
+            else:
+                hf_d = max_depth if max_depth is not None else 5
+                home_d = max_depth if max_depth is not None else 3
+                drive_d = max_depth if max_depth is not None else 2
+                targets = [
+                    (home / ".cache" / "huggingface", hf_d),
+                    (home / ".cache" / "lm-studio", hf_d),
+                    (home / ".ollama", hf_d),
+                    (home / "Downloads", hf_d),
+                    (repo_root, hf_d),
+                    # General home directory scan with a depth limit of 3
+                    (home, home_d),
+                ]
+                local_appdata = os.environ.get("LOCALAPPDATA")
+                if local_appdata:
+                    targets.append((pathlib.Path(local_appdata) / "lm-studio", hf_d))
 
-            # Dynamically discover other drive directories
-            for drive_target in get_drive_targets():
-                try:
-                    # Avoid duplicating home or repo_root
-                    drive_target_res = drive_target.resolve()
-                    home_res = home.resolve()
-                    repo_res = repo_root.resolve()
-                    if drive_target_res == home_res or drive_target_res == repo_res:
-                        continue
-                    if drive_target_res == home_res.parent:
-                        continue
-                    # Use a shallow depth of 2 for other drive directories to prevent scanning entire installations
-                    targets.append((drive_target, 2))
-                except Exception:
-                    targets.append((drive_target, 2))
+                # Dynamically discover other drive directories
+                for drive_target in get_drive_targets():
+                    try:
+                        # Avoid duplicating home or repo_root
+                        drive_target_res = drive_target.resolve()
+                        home_res = home.resolve()
+                        repo_res = repo_root.resolve()
+                        if drive_target_res == home_res or drive_target_res == repo_res:
+                            continue
+                        if drive_target_res == home_res.parent:
+                            continue
+                        # Use a shallow depth of 2 for other drive directories to prevent scanning entire installations
+                        targets.append((drive_target, drive_d))
+                    except Exception:
+                        targets.append((drive_target, drive_d))
 
-        for target_dir, max_depth in targets:
+        for target_dir, max_depth_val in targets:
             if target_dir.exists() and target_dir.is_dir():
-                findings.extend(scan_directory(target_dir, max_depth, scanned_files))
+                findings.extend(scan_directory(target_dir, max_depth_val, scanned_files))
 
         module_info.status = "success"
 
@@ -411,11 +421,13 @@ class FileScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
-    def __init__(self, quick: bool = False) -> None:
+    def __init__(self, quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None) -> None:
         self.quick = quick
+        self.scan_folder = scan_folder
+        self.max_depth = max_depth
 
     def scan(self) -> list[Finding]:
-        findings, _ = run(quick=self.quick)
+        findings, _ = run(quick=self.quick, scan_folder=self.scan_folder, max_depth=self.max_depth)
         return findings
 
 

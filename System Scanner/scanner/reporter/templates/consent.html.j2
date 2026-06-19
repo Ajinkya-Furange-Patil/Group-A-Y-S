@@ -299,6 +299,45 @@
       width: 0%;
       transition: width 0.4s;
     }
+    
+    /* Custom Input and Select Controls */
+    .control-group-hud {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .hud-label {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .hud-select, .hud-input-text, .hud-input-number {
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      background-color: var(--hud-panel-bg);
+      border: 1px solid var(--hud-border-dim);
+      color: var(--text-main);
+      padding: 9px 12px;
+      outline: none;
+      transition: all 0.25s;
+    }
+    .hud-select:focus, .hud-input-text:focus, .hud-input-number:focus {
+      border-color: var(--hud-red);
+      box-shadow: 0 0 8px rgba(211, 13, 48, 0.25);
+    }
+    .hud-select option {
+      background-color: var(--hud-bg);
+      color: var(--text-main);
+    }
+    .hud-input-text::placeholder {
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body class="dark-theme">
@@ -350,16 +389,34 @@
           </div>
         </div>
 
-        <div class="control-group">
-          <!-- Quick Mode Toggle -->
-          <label class="checkbox-label">
-            <input type="checkbox" id="quickModeToggle" checked />
-            <div class="checkbox-desc">
-              <strong>Quick Scan Mode</strong>
-              <div class="checkbox-help">Limits search path recursive depth to prevent network performance lags. Recommended.</div>
-            </div>
-          </label>
+        <!-- Scan Target Selector -->
+        <div class="control-group-hud">
+          <label class="hud-label">// Target System Region</label>
+          <select id="targetRegionSelect" class="hud-select" onchange="toggleFolderInput(); validateConsent();">
+            <option value="entire">Entire Host System (Full Walk)</option>
+            <option value="folder">Specific Directory Path Hook</option>
+          </select>
+          <div id="folderInputContainer" style="display: none; margin-top: 8px;">
+            <label class="hud-label">// Absolute Path Location</label>
+            <input type="text" id="folderPathInput" class="hud-input-text" placeholder="e.g. C:\Users\Username\Project" style="width: 100%; box-sizing: border-box;" oninput="validateConsent();" />
+          </div>
+        </div>
 
+        <!-- Scan Depth Selector -->
+        <div class="control-group-hud">
+          <label class="hud-label">// Filesystem Recurse Depth Limit</label>
+          <select id="depthLevelSelect" class="hud-select" onchange="toggleDepthInput(); validateConsent();">
+            <option value="default">Default Scan Depth (10)</option>
+            <option value="faster">Faster Scan Mode (2)</option>
+            <option value="custom">Custom Depth Limit...</option>
+          </select>
+          <div id="depthInputContainer" style="display: none; margin-top: 8px;">
+            <label class="hud-label">// Max Depth Value (Integer)</label>
+            <input type="number" id="customDepthInput" class="hud-input-number" min="0" max="100" value="10" style="width: 100%; box-sizing: border-box;" oninput="validateConsent();" />
+          </div>
+        </div>
+
+        <div class="control-group" style="margin-top: 20px;">
           <!-- Consent Checkbox -->
           <label class="checkbox-label">
             <input type="checkbox" id="consentCheckbox" onchange="validateConsent()" />
@@ -412,41 +469,95 @@
       }
     }
 
+    function toggleFolderInput() {
+      const select = document.getElementById('targetRegionSelect');
+      const container = document.getElementById('folderInputContainer');
+      container.style.display = (select.value === 'folder') ? 'block' : 'none';
+    }
+
+    function toggleDepthInput() {
+      const select = document.getElementById('depthLevelSelect');
+      const container = document.getElementById('depthInputContainer');
+      container.style.display = (select.value === 'custom') ? 'block' : 'none';
+    }
+
     function validateConsent() {
       const isChecked = document.getElementById('consentCheckbox').checked;
-      document.getElementById('startScanBtn').disabled = !isChecked;
+      const targetRegion = document.getElementById('targetRegionSelect').value;
+      let pathValid = true;
+      if (targetRegion === 'folder') {
+        const folderPath = document.getElementById('folderPathInput').value.trim();
+        pathValid = folderPath.length > 0;
+      }
+      
+      const depthLevel = document.getElementById('depthLevelSelect').value;
+      let depthValid = true;
+      if (depthLevel === 'custom') {
+        const depthVal = document.getElementById('customDepthInput').value.trim();
+        depthValid = depthVal.length > 0 && !isNaN(depthVal) && parseInt(depthVal) >= 0;
+      }
+
+      document.getElementById('startScanBtn').disabled = !(isChecked && pathValid && depthValid);
     }
 
     function triggerScan() {
-      const quickScan = document.getElementById('quickModeToggle').checked;
+      const targetRegion = document.getElementById('targetRegionSelect').value;
+      const folderPath = (targetRegion === 'folder') ? document.getElementById('folderPathInput').value.trim() : '';
+
+      const depthLevel = document.getElementById('depthLevelSelect').value;
+      let depthValue = 10;
+      if (depthLevel === 'faster') {
+        depthValue = 2;
+      } else if (depthLevel === 'custom') {
+        depthValue = parseInt(document.getElementById('customDepthInput').value) || 10;
+      }
+
+      const quickScan = (depthLevel === 'faster');
       
       // Hide Consent, Show Loader
       document.getElementById('consentContent').style.display = 'none';
       document.getElementById('loadingContent').style.display = 'block';
 
-      // Progressive status updates simulating the scan modules
-      const statusUpdates = [
-        { progress: 10, text: "Launching Discovery Engines...", sub: "Instantiating scanner core processes." },
-        { progress: 25, text: "Reading Hardware Attributes...", sub: "Inspecting host system configuration & CPU/RAM details." },
-        { progress: 45, text: "Walking File Trees...", sub: quickScan ? "Quick-scanning top-level user directories." : "Recursively scanning user filesystems. (This may take up to 45 seconds...)" },
-        { progress: 65, text: "Scanning Running Processes...", sub: "Inspecting port connections & host process list." },
-        { progress: 80, text: "Searching Credentials Cache...", sub: "Reviewing environment configuration files for credentials." },
-        { progress: 95, text: "Compiling Report Formats...", sub: "Structuring findings and outputting visual report layouts." }
-      ];
+      const progressBar = document.getElementById('progressBar');
+      const loadingStatus = document.getElementById('loadingStatus');
+      const loadingSubtext = document.getElementById('loadingSubtext');
 
-      let updateIndex = 0;
+      let progress = 10;
+      progressBar.style.width = progress + "%";
+      loadingStatus.textContent = "Launching Discovery Engines...";
+      loadingSubtext.textContent = "Instantiating scanner core processes.";
+
       const progressInterval = setInterval(() => {
-        if (updateIndex < statusUpdates.length) {
-          const item = statusUpdates[updateIndex];
-          document.getElementById('progressBar').style.width = item.progress + "%";
-          document.getElementById('loadingStatus').textContent = item.text;
-          document.getElementById('loadingSubtext').textContent = item.sub;
-          updateIndex++;
+        if (progress < 90) {
+          if (progress < 25) {
+            progress += 5;
+            progressBar.style.width = progress + "%";
+            loadingStatus.textContent = "Reading Hardware Attributes...";
+            loadingSubtext.textContent = "Inspecting host system configuration & CPU/RAM details.";
+          } else if (progress < 45) {
+            progress += 5;
+            progressBar.style.width = progress + "%";
+            loadingStatus.textContent = "Scanning Running Processes...";
+            loadingSubtext.textContent = "Inspecting port connections & host process list.";
+          } else {
+            // We are scanning the filesystem, which takes the longest. Stay on this step and increment slowly.
+            progress += (progress < 85) ? 1 : 0;
+            progressBar.style.width = progress + "%";
+            loadingStatus.textContent = "Performing System Filesystem Scan...";
+            loadingSubtext.textContent = folderPath 
+              ? `Walking directory: ${folderPath}` 
+              : `Performing filesystem search (depth ${depthValue})...`;
+          }
         }
-      }, quickScan ? 800 : 4500); // Slower progress increments for full scan
+      }, 1000);
 
       // Make network request to trigger the Python scan controller
-      fetch(`/run-scan?quick=${quickScan}`)
+      let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
+      if (folderPath) {
+        url += `&folder=${encodeURIComponent(folderPath)}`;
+      }
+
+      fetch(url)
         .then(response => {
           if (!response.ok) {
             throw new Error("Scan process encountered an internal error.");
@@ -455,19 +566,25 @@
         })
         .then(data => {
           clearInterval(progressInterval);
-          document.getElementById('progressBar').style.width = "100%";
-          document.getElementById('loadingStatus').textContent = "Telemetry Scan Complete";
-          document.getElementById('loadingSubtext').textContent = "Redirecting to scan dashboard...";
+          progressBar.style.width = "95%";
+          loadingStatus.textContent = "Compiling Report Formats...";
+          loadingSubtext.textContent = "Structuring findings and outputting visual report layouts.";
           
           setTimeout(() => {
-            window.location.href = "/report";
+            progressBar.style.width = "100%";
+            loadingStatus.textContent = "Telemetry Scan Complete";
+            loadingSubtext.textContent = "Redirecting to scan dashboard...";
+            
+            setTimeout(() => {
+              window.location.href = "/report";
+            }, 800);
           }, 1000);
         })
         .catch(err => {
           clearInterval(progressInterval);
-          document.getElementById('loadingStatus').textContent = "ERROR OCCURRED";
-          document.getElementById('loadingSubtext').textContent = err.message;
-          document.getElementById('loadingSubtext').style.color = "var(--hud-red)";
+          loadingStatus.textContent = "ERROR OCCURRED";
+          loadingSubtext.textContent = err.message;
+          loadingSubtext.style.color = "var(--hud-red)";
           
           setTimeout(() => {
             // Restore consent form to try again

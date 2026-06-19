@@ -83,6 +83,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Enable quick scan mode (file scanner only scans top-level home dirs)",
     )
     parser.add_argument(
+        "--folder", "--path", "-p",
+        type=str,
+        default=None,
+        help="Specific folder or directory to scan only",
+    )
+    parser.add_argument(
+        "--depth", "-d",
+        type=int,
+        default=None,
+        help="Custom depth level/limit for filesystem traversal walks",
+    )
+    parser.add_argument(
         "--format",
         choices=["json", "html", "both"],
         default="json",
@@ -96,28 +108,114 @@ def build_parser() -> argparse.ArgumentParser:
         "Example: --output report → report.json",
     )
     parser.add_argument(
-        "--server",
-        action="store_true",
-        help="Start local HTTP server for remote scan authorization and viewing",
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8000,
-        help="Port to run the server on (default: 8000)",
-    )
-    parser.add_argument(
-        "--host",
-        type=str,
-        default="0.0.0.0",
-        help="Host address to bind the server to (default: 0.0.0.0)",
-    )
-    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose/debug logging",
     )
     return parser
+
+
+def print_cyber_hud_report(result) -> None:
+    """Print a highly styled cyberpunk HUD style findings report in the terminal."""
+    import re
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    GOLD = "\033[38;5;220m"
+    AMBER = "\033[38;5;214m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    CYAN = "\033[36m"
+
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*[mK]')
+    def get_visible_len(s: str) -> int:
+        return len(ansi_escape.sub('', s))
+
+    def print_hud_line(content_styled: str) -> None:
+        visible_len = get_visible_len(content_styled)
+        padding = 77 - visible_len
+        pad_str = " " * max(0, padding)
+        print(f"{BOLD}{GOLD}│{RESET}{content_styled}{pad_str}{BOLD}{GOLD}│{RESET}")
+
+    # Top border
+    print(f"\n{BOLD}{GOLD}┌" + "─" * 77 + f"┐{RESET}")
+    
+    # Header Info
+    print_hud_line(f" Access to file: {BOLD}{GREEN}GRANTED{RESET}                   [|| ||| | ||]   {BOLD}{GOLD}/// FILE-5{RESET}")
+    print_hud_line(f" User ID: {DIM}214-SYS{RESET}                             BASIC • AUDIT • DEVICE")
+    print_hud_line(f" User restrictions: {BOLD}{GREEN}NONE{RESET}")
+    
+    # Separator
+    print(f"{BOLD}{GOLD}├" + "─" * 77 + f"┤{RESET}")
+    
+    # Title
+    print_hud_line(f"{' ' * 24}{BOLD}{GOLD}A I   D E T E C T I O N S   L O G{RESET}")
+    
+    # Separator
+    print(f"{BOLD}{GOLD}├" + "─" * 77 + f"┤{RESET}")
+    
+    # Top Grid Dots
+    print_hud_line(f"      {DIM}+                   +                   +                   +{RESET}")
+
+    findings = result.findings
+    if not findings:
+        print_hud_line(f"{' ' * 17}{BOLD}{GREEN}NO RISK DETECTORS TRIGGERED IN THIS REGION{RESET}")
+        print_hud_line(f"      {DIM}+                   +                   +                   +{RESET}")
+    else:
+        # Sort findings by risk score DESC
+        sorted_findings = sorted(findings, key=lambda f: f.risk_level.numeric_score, reverse=True)
+        for f in sorted_findings:
+            # Color risk badge
+            if f.risk_level.value == "critical":
+                risk_badge = f"{BOLD}{RED}[CRITICAL]{RESET}"
+            elif f.risk_level.value == "high":
+                risk_badge = f"{BOLD}{AMBER}[  HIGH  ]{RESET}"
+            elif f.risk_level.value == "medium":
+                risk_badge = f"{BOLD}{YELLOW}[ MEDIUM ]{RESET}"
+            elif f.risk_level.value == "low":
+                risk_badge = f"{BOLD}{BLUE}[  LOW   ]{RESET}"
+            else:
+                risk_badge = f"{BOLD}{GREEN}[  INFO  ]{RESET}"
+            
+            # Category
+            cat_str = f.category.value if hasattr(f.category, "value") else str(f.category)
+            cat_styled = f"{CYAN}{cat_str[:12]:<12}{RESET}"
+            
+            # Title
+            title_styled = f"{BOLD}{f.title[:30]:<30}{RESET}"
+            
+            # Print main finding line
+            print_hud_line(f"  {BOLD}{GOLD}[{f.finding_id}]{RESET} {risk_badge} {cat_styled} | {title_styled}")
+            
+            # Print source line
+            src_str = f.source
+            
+            # Split src_str into chunks of 61 characters to show the entire path
+            max_chunk = 61
+            chunks = [src_str[i:i+max_chunk] for i in range(0, len(src_str), max_chunk)]
+            if not chunks:
+                chunks = [""]
+            
+            # Print first chunk with "Source: " prefix
+            print_hud_line(f"        {DIM}Source: {chunks[0]}")
+            
+            # Print subsequent chunks indented
+            for chunk in chunks[1:]:
+                print_hud_line(f"                {chunk}")
+                
+            print_hud_line(f"      {DIM}+                   +                   +                   +{RESET}")
+
+    # Bottom Separator
+    print(f"{BOLD}{GOLD}├" + "─" * 77 + f"┤{RESET}")
+    
+    # Footer Info
+    print_hud_line(f" {BOLD}SUMMARY:{RESET} {len(findings)} files/processes flagged.")
+    print_hud_line(f" {DIM}\\\\ DIAGONAL ACCENT SUB-GRID v1.0.0 \\\\{RESET}")
+    
+    # Bottom border
+    print(f"{BOLD}{GOLD}└" + "─" * 77 + f"┘{RESET}")
 
 
 def main() -> None:
@@ -152,9 +250,10 @@ def main() -> None:
             print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
             print(f"{DIM}============================================================{RESET}")
             print("Choose an option:")
-            print("  [1] Run Full Scan & Open HTML Dashboard (Recommended)")
-            print("  [2] Run Quick Scan & Open HTML Dashboard (Faster)")
-            print("  [3] Exit")
+            print("  [1] Run Full System Scan & Show HUD Telemetry (Recommended)")
+            print("  [2] Run Quick Scan & Show HUD Telemetry (Faster)")
+            print("  [3] Scan Specific Directory only")
+            print("  [4] Exit")
             print(f"{DIM}============================================================{RESET}")
             try:
                 choice = input(f"{BOLD}Select an option [1]: {RESET}").strip()
@@ -168,10 +267,9 @@ def main() -> None:
                 quick = False
                 format = "both"
                 output = "report"
-                server = False
-                port = 8000
-                host = "0.0.0.0"
                 verbose = False
+                folder = None
+                depth = None
 
             args = InteractiveArgs()
             if not choice or choice == "1":
@@ -180,6 +278,21 @@ def main() -> None:
                 args.scan = True
                 args.quick = True
             elif choice == "3":
+                args.scan = True
+                try:
+                    f_path = input(f"{BOLD}Enter absolute folder path to scan: {RESET}").strip()
+                    if f_path:
+                        args.folder = f_path
+                    depth_in = input(f"{BOLD}Enter depth limit (default 5): {RESET}").strip()
+                    if depth_in:
+                        args.depth = int(depth_in)
+                except ValueError:
+                    print("Invalid depth. Defaulting to 5.")
+                    args.depth = 5
+                except (KeyboardInterrupt, EOFError):
+                    print("\nExiting.")
+                    sys.exit(0)
+            elif choice == "4":
                 print("Exiting.")
                 sys.exit(0)
             else:
@@ -187,8 +300,8 @@ def main() -> None:
                 continue
         else:
             args = parser.parse_args()
-            # If command-line args were provided but neither scan nor server was set
-            if not args.scan and not args.server:
+            # If command-line args were provided but scan was not set
+            if not args.scan:
                 parser.print_help()
                 sys.exit(0)
 
@@ -196,23 +309,12 @@ def main() -> None:
         setup_logging(verbose=args.verbose)
         logger = logging.getLogger("ai_scanner")
 
-        if args.server:
-            from scanner.server import ScanServer
-            server = ScanServer(host=args.host, port=args.port)
-            if interactive:
-                import webbrowser
-                webbrowser.open(f"http://localhost:{args.port}/")
-            server.start()
-            if not interactive:
-                sys.exit(0)
-            continue
-
         print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
         print(f"{DIM}============================================================{RESET}")
         logger.info("Scan initiated...")
 
         # Run the scan
-        controller = ScanController(quick=args.quick)
+        controller = ScanController(quick=args.quick, scan_folder=args.folder, max_depth=args.depth)
         result = controller.run_scan()
 
         # Output results
@@ -234,7 +336,8 @@ def main() -> None:
         else:
             # Default behavior when --output is not provided
             if args.format in ["json", "both"]:
-                print("\n" + json.dumps(result_dict, indent=2, ensure_ascii=False))
+                # Suppress printing raw JSON to terminal by default, as we now show a detailed HUD report
+                generate_json_report(result, "report.json")
             if args.format in ["html", "both"]:
                 # Auto-save HTML report as rendered_dashboard.html for preview
                 generate_html_report(result, "rendered_dashboard.html")
@@ -273,29 +376,19 @@ def main() -> None:
             print(f"  [{mod.module_number:02d}] {mod.name:<18} : {status_char:<18} {duration_str:<8} {DIM}{findings_str}{RESET}")
         print(f"{BOLD}{AMBER}╚══════════════════════════════════════════════════════════╝{RESET}")
 
-        # Auto-open dashboard in browser if run interactively (no arguments passed)
-        if interactive and args.scan:
-            import webbrowser
-            from pathlib import Path
-            
-            report_file = "report.html"
-            if args.output:
-                base_output = args.output
-                if base_output.lower().endswith(".json"):
-                    base_output = base_output[:-5]
-                elif base_output.lower().endswith(".html"):
-                    base_output = base_output[:-5]
-                report_file = f"{base_output}.html"
-            else:
-                report_file = "rendered_dashboard.html"
+        # Print the stunning cyberpunk HUD report preview
+        print_cyber_hud_report(result)
 
-            report_path = Path(report_file).absolute()
-            if report_path.exists():
-                print(f"\n{GREEN}Opening HTML Dashboard in your browser...{RESET}")
-                webbrowser.open(report_path.as_uri())
-            else:
-                print(f"\n{RED}Error: Could not find HTML report at {report_path}{RESET}")
-            
+        # Notify report location
+        report_file = "rendered_dashboard.html"
+        if args.output:
+            report_file = f"{base_output}.html"
+        print(f"\n{GREEN}✔ REPORT GENERATION COMPLETE{RESET}")
+        print(f"  - HTML Dashboard: {report_file}")
+        if args.output:
+            print(f"  - Raw JSON Data:  {base_output}.json")
+
+        if interactive:
             try:
                 input(f"\n{BOLD}Press Enter to return to the main menu...{RESET}")
             except (KeyboardInterrupt, EOFError):

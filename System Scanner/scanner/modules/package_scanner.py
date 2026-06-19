@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import pathlib
 import subprocess
 import sys
 import time
@@ -120,11 +121,45 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                 else:
                     category = FindingCategory.ML_FRAMEWORK
 
+                # Attempt to locate package directory on disk to provide a physical file location
+                package_location = f"pip://{name}"
+                try:
+                    import importlib.metadata
+                    dist = importlib.metadata.distribution(name)
+                    if dist:
+                        loc = dist.locate_file('')
+                        package_location = str(loc.resolve()).replace("\\", "/")
+                except Exception:
+                    pass
+
+                if package_location.startswith("pip://"):
+                    try:
+                        import importlib.util
+                        chk_name = name_lower.replace("-", "_")
+                        spec = importlib.util.find_spec(chk_name)
+                        if spec and spec.submodule_search_locations:
+                            package_location = str(pathlib.Path(spec.submodule_search_locations[0]).resolve()).replace("\\", "/")
+                        elif spec and spec.origin:
+                            package_location = str(pathlib.Path(spec.origin).parent.resolve()).replace("\\", "/")
+                    except Exception:
+                        pass
+
+                if package_location.startswith("pip://"):
+                    # Fallback to check sys.modules or normalized names
+                    try:
+                        chk_name = name_lower.replace("-", "_")
+                        if chk_name in sys.modules and hasattr(sys.modules[chk_name], "__file__"):
+                            file_path = sys.modules[chk_name].__file__
+                            if file_path:
+                                package_location = str(pathlib.Path(file_path).parent.resolve()).replace("\\", "/")
+                    except Exception:
+                        pass
+
                 finding = Finding(
                     module_name=MODULE_NAME,
                     title=f"Package: {name} ({version})",
                     description=f"Detected installed AI package: {name} (version {version})",
-                    source=f"pip://{name}",
+                    source=package_location,
                     category=category,
                     risk_level=RiskLevel.INFO,
                     confidence=0.9,
@@ -132,6 +167,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                         "package_name": name,
                         "version": version,
                         "installer": "pip",
+                        "install_location": package_location,
                     },
                 )
                 findings.append(finding)
