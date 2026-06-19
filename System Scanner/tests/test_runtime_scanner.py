@@ -131,9 +131,9 @@ class TestRuntimeScanner(unittest.TestCase):
 
         result = runtime_scanner._find_process_for_port(11434)
         self.assertIsNotNone(result)
-        self.assertEqual(result["pid"], 4567)
-        self.assertEqual(result["name"], "ollama.exe")
-        self.assertEqual(result["cmdline"], ["ollama", "serve"])
+        self.assertEqual(result["process_id"], 4567)
+        self.assertEqual(result["process_name"], "ollama.exe")
+        self.assertEqual(result["process_cmdline"], ["ollama", "serve"])
 
     @patch("psutil.net_connections")
     @patch("psutil.process_iter")
@@ -157,9 +157,9 @@ class TestRuntimeScanner(unittest.TestCase):
 
         result = runtime_scanner._find_process_for_port(1234)
         self.assertIsNotNone(result)
-        self.assertEqual(result["pid"], 7890)
-        self.assertEqual(result["name"], "lmstudio.exe")
-        self.assertEqual(result["cmdline"], ["lmstudio", "--port", "1234"])
+        self.assertEqual(result["process_id"], 7890)
+        self.assertEqual(result["process_name"], "lmstudio.exe")
+        self.assertEqual(result["process_cmdline"], ["lmstudio", "--port", "1234"])
 
     def test_class_wrapper(self):
         scanner = runtime_scanner.RuntimeScanner()

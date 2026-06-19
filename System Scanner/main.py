@@ -443,7 +443,6 @@ def main() -> None:
             except Exception as csv_err:
                 logger.warning("CSV SBOM export failed: %s", csv_err)
 
-<<<<<<< HEAD
         # Optional: Excel full report export
         excel_file = getattr(args, "export_excel", None)
         if excel_file:
@@ -453,7 +452,7 @@ def main() -> None:
                 print(f"  {GREEN}Excel report:{RESET}     {excel_file}")
             except Exception as xl_err:
                 logger.warning("Excel export failed: %s", xl_err)
-=======
+
         # Optional: JSON SBOM export (CycloneDX / SPDX)
         sbom_file = getattr(args, "export_sbom", None)
         if sbom_file:
@@ -463,7 +462,6 @@ def main() -> None:
                 print(f"  {GREEN}SBOM JSON ({format_type}):{RESET} {sbom_file}")
             except Exception as sbom_err:
                 logger.warning("JSON SBOM export failed: %s", sbom_err)
->>>>>>> ebd496c4e54375b02896fc1f557c7ac76aff923e
         # Select risk color based on score
         risk_score = summary.get("overall_risk_score", 0.0)
         if risk_score >= 75:
