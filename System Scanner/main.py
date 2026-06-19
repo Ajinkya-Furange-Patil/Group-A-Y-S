@@ -117,6 +117,30 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Enable verbose/debug logging",
     )
+    parser.add_argument(
+        "--export-siem",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Append scan telemetry to an NDJSON file for SIEM ingestion",
+    )
+    parser.add_argument(
+        "--export-csv",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Export findings as a CSV SBOM (e.g. --export-csv sbom.csv)",
+    )
+    parser.add_argument(
+        "--no-db",
+        action="store_true",
+        help="Skip writing this scan to the 180-day log retention database",
+    )
+    parser.add_argument(
+        "--history",
+        action="store_true",
+        help="Show scan history trend from the 180-day retention database and exit",
+    )
     return parser
 
 
@@ -207,6 +231,26 @@ def main() -> None:
                 sys.exit(0)
             continue
 
+        # --history mode: show retention DB trend and exit
+        if not interactive and hasattr(args, "history") and args.history:
+            from scanner.reporter.log_retention import LogRetentionDB
+            db = LogRetentionDB()
+            trend = db.get_trend_summary(days=30)
+            stats = db.get_stats()
+            print(f"\n{BOLD}{AMBER}180-Day Log Retention Summary{RESET}")
+            print(f"  DB path:       {stats['db_path']}")
+            print(f"  Total scans:   {stats['total_scans']}")
+            print(f"  Oldest record: {stats['oldest_record'] or 'N/A'}")
+            print(f"  DB size:       {stats['db_size_bytes']:,} bytes")
+            print(f"\n{BOLD}Last 30 days:{RESET}")
+            print(f"  Scans:         {trend['scan_count']}")
+            print(f"  Avg risk:      {trend['avg_risk']}")
+            print(f"  Max risk:      {trend['max_risk']}")
+            print(f"  Min risk:      {trend['min_risk']}")
+            print(f"  Total findings:{trend['total_findings']}")
+            db.close()
+            sys.exit(0)
+
         print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
         print(f"{DIM}============================================================{RESET}")
         logger.info("Scan initiated...")
@@ -240,7 +284,40 @@ def main() -> None:
                 generate_html_report(result, "rendered_dashboard.html")
 
         summary = result_dict.get("summary", {})
-        
+
+        # ── Developer C: SIEM / CSV / Log-Retention post-processing ──
+        from scanner.reporter.exporter import SIEMExporter, export_sbom_csv
+        from scanner.reporter.log_retention import LogRetentionDB
+
+        # Always archive to 180-day retention DB (unless --no-db)
+        no_db = getattr(args, "no_db", False)
+        if not no_db:
+            try:
+                db = LogRetentionDB()
+                db.store_scan(result)
+                db.close()
+                logger.info("Scan archived to 180-day retention database.")
+            except Exception as db_err:
+                logger.warning("Could not archive scan to retention DB: %s", db_err)
+
+        # Optional: NDJSON SIEM export
+        siem_file = getattr(args, "export_siem", None)
+        if siem_file:
+            try:
+                exporter = SIEMExporter()
+                exporter.export_to_file(result, siem_file)
+                print(f"  {GREEN}SIEM export:{RESET}      {siem_file}")
+            except Exception as siem_err:
+                logger.warning("SIEM export failed: %s", siem_err)
+
+        # Optional: CSV SBOM export
+        csv_file = getattr(args, "export_csv", None)
+        if csv_file:
+            try:
+                export_sbom_csv(result, csv_file)
+                print(f"  {GREEN}SBOM CSV export:{RESET}  {csv_file}")
+            except Exception as csv_err:
+                logger.warning("CSV SBOM export failed: %s", csv_err)
         # Select risk color based on score
         risk_score = summary.get("overall_risk_score", 0.0)
         if risk_score >= 75:

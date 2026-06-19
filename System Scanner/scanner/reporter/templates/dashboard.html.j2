@@ -1010,6 +1010,207 @@
       letter-spacing: 0.05em;
     }
 
+    /* ═══════════════ FILTER TABS (Day 3) ═══════════════ */
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter-tab {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--hud-red);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      background: rgba(211, 13, 48, 0.05);
+      border-color: var(--hud-red);
+    }
+    .filter-tab.active {
+      background: var(--hud-red);
+      color: #fff;
+      border-color: var(--hud-red);
+    }
+    .filter-tab .tab-count {
+      opacity: 0.75;
+      font-size: 0.68rem;
+      margin-left: 5px;
+    }
+
+    /* ═══════════════ RISK DIMENSION BARS (Day 4) ═══════════════ */
+    .risk-dimensions-panel {
+      margin-top: 18px;
+    }
+    .dim-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .dim-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      width: 120px;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .dim-bar-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(211,13,48,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .dim-bar-fill {
+      height: 100%;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dim-bar-fill.dim-security    { background: linear-gradient(90deg, #d30d30, #ff003c); }
+    .dim-bar-fill.dim-privacy     { background: linear-gradient(90deg, #e65c00, #ff7733); }
+    .dim-bar-fill.dim-compliance  { background: linear-gradient(90deg, #a87900, #ffd200); }
+    .dim-bar-fill.dim-supply      { background: linear-gradient(90deg, #005f99, #00aaff); }
+    .dim-bar-fill.dim-ops         { background: linear-gradient(90deg, #008f7a, #00ffcc); }
+    .dim-score-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-main);
+      width: 34px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════ EXPORT BUTTONS (Day 8) ═══════════════ */
+    .export-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+    .export-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .export-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--hud-red);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .export-btn:hover {
+      background: rgba(211, 13, 48, 0.08);
+      border-color: var(--hud-red);
+      color: var(--text-main);
+    }
+
+    /* ═══════════════ ALERT BADGES (Day 4) ═══════════════ */
+    .alert-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .alert-badge-critical {
+      background: rgba(211, 13, 48, 0.18);
+      color: var(--color-critical);
+      border: 1px solid var(--color-critical);
+      animation: flashCritical 2s infinite alternate;
+    }
+    .alert-badge-high {
+      background: rgba(230, 92, 0, 0.15);
+      color: var(--color-high);
+      border: 1px solid var(--color-high);
+    }
+    .alert-badge-medium {
+      background: rgba(255, 210, 0, 0.12);
+      color: var(--color-medium);
+      border: 1px solid var(--color-medium);
+    }
+
+    /* ═══════════════ SCAN PROGRESS / STATE FEEDBACK (Day 9) ═══════════════ */
+    .scan-progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(211, 13, 48, 0.08);
+      border-bottom: 1px solid var(--hud-border-dim);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .scan-progress-fill {
+      height: 100%;
+      background: var(--hud-red);
+      box-shadow: 0 0 8px rgba(211, 13, 48, 0.4);
+      transition: width 1.5s ease-in-out;
+    }
+
+    /* Hover card lift micro-animation (Day 9) */
+    .finding-card {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.22s ease,
+                  transform 0.22s ease;
+    }
+    .finding-card:hover {
+      transform: translateX(3px);
+    }
+    .metric-card {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.22s ease;
+    }
+    /* Sliding panel for finding body */
+    .finding-body {
+      animation: none;
+    }
+    .finding-card.open .finding-body {
+      display: block;
+      animation: slideDown 0.18s ease-out;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Fading tab transition */
+    @keyframes fadeTabIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .findings-container {
+      animation: fadeTabIn 0.2s ease-in;
+    }
+
     /* ═══════════════ SCROLLBAR ═══════════════ */
     ::-webkit-scrollbar {
       width: 6px;
@@ -1149,6 +1350,348 @@
       font-size: 0.72rem;
       color: var(--hud-red);
     }
+    /* ═══════════════ PDF MODAL ═══════════════ */
+    .pdf-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .pdf-modal-overlay.open {
+      display: flex;
+      animation: fadeTabIn 0.15s ease-out;
+    }
+    .pdf-modal {
+      background: var(--hud-panel-bg);
+      border: 1px solid var(--hud-red);
+      box-shadow: 0 0 40px rgba(211, 13, 48, 0.25), 0 20px 60px rgba(0,0,0,0.5);
+      padding: 32px 36px;
+      min-width: 440px;
+      max-width: 560px;
+      width: 90vw;
+      position: relative;
+      animation: slideDown 0.18s ease-out;
+    }
+    .pdf-modal-title {
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .pdf-modal-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--hud-red);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+    .pdf-option-group {
+      margin-bottom: 20px;
+    }
+    .pdf-option-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .pdf-option-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pdf-radio-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border: 1px solid var(--hud-border-dim);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      transition: all 0.18s;
+      user-select: none;
+      flex: 1;
+      min-width: 120px;
+    }
+    .pdf-radio-btn input[type="radio"] {
+      accent-color: var(--hud-red);
+      width: 13px;
+      height: 13px;
+    }
+    .pdf-radio-btn:has(input:checked),
+    .pdf-radio-btn.selected {
+      border-color: var(--hud-red);
+      background: rgba(211, 13, 48, 0.06);
+      color: var(--hud-red);
+    }
+    .pdf-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      user-select: none;
+    }
+    .pdf-checkbox-row input[type="checkbox"] {
+      accent-color: var(--hud-red);
+      width: 14px;
+      height: 14px;
+    }
+    .pdf-divider {
+      border: none;
+      border-top: 1px solid var(--hud-border-dim);
+      margin: 20px 0;
+    }
+    .pdf-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    .pdf-btn-cancel {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 9px 22px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.18s;
+    }
+    .pdf-btn-cancel:hover {
+      border-color: var(--text-muted);
+      color: var(--text-main);
+    }
+    .pdf-btn-generate {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 9px 26px;
+      border: 1px solid var(--hud-red);
+      background: var(--hud-red);
+      color: #ffffff;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .pdf-btn-generate:hover {
+      background: #b00027;
+      border-color: #b00027;
+      box-shadow: 0 0 14px rgba(211, 13, 48, 0.35);
+    }
+    .pdf-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .pdf-close-btn:hover { color: var(--hud-red); }
+    .pdf-preview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(211, 13, 48, 0.05);
+      border: 1px dashed var(--hud-border-dim);
+      padding: 8px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* ═══════════════ PRINT COVER PAGE ═══════════════ */
+    .print-cover {
+      display: none;  /* hidden in browser; shown only during print */
+    }
+
+    /* ═══════════════ PRINT / PDF MEDIA QUERY ═══════════════ */
+    @media print {
+      /* Reset page geometry */
+      @page {
+        size: A4 portrait;
+        margin: 14mm 12mm 12mm 12mm;
+      }
+
+      /* Hide everything interactive */
+      .hud-menu-bar,
+      .scan-progress-bar,
+      .filter-tabs,
+      .export-bar,
+      .filter-bar,
+      .theme-toggle-btn,
+      .scan-status-badge,
+      .scanline,
+      .pdf-modal-overlay,
+      .telemetry-addons-grid,
+      ::-webkit-scrollbar { display: none !important; }
+
+      /* Show cover page only in print */
+      .print-cover {
+        display: block !important;
+        page-break-after: always;
+        padding: 60px 40px 40px 40px;
+        border-bottom: 3px solid #d30d30;
+        margin-bottom: 32px;
+      }
+      .print-cover-title {
+        font-size: 28pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #d30d30;
+        margin-bottom: 6pt;
+      }
+      .print-cover-subtitle {
+        font-size: 11pt;
+        color: #475569;
+        font-family: 'Courier New', monospace;
+        margin-bottom: 40pt;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .print-cover-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10pt;
+        margin-bottom: 30pt;
+      }
+      .print-cover-item { padding: 8pt 0; border-bottom: 1px solid #e2e8f0; }
+      .print-cover-item-label {
+        font-size: 7.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        font-family: 'Courier New', monospace;
+      }
+      .print-cover-item-value {
+        font-size: 11pt;
+        font-weight: 700;
+        color: #1e293b;
+        font-family: 'Courier New', monospace;
+      }
+      .print-cover-risk-badge {
+        display: inline-block;
+        padding: 6pt 18pt;
+        font-size: 14pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border: 2px solid;
+        font-family: 'Courier New', monospace;
+        margin-top: 12pt;
+      }
+
+      /* Force white background, black text for print */
+      body, body.dark-theme {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Flatten panels */
+      .hud-panel {
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+      .hud-panel::before { display: none; }
+      .hud-corner { display: none; }
+
+      /* Summary section: stack vertically */
+      .summary-section {
+        grid-template-columns: 1fr !important;
+        break-inside: avoid;
+      }
+
+      /* Main grid: full width, no sidebar */
+      .main-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .sidebar-panel { display: none !important; }
+
+      /* Risk dimension panel */
+      .risk-dimensions-panel { break-inside: avoid; }
+
+      /* Expand ALL finding cards when printing */
+      .finding-card .finding-body {
+        display: block !important;
+      }
+      .expand-chevron { display: none; }
+
+      /* Finding cards: keep together */
+      .finding-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        transform: none !important;
+      }
+
+      /* Module sections: try to keep section header with first card */
+      .module-section { break-inside: auto; }
+      .module-section-title { break-after: avoid; }
+
+      /* Host info bar: single row */
+      .host-info-bar {
+        grid-template-columns: repeat(4, 1fr) !important;
+      }
+
+      /* Footer: always at page bottom */
+      .footer { break-before: page; }
+
+      /* Colour accents survive print */
+      .badge-severity-critical {
+        color: #d30d30 !important;
+        border-color: #d30d30 !important;
+        animation: none !important;
+      }
+      .badge-severity-high { color: #e65c00 !important; }
+      .badge-severity-medium { color: #a87900 !important; }
+      .badge-severity-low { color: #008f7a !important; }
+      .badge-severity-info { color: #0076a3 !important; }
+
+      /* Confidence bar: print-safe */
+      .confidence-bar {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      /* Dimension bars: print-safe */
+      .dim-bar-fill {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1156,8 +1699,106 @@
   <div class="scanline"></div>
 
   <div class="container">
+
+    <!-- ═══════════════ PRINT COVER PAGE (visible only during @media print) ═══════════════ -->
+    <div class="print-cover">
+      <div class="print-cover-title">AI Discovery Scanner</div>
+      <div class="print-cover-subtitle">// Telemetry &amp; Security Report — Confidential</div>
+      <div class="print-cover-grid">
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Scan ID</div>
+          <div class="print-cover-item-value">{{ result.scan_id }}</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Generated</div>
+          <div class="print-cover-item-value">{{ result.scan_timestamp }}</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Target Host</div>
+          <div class="print-cover-item-value">{{ result.hostname }}</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Operating System</div>
+          <div class="print-cover-item-value">{{ result.os_info }}</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Total Findings</div>
+          <div class="print-cover-item-value">{{ result.summary.total_findings }}</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Scan Duration</div>
+          <div class="print-cover-item-value">{{ "%.2f"|format(result.total_duration_sec) }}s</div>
+        </div>
+      </div>
+      <div class="print-cover-risk-badge" style="
+        color: {{ overall_risk_color }};
+        border-color: {{ overall_risk_color }};
+      ">
+        RISK LEVEL: {{ overall_risk_level }} &nbsp;|&nbsp; SCORE: {{ "%.1f"|format(risk_score) }}/100
+      </div>
+    </div>
+
+    <!-- ═══════════════ PDF EXPORT MODAL ═══════════════ -->
+    <div class="pdf-modal-overlay" id="pdf-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-title">
+      <div class="pdf-modal">
+        <button class="pdf-close-btn" onclick="closePdfModal()" aria-label="Close">✕</button>
+
+        <div class="pdf-modal-title" id="pdf-modal-title">📄 Generate PDF Report</div>
+        <div class="pdf-modal-subtitle">// Configure and download a formatted report</div>
+
+        <!-- Content scope -->
+        <div class="pdf-option-group">
+          <span class="pdf-option-label">Report Content</span>
+          <div class="pdf-option-row">
+            <label class="pdf-radio-btn">
+              <input type="radio" name="pdf-scope" value="all" checked onchange="updatePdfPreview()"> All Findings
+            </label>
+            <label class="pdf-radio-btn">
+              <input type="radio" name="pdf-scope" value="filtered" onchange="updatePdfPreview()"> Current Filter View
+            </label>
+            <label class="pdf-radio-btn">
+              <input type="radio" name="pdf-scope" value="summary" onchange="updatePdfPreview()"> Summary Only
+            </label>
+          </div>
+        </div>
+
+        <hr class="pdf-divider">
+
+        <!-- Sections to include -->
+        <div class="pdf-option-group">
+          <span class="pdf-option-label">Include Sections</span>
+          <label class="pdf-checkbox-row">
+            <input type="checkbox" id="pdf-inc-risk" checked onchange="updatePdfPreview()">
+            Risk Dimension Breakdown
+          </label>
+          <label class="pdf-checkbox-row">
+            <input type="checkbox" id="pdf-inc-host" checked onchange="updatePdfPreview()">
+            Host Information Bar
+          </label>
+          <label class="pdf-checkbox-row">
+            <input type="checkbox" id="pdf-inc-modules" checked onchange="updatePdfPreview()">
+            Module Compliance Panel (Sidebar)
+          </label>
+        </div>
+
+        <hr class="pdf-divider">
+
+        <!-- Preview badge -->
+        <div class="pdf-preview-badge" id="pdf-preview-badge">
+          <span>📋</span>
+          <span id="pdf-preview-text">Estimated: {{ result.summary.total_findings }} findings across {{ result.summary.modules_run }} modules</span>
+        </div>
+
+        <div class="pdf-modal-actions">
+          <button class="pdf-btn-cancel" onclick="closePdfModal()">Cancel</button>
+          <button class="pdf-btn-generate" onclick="generatePDF()">
+            <span>🖨</span> Generate PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
     
-    <!-- ═══════════════ HEADER PANEL ═══════════════ -->
     <header class="hud-panel header">
       <div class="hud-corner c-tl"></div>
       <div class="hud-corner c-tr"></div>
@@ -1194,6 +1835,11 @@
       <a href="#FileScanner" class="menu-item">THREAT VECTORS</a>
       <a href="#RuntimeScanner" class="menu-item">DIAGNOSTICS</a>
     </nav>
+
+    <!-- ═══════════════ SCAN PROGRESS BAR (Day 9 feedback) ═══════════════ -->
+    <div class="scan-progress-bar" title="Scan completion: 100%">
+      <div class="scan-progress-fill" id="scan-progress-fill" style="width: 0%;"></div>
+    </div>
 
     <!-- ═══════════════ TOP SECTION: GAUGES & SUMMARY METRICS ═══════════════ -->
     <div class="summary-section">
@@ -1357,9 +2003,177 @@
       </div>
     </div>
 
+    <!-- ═══════════════ RISK DIMENSION BREAKDOWN (Day 4) ═══════════════ -->
+    {# Count findings by risk tier for dimension scores #}
+    {% set critical_count = result.summary.findings_by_risk.get('critical', 0) | int %}
+    {% set high_count     = result.summary.findings_by_risk.get('high', 0) | int %}
+    {% set medium_count   = result.summary.findings_by_risk.get('medium', 0) | int %}
+    {% set total_f        = result.summary.total_findings | int %}
+    {% set total_f_safe   = total_f if total_f > 0 else 1 %}
 
+    {# Derive 5-dimension proxy scores from existing finding risk data.
+       All scores are bounded 0-100. No division — avoids ZeroDivisionError
+       when total_findings == 0. #}
+    {% set sec_raw   = (critical_count * 100 + high_count * 75) %}
+    {% set sec_score = [[(sec_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
+    {% set priv_raw  = (api_count.value * 85 + agent_count.value * 55) %}
+    {% set priv_score = [[(priv_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
+    {% set comp_score = [[(risk_score * 0.8) | int, 0] | max, 100] | min %}
+    {% set sup_raw   = (model_count.value * 60 + package_count.value * 40) %}
+    {% set sup_score  = [[(sup_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
+    {% set ops_raw   = (runtime_count.value * 50 + medium_count * 25) %}
+    {% set ops_score  = [[(ops_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
 
-    <!-- ═══════════════ MAIN SECTIONS LAYOUT: FINDINGS & SIDEBAR ═══════════════ -->
+    <div class="hud-panel" style="padding: 20px 24px;">
+      <div class="hud-corner c-tl"></div>
+      <div class="hud-corner c-tr"></div>
+      <div class="hud-corner c-bl"></div>
+      <div class="hud-corner c-br"></div>
+      <div class="hud-header-tab" style="left: 20px;">5-DIMENSION RISK BREAKDOWN</div>
+      <div class="risk-dimensions-panel" style="margin-top: 24px;">
+
+        <div class="dim-row">
+          <span class="dim-label">Security (25%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-security" style="width: {{ sec_score }}%;"></div>
+          </div>
+          <span class="dim-score-lbl">{{ sec_score }}</span>
+          {% if sec_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
+          {% elif sec_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
+          {% elif sec_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Privacy (25%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-privacy" style="width: {{ priv_score }}%;"></div>
+          </div>
+          <span class="dim-score-lbl">{{ priv_score }}</span>
+          {% if priv_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
+          {% elif priv_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
+          {% elif priv_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Compliance (25%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-compliance" style="width: {{ comp_score }}%;"></div>
+          </div>
+          <span class="dim-score-lbl">{{ comp_score }}</span>
+          {% if comp_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
+          {% elif comp_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
+          {% elif comp_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Supply Chain (15%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-supply" style="width: {{ sup_score }}%;"></div>
+          </div>
+          <span class="dim-score-lbl">{{ sup_score }}</span>
+          {% if sup_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
+          {% elif sup_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
+          {% elif sup_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Operational (10%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-ops" style="width: {{ ops_score }}%;"></div>
+          </div>
+          <span class="dim-score-lbl">{{ ops_score }}</span>
+          {% if ops_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
+          {% elif ops_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
+          {% elif ops_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ TELEMETRY ADDON PANELS (radar + loop) ═══════════════ -->
+    <div class="telemetry-addons-grid">
+
+      <!-- Radar Dome Panel -->
+      <div class="hud-panel addon-panel">
+        <div class="hud-corner c-tl"></div><div class="hud-corner c-tr"></div>
+        <div class="hud-corner c-bl"></div><div class="hud-corner c-br"></div>
+        <div class="hud-header-tab" style="left: 14px;">THREAT RADAR</div>
+        <div class="addon-content">
+          <svg class="dome-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <!-- Dome arc grid lines -->
+            <path d="M10,100 A90,90 0 0,1 190,100" class="dome-grid-line"/>
+            <path d="M28,100 A72,72 0 0,1 172,100" class="dome-grid-line"/>
+            <path d="M46,100 A54,54 0 0,1 154,100" class="dome-grid-line"/>
+            <path d="M64,100 A36,36 0 0,1 136,100" class="dome-grid-line"/>
+            <!-- Radial spokes -->
+            <line x1="100" y1="10" x2="100" y2="100" class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="10" y2="100" class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="190" y2="100" class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="36" y2="36"  class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="164" y2="36" class="dome-grid-line"/>
+            <!-- Sweep line -->
+            <line x1="100" y1="100" x2="100" y2="10" class="dome-sweep-line"/>
+            <!-- Risk nodes -->
+            {% if critical_count > 0 %}
+            <circle cx="58"  cy="52" r="5" class="dome-node critical"/>
+            {% endif %}
+            {% if high_count > 0 %}
+            <circle cx="142" cy="48" r="4" class="dome-node high"/>
+            <circle cx="120" cy="70" r="3" class="dome-node high"/>
+            {% endif %}
+            {% if medium_count > 0 %}
+            <circle cx="75"  cy="75" r="3" class="dome-node medium"/>
+            {% endif %}
+            <!-- Baseline -->
+            <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(211,13,48,0.4)" stroke-width="1.5"/>
+          </svg>
+          <div class="addon-meta">
+            <div class="addon-title">Active Threat Nodes</div>
+            <div class="addon-status">
+              CRITICAL: {{ critical_count }} &nbsp;|&nbsp;
+              HIGH: {{ high_count }} &nbsp;|&nbsp;
+              MEDIUM: {{ medium_count }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loop Particle Panel -->
+      <div class="hud-panel addon-panel">
+        <div class="hud-corner c-tl"></div><div class="hud-corner c-tr"></div>
+        <div class="hud-corner c-bl"></div><div class="hud-corner c-br"></div>
+        <div class="hud-header-tab" style="left: 14px;">TELEMETRY STREAM</div>
+        <div class="addon-content">
+          <svg class="loop-svg" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ellipse track -->
+            <ellipse cx="100" cy="50" rx="88" ry="36" class="loop-track"/>
+            <!-- Particle 1 -->
+            <circle r="5" class="loop-particle">
+              <animateMotion dur="3s" repeatCount="indefinite">
+                <mpath href="#loop-path"/>
+              </animateMotion>
+            </circle>
+            <!-- Particle 2 (offset) -->
+            <circle r="3.5" class="loop-particle-delayed">
+              <animateMotion dur="3s" begin="-1.5s" repeatCount="indefinite">
+                <mpath href="#loop-path"/>
+              </animateMotion>
+            </circle>
+            <defs>
+              <path id="loop-path" d="M 188,50 A 88,36 0 1,1 12,50 A 88,36 0 1,1 188,50"/>
+            </defs>
+          </svg>
+          <div class="addon-meta">
+            <div class="addon-title">Scan Pipeline</div>
+            <div class="addon-status">
+              {{ result.summary.modules_run }} MODULES &nbsp;|&nbsp;
+              {{ result.summary.total_findings }} SIGNALS
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
     <div class="main-grid">
       
       <!-- LEFT CONTAINER: FINDINGS -->
@@ -1369,6 +2183,51 @@
         <div class="hud-corner c-bl"></div>
         <div class="hud-corner c-br"></div>
         <div class="hud-header-tab" style="left: 20px;">SUSPECTED DETECTION VECTORS</div>
+
+        <!-- Filter Tabs (Day 3) -->
+        {# Count findings by tier for tab counters #}
+        {% set ns_tab = namespace(approved=0, review=0, banned=0) %}
+        {% for f in result.findings %}
+          {% set r = f.risk_level.value if f.risk_level.value is defined else f.risk_level %}
+          {% if r in ['info', 'low'] %}
+            {% set ns_tab.approved = ns_tab.approved + 1 %}
+          {% elif r == 'medium' %}
+            {% set ns_tab.review = ns_tab.review + 1 %}
+          {% else %}
+            {% set ns_tab.banned = ns_tab.banned + 1 %}
+          {% endif %}
+        {% endfor %}
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-tab="all"
+                  onclick="setTabFilter('all', this)">
+            ALL
+            <span class="tab-count">({{ result.summary.total_findings }})</span>
+          </button>
+          <button class="filter-tab" data-tab="approved"
+                  onclick="setTabFilter('approved', this)">
+            ✅ APPROVED &amp; MODERATE
+            <span class="tab-count">({{ ns_tab.approved + ns_tab.review }})</span>
+          </button>
+          <button class="filter-tab" data-tab="banned"
+                  onclick="setTabFilter('banned', this)">
+            🚫 REVIEW &amp; BANNED
+            <span class="tab-count">({{ ns_tab.banned }})</span>
+          </button>
+        </div>
+
+        <!-- Export Bar (Day 8) -->
+        <div class="export-bar">
+          <span class="export-lbl">Export:</span>
+          <button class="export-btn" onclick="exportDashboardJSON()" title="Download findings as JSON">
+            ⬇ JSON
+          </button>
+          <button class="export-btn" onclick="exportDashboardCSV()" title="Download findings as CSV">
+            ⬇ CSV
+          </button>
+          <button class="export-btn" onclick="openPdfModal()" title="Configure and generate a formatted PDF report">
+            🖨 PDF Report
+          </button>
+        </div>
 
         <!-- Filter bar -->
         <div class="filter-bar">
@@ -1602,7 +2461,31 @@
 
   <!-- ═══════════════ INTERACTION SCRIPTS ═══════════════ -->
   <script>
-    // Theme Toggling Logic
+    // ─── Embedded report data for client-side export ───────────────────────
+    const SCAN_DATA = {
+      scan_id:         "{{ result.scan_id }}",
+      scan_timestamp:  "{{ result.scan_timestamp }}",
+      hostname:        "{{ result.hostname }}",
+      os_info:         "{{ result.os_info }}",
+      risk_score:      {{ "%.1f"|format(risk_score) }},
+      total_findings:  {{ result.summary.total_findings }},
+      findings: [
+        {% for f in result.findings %}
+        {
+          finding_id:  "{{ f.finding_id }}",
+          module:      "{{ f.module_name }}",
+          title:       {{ f.title | tojson }},
+          category:    "{{ f.category.value if f.category.value is defined else f.category }}",
+          risk_level:  "{{ f.risk_level.value if f.risk_level.value is defined else f.risk_level }}",
+          source:      {{ f.source | tojson }},
+          confidence:  {{ "%.2f"|format(f.confidence) }},
+          timestamp:   "{{ f.timestamp }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    };
+
+    // ─── Theme Toggling Logic ───────────────────────────────────────────────
     const themeToggleBtn = document.getElementById('theme-toggle');
     
     // Check local storage or document class list for theme
@@ -1629,65 +2512,86 @@
       });
     }
 
-    // Expand/Collapse disclosures
+    // ─── Expand/Collapse disclosures ───────────────────────────────────────
     function toggleFinding(header) {
       const card = header.closest('.finding-card');
       card.classList.toggle('open');
     }
 
-    // Dynamic Filter Processing
-    const searchBox = document.getElementById('search-box');
+    // ─── Tab Filter (Day 3) ────────────────────────────────────────────────
+    // Maps tab name → which risk levels are included
+    const TAB_RISK_LEVELS = {
+      'all':      null,                          // null = show all
+      'approved': ['info', 'low', 'medium'],     // Approved & Moderate
+      'banned':   ['high', 'critical'],          // Review & Banned
+    };
+
+    let _activeTab = 'all';
+
+    function setTabFilter(tab, btnEl) {
+      _activeTab = tab;
+      // Update button active states
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      // Re-apply all filters
+      applyFilters();
+    }
+
+    // ─── Dynamic Filter Processing ─────────────────────────────────────────
+    const searchBox      = document.getElementById('search-box');
     const categorySelect = document.getElementById('filter-category');
-    const riskSelect = document.getElementById('filter-risk');
-    const findingCards = document.querySelectorAll('.finding-card');
-    const sections = document.querySelectorAll('.module-section');
+    const riskSelect     = document.getElementById('filter-risk');
+    const findingCards   = document.querySelectorAll('.finding-card');
+    const sections       = document.querySelectorAll('.module-section');
 
     function applyFilters() {
-      const query = searchBox.value.toLowerCase().trim();
+      const query    = (searchBox.value || '').toLowerCase().trim();
       const category = categorySelect.value;
-      const risk = riskSelect.value;
+      const risk     = riskSelect.value;
+      const tabRisks = TAB_RISK_LEVELS[_activeTab];   // array or null
 
-      // Track how many cards are visible per section to handle empty state overlays
       sections.forEach(section => {
         const sectionCards = section.querySelectorAll('.finding-card');
-        const emptyState = section.querySelector('.empty-state');
-        let visibleInSectionCount = 0;
+        const emptyState   = section.querySelector('.empty-state');
+        let visibleCount   = 0;
 
         sectionCards.forEach(card => {
-          const cardCategory = card.getAttribute('data-category');
-          const cardRisk = card.getAttribute('data-risk');
+          const cardCategory = card.getAttribute('data-category') || '';
+          const cardRisk     = card.getAttribute('data-risk') || '';
           
-          const titleText = card.querySelector('.finding-title').textContent.toLowerCase();
-          const bodyEl = card.querySelector('.finding-body');
-          const bodyText = bodyEl ? bodyEl.textContent.toLowerCase() : '';
+          const titleText = (card.querySelector('.finding-title') || {textContent:''}).textContent.toLowerCase();
+          const bodyEl    = card.querySelector('.finding-body');
+          const bodyText  = bodyEl ? bodyEl.textContent.toLowerCase() : '';
           
-          const matchesSearch = titleText.includes(query) || bodyText.includes(query);
-          const matchesCategory = (category === 'all' || cardCategory === category);
-          const matchesRisk = (risk === 'all' || cardRisk === risk);
+          const matchesSearch   = !query || titleText.includes(query) || bodyText.includes(query);
+          const matchesCategory = category === 'all' || cardCategory === category;
+          const matchesRisk     = risk === 'all' || cardRisk === risk;
+          const matchesTab      = !tabRisks || tabRisks.includes(cardRisk);
 
-          if (matchesSearch && matchesCategory && matchesRisk) {
+          if (matchesSearch && matchesCategory && matchesRisk && matchesTab) {
             card.style.display = 'block';
-            visibleInSectionCount++;
+            visibleCount++;
           } else {
             card.style.display = 'none';
           }
         });
 
-        // Toggle visibility of the section empty state dynamically
-        if (visibleInSectionCount === 0) {
+        // Toggle empty-state overlay
+        if (visibleCount === 0) {
           if (!emptyState) {
-            // If no static empty state exists, render a temporary one
-            const wrapper = section.querySelector('.findings-list-wrapper');
-            let tempEmpty = wrapper.querySelector('.temp-empty-state');
-            if (!tempEmpty) {
-              tempEmpty = document.createElement('div');
-              tempEmpty.className = 'empty-state temp-empty-state';
-              tempEmpty.innerHTML = `
-                <div class="empty-state-icon">⚠️</div>
-                <div class="empty-state-title">FILTER MATCH EXCLUDED</div>
-                <div class="empty-state-text">All elements in this section were excluded by search or filter metrics.</div>
-              `;
-              wrapper.appendChild(tempEmpty);
+            const wrapper  = section.querySelector('.findings-list-wrapper');
+            if (wrapper) {
+              let tempEmpty = wrapper.querySelector('.temp-empty-state');
+              if (!tempEmpty) {
+                tempEmpty = document.createElement('div');
+                tempEmpty.className = 'empty-state temp-empty-state';
+                tempEmpty.innerHTML = `
+                  <div class="empty-state-icon">⚠️</div>
+                  <div class="empty-state-title">FILTER MATCH EXCLUDED</div>
+                  <div class="empty-state-text">All elements in this section were excluded by the active filter.</div>
+                `;
+                wrapper.appendChild(tempEmpty);
+              }
             }
           } else {
             emptyState.style.display = 'flex';
@@ -1703,6 +2607,219 @@
     searchBox.addEventListener('input', applyFilters);
     categorySelect.addEventListener('change', applyFilters);
     riskSelect.addEventListener('change', applyFilters);
+
+    // ─── Scan progress bar animation (Day 9) ──────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.getElementById('scan-progress-fill');
+      if (bar) {
+        setTimeout(() => { bar.style.width = '100%'; }, 120);
+      }
+    });
+
+    // ─── Client-side JSON export (Day 8) ──────────────────────────────────
+    function exportDashboardJSON() {
+      const blob = new Blob([JSON.stringify(SCAN_DATA, null, 2)], {type: 'application/json'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'ai_scan_' + SCAN_DATA.scan_id + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Client-side CSV export (Day 8) ───────────────────────────────────
+    function exportDashboardCSV() {
+      const header = ['finding_id','module','title','category','risk_level','source','confidence','timestamp'];
+      const rows   = SCAN_DATA.findings.map(f => [
+        f.finding_id, f.module,
+        '"' + (f.title  || '').replace(/"/g,'""') + '"',
+        f.category, f.risk_level,
+        '"' + (f.source || '').replace(/"/g,'""') + '"',
+        (parseFloat(f.confidence) * 100).toFixed(0) + '%',
+        f.timestamp
+      ]);
+      const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob([csv], {type: 'text/csv'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'ai_scan_sbom_' + SCAN_DATA.scan_id + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Active nav section highlighting ──────────────────────────────────
+    const menuItems = document.querySelectorAll('.menu-item');
+    const sectionEls = document.querySelectorAll('.module-section');
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            menuItems.forEach(item => {
+              item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { threshold: 0.3 });
+      sectionEls.forEach(s => observer.observe(s));
+    }
+
+    // ─── PDF Modal (open / close) ──────────────────────────────────────────
+    function openPdfModal() {
+      const overlay = document.getElementById('pdf-modal-overlay');
+      if (overlay) {
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closePdfModal() {
+      const overlay = document.getElementById('pdf-modal-overlay');
+      if (overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Close when clicking the backdrop
+    document.getElementById('pdf-modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closePdfModal();
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePdfModal();
+    });
+
+    // ─── PDF Preview text update ───────────────────────────────────────────
+    function updatePdfPreview() {
+      const scope = document.querySelector('input[name="pdf-scope"]:checked');
+      const scopeVal = scope ? scope.value : 'all';
+      const previewEl = document.getElementById('pdf-preview-text');
+      if (!previewEl) return;
+
+      const allCards    = document.querySelectorAll('.finding-card');
+      const visibleCards = Array.from(allCards).filter(c => c.style.display !== 'none');
+
+      let countText = '';
+      if (scopeVal === 'all') {
+        countText = allCards.length + ' findings across all modules';
+      } else if (scopeVal === 'filtered') {
+        countText = visibleCards.length + ' visible findings (current filter)';
+      } else {
+        countText = 'Executive summary + risk metrics only';
+      }
+
+      const incModules = document.getElementById('pdf-inc-modules');
+      const sidebarNote = incModules && incModules.checked ? ' + sidebar panel' : '';
+      previewEl.textContent = 'Estimated: ' + countText + sidebarNote;
+    }
+
+    // ─── PDF Generation (browser print with pre-print DOM prep) ───────────
+    function generatePDF() {
+      const scope = document.querySelector('input[name="pdf-scope"]:checked');
+      const scopeVal = scope ? scope.value : 'all';
+
+      const incRisk    = document.getElementById('pdf-inc-risk');
+      const incHost    = document.getElementById('pdf-inc-host');
+      const incModules = document.getElementById('pdf-inc-modules');
+
+      // Store state to restore after print
+      const allCards     = document.querySelectorAll('.finding-card');
+      const riskPanel    = document.querySelector('.risk-dimensions-panel') || document.querySelector('[class*="risk-dimension"]');
+      const hostBar      = document.querySelector('.host-info-bar');
+      const sidebar      = document.querySelector('.sidebar-panel');
+      const prevOverflows = {};
+
+      // ── Apply scope visibility ──
+      if (scopeVal === 'summary') {
+        // Hide all findings sections
+        allCards.forEach(c => {
+          prevOverflows[c] = c.style.display;
+          c.style.display = 'none';
+        });
+        document.querySelectorAll('.module-section').forEach(s => {
+          s.setAttribute('data-pdf-hidden', '1');
+          s._prevDisplay = s.style.display;
+          s.style.display = 'none';
+        });
+      } else if (scopeVal === 'filtered') {
+        // Hide only cards that are already hidden by filters
+        allCards.forEach(c => {
+          if (c.style.display === 'none') {
+            c.setAttribute('data-pdf-was-hidden', '1');
+          }
+        });
+        // Sections with ALL cards hidden → hide section
+        document.querySelectorAll('.module-section').forEach(s => {
+          const visible = Array.from(s.querySelectorAll('.finding-card'))
+                              .some(c => c.style.display !== 'none');
+          if (!visible) {
+            s.setAttribute('data-pdf-hidden', '1');
+            s._prevDisplay = s.style.display;
+            s.style.display = 'none';
+          }
+        });
+      }
+
+      // ── Optional sections ──
+      const riskDimPanel = document.querySelector('.hud-panel:has(.risk-dimensions-panel)') ||
+                           (() => {
+                             // Fallback: find by header tab text
+                             const tabs = document.querySelectorAll('.hud-header-tab');
+                             for (const t of tabs) {
+                               if (t.textContent.includes('5-DIMENSION')) return t.closest('.hud-panel');
+                             }
+                             return null;
+                           })();
+
+      if (riskDimPanel && incRisk && !incRisk.checked) {
+        riskDimPanel._prevDisplay = riskDimPanel.style.display;
+        riskDimPanel.setAttribute('data-pdf-hidden', '1');
+        riskDimPanel.style.display = 'none';
+      }
+      if (hostBar && incHost && !incHost.checked) {
+        hostBar._prevDisplay = hostBar.style.display;
+        hostBar.setAttribute('data-pdf-hidden', '1');
+        hostBar.style.display = 'none';
+      }
+      if (sidebar && incModules && !incModules.checked) {
+        sidebar._prevDisplay = sidebar.style.display;
+        sidebar.setAttribute('data-pdf-hidden', '1');
+        sidebar.style.display = 'none';
+      }
+
+      // ── Open all finding cards for print ──
+      if (scopeVal !== 'summary') {
+        allCards.forEach(c => {
+          if (c.style.display !== 'none') c.classList.add('open');
+        });
+      }
+
+      closePdfModal();
+
+      // Small delay to let DOM settle, then print
+      setTimeout(() => {
+        window.print();
+
+        // ── Restore everything after print dialog closes ──
+        setTimeout(() => {
+          allCards.forEach(c => {
+            c.classList.remove('open');
+            if (c.style.display === 'none' && !c.getAttribute('data-pdf-was-hidden')) {
+              c.style.display = '';
+            }
+            c.removeAttribute('data-pdf-was-hidden');
+          });
+          document.querySelectorAll('[data-pdf-hidden]').forEach(el => {
+            el.style.display = el._prevDisplay || '';
+            el.removeAttribute('data-pdf-hidden');
+          });
+        }, 800);
+      }, 80);
+    }
   </script>
 </body>
 </html>
