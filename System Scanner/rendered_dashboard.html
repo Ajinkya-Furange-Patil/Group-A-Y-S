@@ -2528,7 +2528,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001389</span>
+        <span class="details-val">2026-06-19T17:41:09.104986</span>
 
         
       </div>
@@ -2585,7 +2585,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001358</span>
+        <span class="details-val">2026-06-19T17:41:09.104936</span>
 
         
       </div>
@@ -2661,7 +2661,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001365</span>
+        <span class="details-val">2026-06-19T17:41:09.104948</span>
 
         
       </div>
@@ -2718,7 +2718,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001307</span>
+        <span class="details-val">2026-06-19T17:41:09.104856</span>
 
         
       </div>
@@ -2762,7 +2762,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001378</span>
+        <span class="details-val">2026-06-19T17:41:09.104969</span>
 
         
       </div>
@@ -2819,7 +2819,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001372</span>
+        <span class="details-val">2026-06-19T17:41:09.104959</span>
 
         
       </div>
@@ -2876,7 +2876,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001348</span>
+        <span class="details-val">2026-06-19T17:41:09.104921</span>
 
         
       </div>
@@ -2920,7 +2920,7 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-19T14:45:32.001383</span>
+        <span class="details-val">2026-06-19T17:41:09.104977</span>
 
         
       </div>
@@ -3095,100 +3095,156 @@
   <script>
     // ─── Embedded report data for client-side export ───────────────────────
     const SCAN_DATA = {
-      scan_id:         "demo-2026-001",
-      scan_timestamp:  "2026-06-19T10:30:00.000000",
-      hostname:        "DEMO-WORKSTATION",
-      os_info:         "Windows 11 (x64)",
-      risk_score:      59.4,
-      total_findings:  8,
+      scan_id:             "demo-2026-001",
+      scan_timestamp:      "2026-06-19T10:30:00.000000",
+      hostname:            "DEMO-WORKSTATION",
+      os_info:             "Windows 11 (x64)",
+      risk_score:          59.4,
+      total_findings:      8,
+      total_duration_sec:  61.82,
+      modules_run:         7,
+      modules_succeeded:   7,
+      modules_failed:      0,
+      modules: [
+        
+        {
+          name:           "SystemScanner",
+          status:         "success",
+          duration_sec:   0.71,
+          findings_count: 1
+        },
+        
+        {
+          name:           "FileScanner",
+          status:         "success",
+          duration_sec:   5.37,
+          findings_count: 1
+        },
+        
+        {
+          name:           "ProcessScanner",
+          status:         "success",
+          duration_sec:   0.05,
+          findings_count: 0
+        },
+        
+        {
+          name:           "PackageScanner",
+          status:         "success",
+          duration_sec:   1.73,
+          findings_count: 1
+        },
+        
+        {
+          name:           "AgentScanner",
+          status:         "success",
+          duration_sec:   40.2,
+          findings_count: 2
+        },
+        
+        {
+          name:           "RuntimeScanner",
+          status:         "success",
+          duration_sec:   1.54,
+          findings_count: 1
+        },
+        
+        {
+          name:           "APIScanner",
+          status:         "success",
+          duration_sec:   12.2,
+          findings_count: 2
+        }
+        
+      ],
       findings: [
         
         {
-          finding_id:  "b5a54ccd",
+          finding_id:  "bd379dfb",
           module:      "AgentScanner",
           title:       "GitHub Copilot CLI",
           category:    "AI Agent",
           risk_level:  "high",
           source:      "C:/Users/ADMIN/AppData/Roaming/npm/gh",
           confidence:  0.95,
-          timestamp:   "2026-06-19T14:45:32.001307"
+          timestamp:   "2026-06-19T17:41:09.104856"
         },
         
         {
-          finding_id:  "741bf2b0",
+          finding_id:  "2209e041",
           module:      "APIScanner",
           title:       "OpenAI API Key Exposed",
           category:    "Configuration",
           risk_level:  "critical",
           source:      ".env / System Environment",
           confidence:  0.99,
-          timestamp:   "2026-06-19T14:45:32.001348"
+          timestamp:   "2026-06-19T17:41:09.104921"
         },
         
         {
-          finding_id:  "452fa224",
+          finding_id:  "d369d524",
           module:      "FileScanner",
           title:       "llama3.Q4_K_M.gguf",
           category:    "AI Model",
           risk_level:  "medium",
           source:      "C:/models/llama3.Q4_K_M.gguf",
           confidence:  0.92,
-          timestamp:   "2026-06-19T14:45:32.001358"
+          timestamp:   "2026-06-19T17:41:09.104936"
         },
         
         {
-          finding_id:  "f3721fc2",
+          finding_id:  "713c5809",
           module:      "PackageScanner",
           title:       "torch==2.3.0",
           category:    "ML Framework",
           risk_level:  "low",
           source:      "pip: torch 2.3.0",
           confidence:  0.88,
-          timestamp:   "2026-06-19T14:45:32.001365"
+          timestamp:   "2026-06-19T17:41:09.104948"
         },
         
         {
-          finding_id:  "747695a0",
+          finding_id:  "f6e1e1dc",
           module:      "RuntimeScanner",
           title:       "Ollama LLM Server",
           category:    "LLM Runtime",
           risk_level:  "high",
           source:      "localhost:11434",
           confidence:  0.97,
-          timestamp:   "2026-06-19T14:45:32.001372"
+          timestamp:   "2026-06-19T17:41:09.104959"
         },
         
         {
-          finding_id:  "ecb70070",
+          finding_id:  "01e618a2",
           module:      "AgentScanner",
           title:       "LangChain Agent Framework",
           category:    "AI Agent",
           risk_level:  "medium",
           source:      "C:/projects/ai_bot/agent.py",
           confidence:  0.85,
-          timestamp:   "2026-06-19T14:45:32.001378"
+          timestamp:   "2026-06-19T17:41:09.104969"
         },
         
         {
-          finding_id:  "579ab594",
+          finding_id:  "e1f446df",
           module:      "APIScanner",
           title:       "Anthropic API Key",
           category:    "Configuration",
           risk_level:  "critical",
           source:      "~/.bashrc",
           confidence:  0.98,
-          timestamp:   "2026-06-19T14:45:32.001383"
+          timestamp:   "2026-06-19T17:41:09.104977"
         },
         
         {
-          finding_id:  "022b086f",
+          finding_id:  "64808f1d",
           module:      "SystemScanner",
           title:       "Windows 11 x64",
           category:    "System Info",
           risk_level:  "info",
           source:      "System",
           confidence:  1.00,
-          timestamp:   "2026-06-19T14:45:32.001389"
+          timestamp:   "2026-06-19T17:41:09.104986"
         }
         
       ]
@@ -3387,28 +3443,35 @@
       }
       const ref = (r, c) => col(c) + (r + 1);
 
-      // Build worksheet XML from a 2-D array of {t, v} objects
-      // t: 's'=shared-str, 'n'=number, 'i'=inline-str, 'h'=header(bold)
-      function sheetXml(rows) {
+      // Build worksheet XML from a 2-D array of cell objects
+      function sheetXml(rows, colWidths) {
         let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
-          + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
-          + `<sheetData>`;
+          + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`;
+        if (colWidths && colWidths.length > 0) {
+          xml += `<cols>`;
+          colWidths.forEach((w, i) => {
+            xml += `<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`;
+          });
+          xml += `</cols>`;
+        }
+        xml += `<sheetData>`;
         rows.forEach((row, ri) => {
           if (!row || row.length === 0) return;
           xml += `<row r="${ri + 1}">`;
           row.forEach((cell, ci) => {
             if (!cell) return;
-            const {t, v} = cell;
+            const {t, v, s} = cell;
             if (v === null || v === undefined) return;
             const r = ref(ri, ci);
+            const styleAttr = s !== undefined ? ` s="${s}"` : '';
             if (t === 'n') {
-              xml += `<c r="${r}"><v>${escXml(v)}</v></c>`;
+              xml += `<c r="${r}"${styleAttr}><v>${escXml(v)}</v></c>`;
             } else if (t === 'h') {
               xml += `<c r="${r}" t="s" s="1"><v>${si(v)}</v></c>`;
             } else if (t === 'i') {
-              xml += `<c r="${r}" t="inlineStr"><is><t xml:space="preserve">${escXml(v)}</t></is></c>`;
+              xml += `<c r="${r}" t="inlineStr"${styleAttr}><is><t xml:space="preserve">${escXml(v)}</t></is></c>`;
             } else {
-              xml += `<c r="${r}" t="s"><v>${si(v)}</v></c>`;
+              xml += `<c r="${r}" t="s"${styleAttr}><v>${si(v)}</v></c>`;
             }
           });
           xml += `</row>`;
@@ -3420,55 +3483,66 @@
       // ── Sheet 1: Summary ─────────────────────────────────────────────────
       const S = SCAN_DATA;
       const summaryRows = [
-        [{t:'h',v:'AI Discovery Scanner — Full Scan Report'}],
+        [{t:'s',v:'AI Discovery Scanner — Scan Summary Report',s:2}],
         [],
         [{t:'h',v:'Field'},{t:'h',v:'Value'}],
-        [{t:'s',v:'Scan ID'},          {t:'s',v:S.scan_id}],
-        [{t:'s',v:'Scan Timestamp'},   {t:'s',v:S.scan_timestamp}],
-        [{t:'s',v:'Hostname'},         {t:'s',v:S.hostname}],
-        [{t:'s',v:'Operating System'}, {t:'s',v:S.os_info}],
-        [{t:'s',v:'Total Findings'},   {t:'n',v:S.total_findings}],
-        [{t:'s',v:'Overall Risk Score'},{t:'n',v:S.risk_score}],
+        [{t:'s',v:'Scan ID',s:9},          {t:'s',v:S.scan_id,s:0}],
+        [{t:'s',v:'Scan Timestamp',s:9},   {t:'s',v:S.scan_timestamp,s:0}],
+        [{t:'s',v:'Hostname',s:9},         {t:'s',v:S.hostname,s:0}],
+        [{t:'s',v:'Operating System',s:9}, {t:'s',v:S.os_info,s:0}],
+        [{t:'s',v:'Scan Duration (s)',s:9},{t:'n',v:Math.round(S.total_duration_sec * 1000) / 1000,s:10}],
+        [],
+        [{t:'s',v:'Summary Statistics',s:3},{t:'s',v:'',s:3}],
+        [{t:'s',v:'Total Findings',s:9},   {t:'n',v:S.total_findings,s:10}],
+        [{t:'s',v:'Overall Risk Score (0-100)',s:9}, {t:'n',v:S.risk_score,s:10}],
+        [{t:'s',v:'Modules Run',s:9},      {t:'n',v:S.modules_run,s:10}],
+        [{t:'s',v:'Modules Succeeded',s:9},{t:'n',v:S.modules_succeeded,s:10}],
+        [{t:'s',v:'Modules Failed',s:9},   {t:'n',v:S.modules_failed,s:10}],
+        [],
+        [{t:'h',v:'Module'}, {t:'h',v:'Status'}, {t:'h',v:'Duration (s)'}, {t:'h',v:'Findings'}],
       ];
+      S.modules.forEach((m, idx) => {
+        const isEven = idx % 2 === 0;
+        summaryRows.push([
+          {t:'s',v:m.name,s:isEven?0:4},
+          {t:'s',v:m.status,s:isEven?10:11},
+          {t:'n',v:Math.round(m.duration_sec * 1000) / 1000,s:isEven?10:11},
+          {t:'n',v:m.findings_count,s:isEven?10:11}
+        ]);
+      });
 
       // ── Sheet 2: All Findings ─────────────────────────────────────────────
       const fHeader = ['Finding ID','Module','Title','Description','Category',
                        'Risk Level','Source','Confidence %','Timestamp'].map(h=>({t:'h',v:h}));
-      const findingsRows = [fHeader, ...S.findings.map(f => [
-        {t:'s',v:f.finding_id},
-        {t:'s',v:f.module},
-        {t:'s',v:f.title},
-        {t:'i',v:f.description||''},
-        {t:'s',v:f.category},
-        {t:'s',v:(f.risk_level||'').toUpperCase()},
-        {t:'i',v:f.source||''},
-        {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10},
-        {t:'s',v:f.timestamp},
-      ])];
+      const findingsRows = [fHeader];
+      S.findings.forEach((f, idx) => {
+        const isEven = idx % 2 === 0;
+        const rl = (f.risk_level||'').toLowerCase();
+        let riskStyle = isEven ? 10 : 11;
+        if (rl === 'critical') riskStyle = 5;
+        else if (rl === 'high') riskStyle = 6;
+        else if (rl === 'medium') riskStyle = 7;
+        else if (rl === 'low' || rl === 'info') riskStyle = 8;
 
-      // ── Sheet 3: By Category ──────────────────────────────────────────────
-      const catCounts = {};
-      S.findings.forEach(f => { catCounts[f.category] = (catCounts[f.category]||0)+1; });
-      const catRows = [
-        [{t:'h',v:'Category'},{t:'h',v:'Count'}],
-        ...Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[{t:'s',v:k},{t:'n',v:v}])
-      ];
+        findingsRows.push([
+          {t:'s',v:f.finding_id,s:isEven?10:11},
+          {t:'s',v:f.module,s:isEven?0:4},
+          {t:'s',v:f.title,s:isEven?0:4},
+          {t:'i',v:f.description||'',s:isEven?14:15},
+          {t:'s',v:f.category,s:isEven?10:11},
+          {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
+          {t:'i',v:f.source||'',s:isEven?14:15},
+          {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
+          {t:'s',v:f.timestamp,s:isEven?10:11},
+        ]);
+      });
 
-      // ── Sheet 4: By Risk Level ────────────────────────────────────────────
+      // ── Sheet 3: Risk Breakdown ───────────────────────────────────────────
       const riskCounts = {};
       S.findings.forEach(f => {
         const r = (f.risk_level||'info').toLowerCase();
         riskCounts[r] = (riskCounts[r]||0)+1;
       });
-      const riskOrder = ['critical','high','medium','low','info'];
-      const riskRows = [
-        [{t:'h',v:'Risk Level'},{t:'h',v:'Count'}],
-        ...riskOrder.filter(r=>riskCounts[r]).map(r=>[
-          {t:'s',v:r.toUpperCase()},{t:'n',v:riskCounts[r]}
-        ])
-      ];
-
-      // ── Sheet 5: Risk Breakdown ───────────────────────────────────────────
       const total = Math.max(S.total_findings, 1);
       const crit  = (riskCounts['critical']||0);
       const high  = (riskCounts['high']||0);
@@ -3484,24 +3558,56 @@
       const supScore  = Math.min(Math.max(Math.floor((modelC*60+pkgC*40)/total),0),100);
       const opsScore  = Math.min(Math.max(Math.floor((rtC*50+med*25)/total),0),100);
       const dimLevel  = s => s>=75?'CRITICAL':s>=50?'HIGH':s>=25?'MEDIUM':'LOW';
+      
+      const getLevelStyle = lvl => {
+        const l = lvl.toLowerCase();
+        if (l === 'critical') return 5;
+        if (l === 'high') return 6;
+        if (l === 'medium') return 7;
+        return 8;
+      };
+
       const dimRows = [
-        [{t:'h',v:'Dimension'},{t:'h',v:'Weight'},{t:'h',v:'Score (0-100)'},{t:'h',v:'Level'}],
-        [{t:'s',v:'Security'},      {t:'s',v:'25%'},{t:'n',v:secScore}, {t:'s',v:dimLevel(secScore)}],
-        [{t:'s',v:'Data Privacy'},  {t:'s',v:'25%'},{t:'n',v:privScore},{t:'s',v:dimLevel(privScore)}],
-        [{t:'s',v:'Compliance'},    {t:'s',v:'25%'},{t:'n',v:compScore},{t:'s',v:dimLevel(compScore)}],
-        [{t:'s',v:'Supply Chain'},  {t:'s',v:'15%'},{t:'n',v:supScore}, {t:'s',v:dimLevel(supScore)}],
-        [{t:'s',v:'Operational'},   {t:'s',v:'10%'},{t:'n',v:opsScore}, {t:'s',v:dimLevel(opsScore)}],
+        [{t:'s',v:'5-Dimension Risk Breakdown',s:2}],
         [],
-        [{t:'h',v:'Overall Risk Score'},{t:'n',v:S.risk_score},{t:'s',v:''},{t:'s',v:''}],
+        [{t:'h',v:'Dimension'},{t:'h',v:'Weight'},{t:'h',v:'Score (0-100)'},{t:'h',v:'Level'}],
+        [{t:'s',v:'Security',s:0},      {t:'s',v:'25%',s:10},{t:'n',v:secScore,s:10}, {t:'s',v:dimLevel(secScore),s:getLevelStyle(dimLevel(secScore))}],
+        [{t:'s',v:'Data Privacy',s:4},  {t:'s',v:'25%',s:11},{t:'n',v:privScore,s:11},{t:'s',v:dimLevel(privScore),s:getLevelStyle(dimLevel(privScore))}],
+        [{t:'s',v:'Compliance',s:0},    {t:'s',v:'25%',s:10},{t:'n',v:compScore,s:10},{t:'s',v:dimLevel(compScore),s:getLevelStyle(dimLevel(compScore))}],
+        [{t:'s',v:'Supply Chain',s:4},  {t:'s',v:'15%',s:11},{t:'n',v:supScore,s:11}, {t:'s',v:dimLevel(supScore),s:getLevelStyle(dimLevel(supScore))}],
+        [{t:'s',v:'Operational',s:0},   {t:'s',v:'10%',s:10},{t:'n',v:opsScore,s:10}, {t:'s',v:dimLevel(opsScore),s:getLevelStyle(dimLevel(opsScore))}],
+        [],
+        [{t:'s',v:'Overall Risk Score',s:9},{t:'n',v:S.risk_score,s:10},{t:'s',v:'',s:0},{t:'s',v:'',s:0}],
+      ];
+
+      // ── Sheet 4: By Category ──────────────────────────────────────────────
+      const catCounts = {};
+      S.findings.forEach(f => { catCounts[f.category] = (catCounts[f.category]||0)+1; });
+      const catRows = [
+        [{t:'h',v:'Category'},{t:'h',v:'Count'}],
+        ...Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([k,v], idx)=>[
+          {t:'s',v:k,s:idx%2===0?0:4},
+          {t:'n',v:v,s:idx%2===0?10:11}
+        ])
+      ];
+
+      // ── Sheet 5: By Risk Level ────────────────────────────────────────────
+      const riskOrder = ['critical','high','medium','low','info'];
+      const riskRows = [
+        [{t:'h',v:'Risk Level'},{t:'h',v:'Count'}],
+        ...riskOrder.filter(r=>riskCounts[r]).map((r, idx)=>[
+          {t:'s',v:r.toUpperCase(),s:getLevelStyle(r)},
+          {t:'n',v:riskCounts[r],s:idx%2===0?10:11}
+        ])
       ];
 
       // ── Assemble workbook XML ─────────────────────────────────────────────
       const sheets = [
-        {name:'Summary',       xml:sheetXml(summaryRows)},
-        {name:'Findings',      xml:sheetXml(findingsRows)},
-        {name:'By Category',   xml:sheetXml(catRows)},
-        {name:'By Risk Level', xml:sheetXml(riskRows)},
-        {name:'Risk Breakdown',xml:sheetXml(dimRows)},
+        {name:'Summary',        xml:sheetXml(summaryRows, [30, 30, 15, 15])},
+        {name:'Findings',       xml:sheetXml(findingsRows, [15, 18, 28, 45, 18, 15, 40, 15, 25])},
+        {name:'Risk Breakdown', xml:sheetXml(dimRows, [22, 12, 15, 15])},
+        {name:'By Category',    xml:sheetXml(catRows, [25, 15])},
+        {name:'By Risk Level',  xml:sheetXml(riskRows, [18, 15])},
       ];
 
       const wbXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -3527,19 +3633,57 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
 
       const stylesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-  <fonts count="2">
-    <font><sz val="11"/><name val="Calibri"/></font>
-    <font><sz val="11"/><name val="Calibri"/><b/></font>
+  <fonts count="8">
+    <font><sz val="11"/><name val="Calibri"/><color rgb="FF000000"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font>
+    <font><b/><sz val="16"/><name val="Calibri"/><color rgb="FF1F4E79"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FF1F4E79"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFC00000"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFE36C0A"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFB25E00"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FF385723"/></font>
   </fonts>
-  <fills count="2">
+  <fills count="9">
     <fill><patternFill patternType="none"/></fill>
     <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F2"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFCE4D6"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFFF2CC"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFFFFC4"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFE2EFDA"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFDDEBF7"/><bgColor indexed="64"/></patternFill></fill>
   </fills>
-  <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
-  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-  <cellXfs count="2">
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0"/>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border>
+      <left style="thin"><color rgb="FFD9D9D9"/></left>
+      <right style="thin"><color rgb="FFD9D9D9"/></right>
+      <top style="thin"><color rgb="FFD9D9D9"/></top>
+      <bottom style="thin"><color rgb="FFD9D9D9"/></bottom>
+      <diagonal/>
+    </border>
+  </borders>
+  <cellStyleXfs count="1">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
+  </cellStyleXfs>
+  <cellXfs count="16">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+    <xf numFmtId="0" fontId="3" fillId="8" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="5" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="6" fillId="6" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="7" fillId="7" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="9" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="9" fontId="0" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"><alignment vertical="top" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment vertical="top" wrapText="1"/></xf>
   </cellXfs>
 </styleSheet>`;
 
@@ -3559,8 +3703,6 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
 </Relationships>`;
 
       // ── Zip it up using JSZip-free approach (raw ZIP bytes in browser) ─────
-      // Build the zip file manually using the Compression Streams API if available,
-      // otherwise fall back to uncompressed (store-only) which is still valid xlsx.
       const enc = new TextEncoder();
       const files = {
         '[Content_Types].xml':       enc.encode(ctXml),
@@ -3651,8 +3793,8 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
       ];
 
       const allParts = [...parts, new Uint8Array(cdBytes), new Uint8Array(eocd)];
-      const total    = allParts.reduce((s,a)=>s+a.length,0);
-      const out      = new Uint8Array(total);
+      const totalBytes = allParts.reduce((s,a)=>s+a.length,0);
+      const out      = new Uint8Array(totalBytes);
       let pos = 0;
       for (const p of allParts) { out.set(p,pos); pos+=p.length; }
 

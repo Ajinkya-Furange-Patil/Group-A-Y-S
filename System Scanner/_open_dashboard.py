@@ -129,6 +129,11 @@ def demo_result() -> ScanResult:
 
 
 if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+
     if REPORT_JSON.exists():
         print(f"Loading real scan data from {REPORT_JSON.name} ...")
         result = load_from_json(REPORT_JSON)

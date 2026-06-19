@@ -25,6 +25,7 @@ except ImportError:
     PSUTIL_AVAILABLE = False
 
 from scanner.models import Finding, FindingCategory, ModuleInfo, RiskLevel
+from scanner import signature_verifier
 
 logger = logging.getLogger(__name__)
 
@@ -353,6 +354,11 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                         "matched_keyword": matched_keyword,
                         "is_ai_daemon": is_daemon,
                     }
+
+                    # Cryptographic signature and hash verifier check
+                    if exe and os.path.exists(exe):
+                        sig_info = signature_verifier.verify_executable(exe)
+                        details["signature_info"] = sig_info
 
                     # ── Active memory telemetry for AI daemons ───────────────────
                     # Only performed for explicitly known AI daemon processes to
