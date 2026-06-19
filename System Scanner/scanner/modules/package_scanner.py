@@ -928,6 +928,103 @@ def _scan_pip_global_envs() -> list[Finding]:
     return findings
 
 
+def _get_package_metadata_hash(name: str, version: str, install_location: str, inst_type: str) -> str | None:
+    """Locate package metadata file and compute its SHA-256 hash."""
+    import hashlib
+
+    # 1. Python pip packages (using importlib.metadata to locate files)
+    if inst_type == "pip":
+        try:
+            import importlib.metadata
+            dist = importlib.metadata.distribution(name)
+            p = None
+            if dist.files:
+                for f in dist.files:
+                    if str(f).endswith("METADATA"):
+                        p = dist.locate_file(f)
+                        break
+            if p and p.exists():
+                return hashlib.sha256(p.read_bytes()).hexdigest()
+        except Exception:
+            pass
+
+        # Fallback 1: search for METADATA file in directory
+        try:
+            p_dir = pathlib.Path(install_location)
+            if p_dir.is_dir():
+                parent = p_dir.parent
+                for item in parent.glob(f"{name.replace('_', '-')}-{version}*.dist-info"):
+                    meta = item / "METADATA"
+                    if meta.exists():
+                        return hashlib.sha256(meta.read_bytes()).hexdigest()
+                for item in parent.glob(f"{name.replace('-', '_')}-{version}*.dist-info"):
+                    meta = item / "METADATA"
+                    if meta.exists():
+                        return hashlib.sha256(meta.read_bytes()).hexdigest()
+        except Exception:
+            pass
+
+    # 2. NPM packages (hash package.json)
+    elif inst_type == "npm":
+        try:
+            p_path = pathlib.Path(install_location) / "package.json"
+            if p_path.exists():
+                return hashlib.sha256(p_path.read_bytes()).hexdigest()
+        except Exception:
+            pass
+
+    # Fallback/Generic (if we have a direct path, check if it's a file)
+    try:
+        p_path = pathlib.Path(install_location)
+        if p_path.is_file():
+            return hashlib.sha256(p_path.read_bytes()).hexdigest()
+    except Exception:
+        pass
+
+    return None
+
+
+def _verify_against_baseline(installer: str, pkg_name: str, version: str, calc_hash: str) -> tuple[str, bool, bool]:
+    """Verify calculated hash against scanner/baseline/hashes.json.
+
+    Returns:
+        (status, is_verified, is_tampered)
+    """
+    baseline_path = pathlib.Path(__file__).parent.parent / "baseline" / "hashes.json"
+    if not baseline_path.exists():
+        return "unverified", False, False
+
+    try:
+        with open(baseline_path, encoding="utf-8") as f:
+            db = json.load(f)
+
+        ecosystem = db.get(installer)
+        if not ecosystem:
+            return "unverified", False, False
+
+        pkg_data = None
+        for key, val in ecosystem.items():
+            if key.lower().replace("_", "-") == pkg_name.lower().replace("_", "-"):
+                pkg_data = val
+                break
+
+        if not pkg_data or not isinstance(pkg_data, dict):
+            return "unverified", False, False
+
+        expected_hash = pkg_data.get(version)
+        if not expected_hash:
+            return "unverified", False, False
+
+        if calc_hash == expected_hash:
+            return "verified", True, False
+        else:
+            return "tampered", False, True
+
+    except Exception as e:
+        logger.warning("Error reading baseline hashes database: %s", e)
+        return "unverified", False, False
+
+
 def run() -> tuple[list[Finding], ModuleInfo]:
     """Execute the Package Scanner module across all supported package ecosystems.
 
@@ -967,6 +1064,63 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         except Exception as exc:
             logger.warning("PackageScanner [%s]: scanner failed: %s", name, exc)
             errors.append(f"{name}: {exc}")
+
+    # Centralized package verification against the baseline
+    verified_findings = []
+    for finding in findings:
+        pkg_name = finding.details.get("package_name")
+        version = finding.details.get("version")
+        installer = finding.details.get("installer", "")
+        install_loc = finding.details.get("install_location")
+
+        if pkg_name and version and install_loc:
+            # Determine normalized installer type (pip or npm)
+            inst_type = "pip"
+            if "npm" in installer.lower():
+                inst_type = "npm"
+            elif "brew" in installer.lower():
+                inst_type = "homebrew"
+            elif "conda" in installer.lower():
+                inst_type = "conda"
+
+            calc_hash = _get_package_metadata_hash(pkg_name, version, install_loc, inst_type)
+            if calc_hash:
+                finding.details["sha256_hash"] = calc_hash
+                status, is_verified, is_tampered = _verify_against_baseline(inst_type, pkg_name, version, calc_hash)
+                finding.details["verification_status"] = status
+                finding.details["verified"] = is_verified
+                finding.details["tampered"] = is_tampered
+
+                # Flag unverified / tampered packages
+                if is_tampered:
+                    finding.risk_level = RiskLevel.HIGH
+                    finding.title = f"[TAMPERED] {finding.title}"
+                    finding.description += f" WARNING: Cryptographic hash does not match baseline! Calculated: {calc_hash}."
+                elif not is_verified:
+                    finding.risk_level = RiskLevel.LOW
+                    finding.title = f"[UNVERIFIED] {finding.title}"
+                    finding.description += " Note: This package has not been verified against the baseline database."
+                else:
+                    finding.details["verification_status"] = "verified"
+                    finding.details["verified"] = True
+                    finding.details["tampered"] = False
+                    finding.description += " (Verified package integrity)"
+            else:
+                finding.details["verified"] = False
+                finding.details["tampered"] = False
+                finding.details["verification_status"] = "unverified"
+                finding.risk_level = RiskLevel.LOW
+                finding.title = f"[UNVERIFIED] {finding.title}"
+                finding.description += " Note: Could not compute metadata hash. Package integrity unverified."
+        else:
+            # Missing basic package info
+            finding.details["verified"] = False
+            finding.details["tampered"] = False
+            finding.details["verification_status"] = "unverified"
+
+        verified_findings.append(finding)
+
+    findings = verified_findings
 
     if errors and not findings:
         module_info.status = "error"

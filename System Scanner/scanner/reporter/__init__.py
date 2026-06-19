@@ -11,7 +11,7 @@ Handles report generation in multiple formats:
 """
 
 from scanner.reporter.report_generator import generate_json_report, generate_html_report
-from scanner.reporter.exporter import SIEMExporter, export_sbom_csv
+from scanner.reporter.exporter import SIEMExporter, export_sbom_csv, export_sbom_json
 from scanner.reporter.log_retention import LogRetentionDB
 from scanner.reporter.excel_exporter import export_excel
 
@@ -20,6 +20,7 @@ __all__ = [
     "generate_html_report",
     "SIEMExporter",
     "export_sbom_csv",
+    "export_sbom_json",
     "LogRetentionDB",
     "export_excel",
 ]
