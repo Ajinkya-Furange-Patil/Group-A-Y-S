@@ -1,5 +1,9 @@
 """
 Unit tests for the Package Scanner module (scanner/modules/package_scanner.py).
+
+These tests target the pip scanner sub-function (_scan_pip) directly to keep
+them isolated from the other global package scanners (npm, pipx, uv, homebrew,
+conda) that are covered in test_package_scanner_global.py.
 """
 
 import json
@@ -9,6 +13,7 @@ from unittest.mock import MagicMock, patch
 
 from scanner.models import FindingCategory, RiskLevel
 from scanner.modules import package_scanner
+from scanner.modules.package_scanner import _scan_pip
 
 
 class TestPackageScanner(unittest.TestCase):
@@ -22,17 +27,16 @@ class TestPackageScanner(unittest.TestCase):
             {"name": "pyautogen", "version": "0.2.0"},
             {"name": "normal-pkg", "version": "1.0.0"}
         ])
-        
+
         mock_result = MagicMock()
         mock_result.returncode = 0
         mock_result.stdout = mock_stdout
         mock_run.return_value = mock_result
 
-        findings, info = package_scanner.run()
+        # Test _scan_pip directly — isolated from npm/pipx/uv/conda scanners
+        findings = _scan_pip()
 
-        self.assertEqual(info.status, "success")
         self.assertEqual(len(findings), 3)
-        self.assertEqual(info.findings_count, 3)
 
         # Check torch finding
         f_torch = next(f for f in findings if f.details["package_name"] == "torch")
@@ -69,12 +73,11 @@ class TestPackageScanner(unittest.TestCase):
 
         mock_metadata_version.side_effect = mock_version
 
-        findings, info = package_scanner.run()
+        # Test _scan_pip fallback path directly
+        findings = _scan_pip()
 
-        # Should fallback and still succeed
-        self.assertEqual(info.status, "success")
         self.assertEqual(len(findings), 2)
-        
+
         f_tf = next(f for f in findings if f.details["package_name"] == "tensorflow")
         self.assertEqual(f_tf.title, "Package: tensorflow (2.14.0)")
         self.assertEqual(f_tf.category, FindingCategory.ML_FRAMEWORK)
@@ -83,25 +86,36 @@ class TestPackageScanner(unittest.TestCase):
         self.assertEqual(f_lc.title, "Package: langchain (0.0.350)")
         self.assertEqual(f_lc.category, FindingCategory.AI_AGENT)
 
-    @patch("subprocess.run")
-    @patch("importlib.metadata.version")
-    def test_run_both_fail(self, mock_metadata_version, mock_run):
-        # Subprocess fails
-        mock_run.side_effect = subprocess.SubprocessError("pip list failed")
-        # Metadata version fallback fails
-        mock_metadata_version.side_effect = Exception("metadata service is corrupted")
-
+    @patch("scanner.modules.package_scanner._scan_npm_global", return_value=[])
+    @patch("scanner.modules.package_scanner._scan_pipx", return_value=[])
+    @patch("scanner.modules.package_scanner._scan_uv_tools", return_value=[])
+    @patch("scanner.modules.package_scanner._scan_homebrew", return_value=[])
+    @patch("scanner.modules.package_scanner._scan_conda", return_value=[])
+    @patch("scanner.modules.package_scanner._scan_pip_global_envs", return_value=[])
+    @patch("scanner.modules.package_scanner._scan_pip", side_effect=RuntimeError("pip totally broken"))
+    def test_run_both_fail(
+        self,
+        _mock_pip,
+        _mock_pip_global,
+        _mock_conda,
+        _mock_brew,
+        _mock_uv,
+        _mock_pipx,
+        _mock_npm,
+    ):
+        # All scanners are mocked — pip raises, all others return [].
+        # errors is populated by pip's exception; findings is empty → status = error.
         findings, info = package_scanner.run()
 
         self.assertEqual(info.status, "error")
-        self.assertIn("Failed to list packages", info.error_message)
+        self.assertIn("pip", info.error_message)
         self.assertEqual(len(findings), 0)
 
     def test_class_wrapper(self):
         scanner = package_scanner.PackageScanner()
         self.assertEqual(scanner.MODULE_NAME, "PackageScanner")
         self.assertEqual(scanner.MODULE_NUMBER, 4)
-        
+
         with patch.object(package_scanner, "run") as mock_run:
             mock_run.return_value = ([], package_scanner.ModuleInfo(name="PackageScanner", module_number=4))
             findings = scanner.scan()

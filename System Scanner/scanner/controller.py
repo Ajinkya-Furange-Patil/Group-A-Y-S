@@ -127,6 +127,16 @@ class ScanController:
         except Exception as e:
             logger.warning("Failed to initialize MODULE 07: APIScanner: %s", e, exc_info=True)
 
+        # ── MODULE 08: MCP Scanner ───────────────────────────────────────
+        try:
+            from scanner.modules.mcp_scanner import MCPScanner
+            self._engine.register_module(MCPScanner())
+            logger.info("Successfully registered MODULE 08: MCPScanner")
+        except ImportError:
+            logger.debug("MODULE 08: MCPScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 08: MCPScanner: %s", e, exc_info=True)
+
         logger.info("Module registration complete. Registered %d active modules.", len(self._engine._modules))
 
     def run_scan(self) -> ScanResult:
