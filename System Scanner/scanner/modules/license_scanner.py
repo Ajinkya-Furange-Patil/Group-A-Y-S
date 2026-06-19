@@ -80,6 +80,120 @@ RESTRICTED_IMPORTS = {
 }
 
 
+def check_imports(tree: ast.AST, file_path: pathlib.Path) -> list[Finding]:
+    """
+    Check for restrictive imports in AST using ast.walk().
+    
+    Detects:
+    - ast.Import nodes (direct imports like "import PyQt5")
+    - ast.ImportFrom nodes (from-imports like "from PyQt5 import QtCore")
+    
+    Args:
+        tree: Parsed AST tree
+        file_path: Path to the Python file being analyzed
+    
+    Returns:
+        List of Finding objects for detected restrictive imports
+    """
+    findings: list[Finding] = []
+    
+    for node in ast.walk(tree):
+        # Check direct imports: import PyQt5
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                import_name = alias.name
+                
+                # Check against restricted imports
+                # First try exact match, then try base module match
+                matched_key = None
+                for restricted_name in RESTRICTED_IMPORTS.keys():
+                    # Exact match (case-insensitive)
+                    if import_name.lower() == restricted_name.lower():
+                        matched_key = restricted_name
+                        break
+                    # Check if import starts with restricted name (for submodules)
+                    elif import_name.lower().startswith(restricted_name.lower() + '.'):
+                        matched_key = restricted_name
+                        break
+                    # Check if restricted name starts with import (for multi-part like mysql.connector)
+                    elif restricted_name.lower().startswith(import_name.lower() + '.'):
+                        matched_key = restricted_name
+                        break
+                
+                if matched_key:
+                    restriction_data = RESTRICTED_IMPORTS[matched_key]
+                    lic_type = restriction_data["license"]
+                    risk = restriction_data["risk"]
+                    
+                    findings.append(Finding(
+                        module_name=MODULE_NAME,
+                        title=f"Restrictive Import: {import_name} ({lic_type})",
+                        description=(
+                            f"Import of potentially restrictive library '{import_name}' (licensed under {lic_type}) "
+                            f"detected in '{file_path.name}' at line {node.lineno}."
+                        ),
+                        source=f"{str(file_path.resolve()).replace('\\', '/')}:{node.lineno}",
+                        category=FindingCategory.CONFIGURATION,
+                        risk_level=risk,
+                        confidence=0.85,
+                        details={
+                            "file_path": str(file_path.resolve()).replace("\\", "/"),
+                            "line_number": node.lineno,
+                            "imported_library": import_name,
+                            "license_type": lic_type,
+                            "detection_method": "AST Import Analyzer"
+                        }
+                    ))
+        
+        # Check from-imports: from PyQt5 import QtCore
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                import_name = node.module
+                
+                # Check against restricted imports
+                matched_key = None
+                for restricted_name in RESTRICTED_IMPORTS.keys():
+                    # Exact match (case-insensitive)
+                    if import_name.lower() == restricted_name.lower():
+                        matched_key = restricted_name
+                        break
+                    # Check if import starts with restricted name (for submodules)
+                    elif import_name.lower().startswith(restricted_name.lower() + '.'):
+                        matched_key = restricted_name
+                        break
+                    # Check if restricted name starts with import (for multi-part like mysql.connector)
+                    elif restricted_name.lower().startswith(import_name.lower() + '.'):
+                        matched_key = restricted_name
+                        break
+                
+                if matched_key:
+                    restriction_data = RESTRICTED_IMPORTS[matched_key]
+                    lic_type = restriction_data["license"]
+                    risk = restriction_data["risk"]
+                    
+                    findings.append(Finding(
+                        module_name=MODULE_NAME,
+                        title=f"Restrictive Import: {import_name} ({lic_type})",
+                        description=(
+                            f"Import of potentially restrictive library '{import_name}' (licensed under {lic_type}) "
+                            f"detected in '{file_path.name}' at line {node.lineno}."
+                        ),
+                        source=f"{str(file_path.resolve()).replace('\\', '/')}:{node.lineno}",
+                        category=FindingCategory.CONFIGURATION,
+                        risk_level=risk,
+                        confidence=0.85,
+                        details={
+                            "file_path": str(file_path.resolve()).replace("\\", "/"),
+                            "line_number": node.lineno,
+                            "imported_library": import_name,
+                            "license_type": lic_type,
+                            "detection_method": "AST Import Analyzer"
+                        }
+                    ))
+    
+    return findings
+
+
 def scan_py_file_ast(file_path: pathlib.Path) -> list[Finding]:
     """Parse a python file to AST and extract declared docstring licenses and restrictive imports."""
     findings: list[Finding] = []
@@ -120,61 +234,7 @@ def scan_py_file_ast(file_path: pathlib.Path) -> list[Finding]:
                     break
 
         # 2. Inspect AST Nodes for imports of copyleft/restrictive packages
-        class ImportVisitor(ast.NodeVisitor):
-            def __init__(self):
-                self.imports = []
-
-            def visit_Import(self, node):
-                for alias in node.names:
-                    self.imports.append((alias.name, node.lineno))
-                self.generic_visit(node)
-
-            def visit_ImportFrom(self, node):
-                if node.module:
-                    self.imports.append((node.module, node.lineno))
-                self.generic_visit(node)
-
-        visitor = ImportVisitor()
-        visitor.visit(tree)
-
-        for imp_name, lineno in visitor.imports:
-            # Normalize for case-insensitive matching
-            imp_name_lower = imp_name.lower()
-            imp_base = imp_name_lower.split(".")[0]
-            
-            # Check if import matches restricted libraries (case-insensitive)
-            matched_key = None
-            for restricted_name in RESTRICTED_IMPORTS.keys():
-                if imp_name_lower == restricted_name.lower():
-                    matched_key = restricted_name
-                    break
-                elif imp_base == restricted_name.lower():
-                    matched_key = restricted_name
-                    break
-
-            if matched_key:
-                restriction_data = RESTRICTED_IMPORTS[matched_key]
-                lic_type = restriction_data["license"]
-                risk = restriction_data["risk"]
-                findings.append(Finding(
-                    module_name=MODULE_NAME,
-                    title=f"Restrictive Import: {imp_name} ({lic_type})",
-                    description=(
-                        f"Import of potentially restrictive library '{imp_name}' (licensed under {lic_type}) "
-                        f"detected in '{file_path.name}' at line {lineno}."
-                    ),
-                    source=f"{str(file_path.resolve()).replace('\\', '/')}:{lineno}",
-                    category=FindingCategory.CONFIGURATION,
-                    risk_level=risk,
-                    confidence=0.85,
-                    details={
-                        "file_path": str(file_path.resolve()).replace("\\", "/"),
-                        "line_number": lineno,
-                        "library_imported": imp_name,
-                        "license_type": lic_type,
-                        "detection_method": "AST Import Analyzer"
-                    }
-                ))
+        findings.extend(check_imports(tree, file_path))
 
     except Exception as e:
         logger.debug("LicenseScanner: AST parse failed for %s: %s", file_path, e)

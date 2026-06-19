@@ -62,7 +62,7 @@ def main():
             # 2. mysql.connector (GPL, RiskLevel.HIGH)
             self.assertEqual(len(findings), 2)
             
-            libs = [f.details["library_imported"] for f in findings]
+            libs = [f.details["imported_library"] for f in findings]
             self.assertIn("PyQt5.QtWidgets", libs)
             self.assertIn("mysql.connector", libs)
             for f in findings:

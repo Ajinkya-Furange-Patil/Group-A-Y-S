@@ -69,7 +69,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Map readline to GPL with RiskLevel.HIGH
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
   
-  - [~] 4.2 Create `check_imports` function with AST walker
+  - [-] 4.2 Create `check_imports` function with AST walker
     - Use ast.walk() to traverse AST nodes
     - Detect ast.Import nodes (direct imports like "import PyQt5")
     - Detect ast.ImportFrom nodes (from-imports like "from PyQt5 import QtCore")
