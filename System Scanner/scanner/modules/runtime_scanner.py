@@ -82,15 +82,15 @@ def _find_process_for_port(port: int) -> dict[str, Any] | None:
                     try:
                         p = psutil.Process(conn.pid)
                         return {
-                            "pid": conn.pid,
-                            "name": p.name(),
-                            "cmdline": p.cmdline(),
+                            "process_id": conn.pid,
+                            "process_name": p.name(),
+                            "process_cmdline": p.cmdline(),
                         }
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
                         return {
-                            "pid": conn.pid,
-                            "name": "Unknown (Access Denied)",
-                            "cmdline": [],
+                            "process_id": conn.pid,
+                            "process_name": "Unknown (Access Denied)",
+                            "process_cmdline": [],
                         }
     except (psutil.AccessDenied, PermissionError):
         # Fall back to process iteration
@@ -106,9 +106,9 @@ def _find_process_for_port(port: int) -> dict[str, Any] | None:
                 for conn in conns:
                     if conn.laddr and conn.laddr.port == port and conn.status == "LISTEN":
                         return {
-                            "pid": p.pid,
-                            "name": p.name(),
-                            "cmdline": p.cmdline(),
+                            "process_id": p.pid,
+                            "process_name": p.name(),
+                            "process_cmdline": p.cmdline(),
                         }
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
@@ -202,9 +202,9 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             if ollama_active:
                 p_info = _find_process_for_port(11434)
                 if p_info:
-                    details["process_id"] = p_info["pid"]
-                    details["process_name"] = p_info["name"]
-                    details["process_cmdline"] = p_info["cmdline"]
+                    details["process_id"] = p_info["process_id"]
+                    details["process_name"] = p_info["process_name"]
+                    details["process_cmdline"] = p_info["process_cmdline"]
 
             findings.append(
                 Finding(
@@ -256,9 +256,9 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             }
             p_info = _find_process_for_port(port)
             if p_info:
-                p_details["process_id"] = p_info["pid"]
-                p_details["process_name"] = p_info["name"]
-                p_details["process_cmdline"] = p_info["cmdline"]
+                p_details["process_id"] = p_info["process_id"]
+                p_details["process_name"] = p_info["process_name"]
+                p_details["process_cmdline"] = p_info["process_cmdline"]
 
             findings.append(
                 Finding(
