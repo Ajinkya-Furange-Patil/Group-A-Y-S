@@ -35,18 +35,38 @@ MODEL_EXTENSIONS = {
     ".h5",
 }
 
-# Directories to exclude from general traversal to prevent performance bottlenecks
+# Directories to exclude from general traversal to prevent performance bottlenecks.
+# Covers OS internals, package managers, build artifacts, and well-known large
+# system directories that will never contain user AI model files.
 EXCLUDED_DIRS = {
+    # Version control / editor metadata
     ".git",
+    ".svn",
+    ".hg",
+    # JS / Node tooling
     "node_modules",
+    # Python virtual environments & caches
     "venv",
     ".venv",
     "env",
     "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "site-packages",
+    "dist-packages",
+    # General build artifacts
+    "target",
+    "out",
+    "bin",
+    "obj",
+    "dist",
+    "build",
+    ".cache",
+    # Windows user-profile shell folders (not model storage locations)
     "AppData",
     "Application Data",
     "Local Settings",
-    "Library",
     "Cookies",
     "SendTo",
     "NetHood",
@@ -54,16 +74,76 @@ EXCLUDED_DIRS = {
     "Templates",
     "Recent",
     "My Documents",
+    # Windows OS internals — large, protected, and irrelevant
+    "Windows",
+    "WinSxS",
+    "System32",
+    "SysWOW64",
+    "SystemApps",
+    "SystemResources",
+    "servicing",
+    "WinSxS",
+    "assembly",
+    "Microsoft.NET",
+    "WindowsApps",
+    "WindowsPowerShell",
+    "Windows Defender",
+    "Windows Security",
+    "Windows Kits",
+    "Windows NT",
+    "IIS",
+    "IIS Express",
+    # Windows recycle & volume metadata
     "System Volume Information",
     "$RECYCLE.BIN",
-    "site-packages",
-    "dist-packages",
-    ".cache",
-    ".pytest_cache",
-    "target",
-    "out",
-    "bin",
-    "obj",
+    "$WinREAgent",
+    "Recovery",
+    # Program installation directories (exclude root-level; user models won't be here)
+    "Program Files",
+    "Program Files (x86)",
+    "ProgramData",
+    # macOS system directories
+    "Library",
+    "System",
+    "Volumes",
+    "private",
+    # Linux system directories
+    "proc",
+    "sys",
+    "dev",
+    "run",
+    "boot",
+    "lib",
+    "lib32",
+    "lib64",
+    "libx32",
+    "sbin",
+    "usr",
+    "etc",
+    "var",
+    "tmp",
+    "mnt",
+    "media",
+    "srv",
+    "opt",
+    "lost+found",
+    "snap",
+    # Common package manager caches
+    ".npm",
+    ".yarn",
+    ".pnpm-store",
+    "go",
+    "cargo",
+    ".cargo",
+    ".rustup",
+    ".gradle",
+    ".m2",
+    ".nuget",
+    # Misc large non-model dirs
+    "Logs",
+    "logs",
+    "CrashDumps",
+    "minidump",
 }
 
 
@@ -182,11 +262,18 @@ def get_drive_targets() -> list[pathlib.Path]:
 
     targets: list[pathlib.Path] = []
     system_dirs = {
+        # Windows OS and program directories
         "windows", "program files", "program files (x86)", "programdata",
         "$recycle.bin", "system volume information", "recovery", "config.msi",
         "documents and settings", "intel", "msocache", "perflogs", "boot",
-        "sys", "proc", "dev", "lib", "lib64", "bin", "sbin", "usr", "var",
-        "etc", "tmp", "run", "boot", "mnt", "media", "srv", "opt", "lost+found"
+        "winsxs", "system32", "syswow64", "systemapps", "windowsapps",
+        "$winreagent", "windows defender", "windows security",
+        # Linux system directories
+        "sys", "proc", "dev", "lib", "lib64", "lib32", "libx32",
+        "bin", "sbin", "usr", "var", "etc", "tmp", "run",
+        "boot", "mnt", "media", "srv", "opt", "lost+found", "snap",
+        # macOS system directories
+        "library", "system", "volumes", "private",
     }
 
     # 1. Gather all drives/mountpoints

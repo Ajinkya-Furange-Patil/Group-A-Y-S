@@ -204,10 +204,46 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             )
             findings.append(gpu_finding)
 
+        # ── Windows Copilot registry scan (non-blocking, Windows-only) ──
+        copilot_entries = _scan_copilot_registry()
+        if copilot_entries:
+            # Determine overall risk: if Copilot is actively installed/enabled → HIGH,
+            # if explicitly disabled by policy → INFO.
+            all_disabled = all(
+                "DISABLED" in e.get("interpretation", "").upper()
+                or "disabled" in e.get("interpretation", "")
+                for e in copilot_entries
+            )
+            copilot_risk = RiskLevel.INFO if all_disabled else RiskLevel.HIGH
+
+            copilot_finding = Finding(
+                module_name=MODULE_NAME,
+                title="Microsoft Copilot — Registry Configuration Detected",
+                description=(
+                    "Microsoft Copilot registry entries were found on this system. "
+                    "This indicates Copilot is installed, registered as an AppX package, "
+                    "or its Group Policy configuration has been modified."
+                ),
+                source="registry:HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot",
+                category=FindingCategory.AI_SERVICE,
+                risk_level=copilot_risk,
+                confidence=0.95,
+                details={
+                    "registry_entries": copilot_entries,
+                    "entry_count": len(copilot_entries),
+                    "copilot_disabled_by_policy": all_disabled,
+                },
+            )
+            findings.append(copilot_finding)
+            logger.info(
+                "SystemScanner: Copilot finding added (risk=%s, entries=%d)",
+                copilot_risk,
+                len(copilot_entries),
+            )
+
         module_info.status = "success"
 
-    except Exception as exc:  # pragma: no cover — catch-all for unexpected errors
-        logger.error("SystemScanner: Unexpected error encountered: %s", exc, exc_info=True)
+    except Exception as exc:  # pragma: no cover — catch-all for unexpected errors        logger.error("SystemScanner: Unexpected error encountered: %s", exc, exc_info=True)
         module_info.status = "error"
         module_info.error_message = str(exc)
 
@@ -218,6 +254,169 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         logger.info("SystemScanner: Completed in %.3fs with %d findings", duration, len(findings))
 
     return findings, module_info
+
+
+def _scan_copilot_registry() -> list[dict[str, Any]]:
+    """Scan the Windows registry for Microsoft Copilot configuration entries.
+
+    Checks two locations:
+      1. HKCU\\Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\
+         CurrentVersion\\AppModel\\SystemAppData — for the MICROSOFT.COPILOT
+         AppX package registration.
+      2. HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot —
+         for the TurnOffWindowsCopilot group policy key.
+
+    Also checks the broader AppX package list under HKCU and HKLM for any
+    key whose name contains "copilot" or "microsoft.copilot".
+
+    Returns:
+        List of dicts, one per discovered Copilot registry entry, each with
+        keys: hive, key_path, value_name, value_data, interpretation.
+        Returns an empty list on non-Windows systems or if winreg is unavailable.
+    """
+    if platform.system() != "Windows":
+        return []
+
+    try:
+        import winreg
+    except ImportError:
+        logger.debug("SystemScanner: winreg not available — skipping Copilot registry scan.")
+        return []
+
+    results: list[dict[str, Any]] = []
+
+    # ── Helper: safe registry open + read ────────────────────────────────
+    def _read_value(hive: int, key_path: str, value_name: str) -> tuple[Any, int] | None:
+        """Return (data, reg_type) or None if key/value does not exist."""
+        try:
+            with winreg.OpenKey(hive, key_path, 0, winreg.KEY_READ) as k:
+                data, reg_type = winreg.QueryValueEx(k, value_name)
+                return data, reg_type
+        except (FileNotFoundError, PermissionError, OSError):
+            return None
+
+    def _key_exists(hive: int, key_path: str) -> bool:
+        """Return True if the registry key exists (even with no values)."""
+        try:
+            with winreg.OpenKey(hive, key_path, 0, winreg.KEY_READ):
+                return True
+        except (FileNotFoundError, PermissionError, OSError):
+            return False
+
+    def _enumerate_subkeys(hive: int, key_path: str) -> list[str]:
+        """Return a list of immediate subkey names under key_path."""
+        names: list[str] = []
+        try:
+            with winreg.OpenKey(hive, key_path, 0, winreg.KEY_READ) as k:
+                idx = 0
+                while True:
+                    try:
+                        names.append(winreg.EnumKey(k, idx))
+                        idx += 1
+                    except OSError:
+                        break
+        except (FileNotFoundError, PermissionError, OSError):
+            pass
+        return names
+
+    HKCU = winreg.HKEY_CURRENT_USER
+    HKLM = winreg.HKEY_LOCAL_MACHINE
+
+    # ── Check 1: TurnOffWindowsCopilot group policy (HKLM) ───────────────
+    # This key is set by MDM/Group Policy to disable Windows Copilot.
+    # Presence of the key itself is meaningful; the DWORD value 1 means disabled.
+    copilot_policy_path = r"SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
+    turn_off_value = _read_value(HKLM, copilot_policy_path, "TurnOffWindowsCopilot")
+
+    if turn_off_value is not None:
+        data, _ = turn_off_value
+        if data == 1:
+            interpretation = "Windows Copilot is DISABLED by Group Policy / MDM."
+        elif data == 0:
+            interpretation = "Windows Copilot is ENABLED (policy key present, value = 0)."
+        else:
+            interpretation = f"Windows Copilot policy present with unexpected value: {data!r}."
+
+        results.append({
+            "hive": "HKLM",
+            "key_path": copilot_policy_path,
+            "value_name": "TurnOffWindowsCopilot",
+            "value_data": data,
+            "interpretation": interpretation,
+        })
+        logger.debug("SystemScanner: Copilot policy key found: TurnOffWindowsCopilot = %s", data)
+    elif _key_exists(HKLM, copilot_policy_path):
+        # Key exists but TurnOffWindowsCopilot value not set — policy not explicitly configured
+        results.append({
+            "hive": "HKLM",
+            "key_path": copilot_policy_path,
+            "value_name": "(key exists, no TurnOffWindowsCopilot value)",
+            "value_data": None,
+            "interpretation": "WindowsCopilot policy key present but TurnOffWindowsCopilot not set (Copilot enabled by default).",
+        })
+
+    # ── Check 2: HKCU variant of Copilot policy ──────────────────────────
+    turn_off_hkcu = _read_value(HKCU, copilot_policy_path, "TurnOffWindowsCopilot")
+    if turn_off_hkcu is not None:
+        data, _ = turn_off_hkcu
+        results.append({
+            "hive": "HKCU",
+            "key_path": copilot_policy_path,
+            "value_name": "TurnOffWindowsCopilot",
+            "value_data": data,
+            "interpretation": (
+                "Windows Copilot disabled at user level." if data == 1
+                else f"Copilot user-level policy value = {data!r}."
+            ),
+        })
+
+    # ── Check 3: MICROSOFT.COPILOT AppX package registration ─────────────
+    # AppX packages for the current user are listed under HKCU at this path.
+    appx_base_paths = [
+        (HKCU, r"Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages"),
+        (HKLM, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Applications"),
+    ]
+    for hive, appx_path in appx_base_paths:
+        hive_name = "HKCU" if hive == HKCU else "HKLM"
+        subkeys = _enumerate_subkeys(hive, appx_path)
+        for subkey in subkeys:
+            if "microsoft.copilot" in subkey.lower() or "copilot" in subkey.lower():
+                full_path = f"{appx_path}\\{subkey}"
+                # Try to read the PackageFullName or InstallLocation for context
+                pkg_name_val = _read_value(hive, full_path, "PackageFullName")
+                install_loc_val = _read_value(hive, full_path, "Path")
+                results.append({
+                    "hive": hive_name,
+                    "key_path": full_path,
+                    "value_name": "PackageFullName / Path",
+                    "value_data": {
+                        "PackageFullName": pkg_name_val[0] if pkg_name_val else subkey,
+                        "Path": install_loc_val[0] if install_loc_val else "N/A",
+                    },
+                    "interpretation": (
+                        f"Microsoft Copilot AppX package is registered for "
+                        f"{'current user' if hive == HKCU else 'all users'}: {subkey}"
+                    ),
+                })
+                logger.debug("SystemScanner: Found Copilot AppX entry: %s", subkey)
+
+    # ── Check 4: Broad sweep of HKLM AppX store for any Copilot package ──
+    # Covers cases where the package is installed system-wide outside the above paths.
+    hklm_appx_modern = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Staged"
+    for subkey in _enumerate_subkeys(HKLM, hklm_appx_modern):
+        if "microsoft.copilot" in subkey.lower():
+            results.append({
+                "hive": "HKLM",
+                "key_path": f"{hklm_appx_modern}\\{subkey}",
+                "value_name": "(staged package)",
+                "value_data": subkey,
+                "interpretation": f"Microsoft Copilot AppX package is STAGED (pending install): {subkey}",
+            })
+
+    logger.info(
+        "SystemScanner: Copilot registry scan found %d entries.", len(results)
+    )
+    return results
 
 
 def _detect_gpu() -> dict[str, Any] | None:
