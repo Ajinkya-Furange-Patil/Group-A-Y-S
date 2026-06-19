@@ -68,46 +68,113 @@
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
     :root {
-      /* Theme colors matching the cyber hud uploaded photo */
-      --hud-bg: #ffffff;
-      --text-muted: #475569;
-      --text-main: #1e293b;
+      /* ═══════════════ GLASSMORPHIC DESIGN SYSTEM ═══════════════ */
+      /* Required named variables per Developer C spec */
+      --primary:        #d30d30;          /* primary brand / accent color     */
+      --primary-glow:   rgba(211, 13, 48, 0.18);
+      --primary-dim:    rgba(211, 13, 48, 0.06);
+      --primary-border: rgba(211, 13, 48, 0.28);
+
+      /* Card / surface aliases (glassmorphic layer) */
+      --card-bg:        rgba(255, 255, 255, 0.82);   /* frosted glass card    */
+      --card-bg-hover:  rgba(255, 245, 246, 0.92);
+      --card-border:    rgba(211, 13, 48, 0.22);
+      --glass-bg:       rgba(255, 255, 255, 0.65);   /* stronger glass layer  */
+      --glass-border:   rgba(255, 255, 255, 0.45);
+      --glass-blur:     blur(12px);
+      --glass-shadow:   0 8px 32px rgba(211, 13, 48, 0.08),
+                        0 2px 8px rgba(0, 0, 0, 0.04);
+
+      /* Surface hierarchy */
+      --surface-base:   #f8fafc;          /* page background                  */
+      --surface-raised: #ffffff;          /* raised card / panel              */
+      --surface-overlay:rgba(255,255,255,0.95); /* modal overlay              */
+
+      /* Theme colors (legacy aliases kept for backwards compat) */
+      --hud-bg:         var(--surface-base);
+      --text-muted:     #475569;
+      --text-main:      #1e293b;
       --text-secondary: #475569;
-      --hud-bg-trans: rgba(255, 255, 255, 0.9);
-      --hud-panel-bg: #ffffff;
-      --hud-panel-bg-hover: rgba(255, 245, 246, 0.8);
-      
-      /* Glowing red primary colors */
-      --hud-red: #d30d30;
-      --hud-red-glow: rgba(211, 13, 48, 0.08);
-      --hud-red-dim: rgba(211, 13, 48, 0.03);
-      --hud-border-dim: rgba(211, 13, 48, 0.22);
+      --hud-bg-trans:   rgba(255, 255, 255, 0.9);
+      --hud-panel-bg:   var(--surface-raised);
+      --hud-panel-bg-hover: var(--card-bg-hover);
 
-      /* Threat levels and status colors */
+      /* Primary color legacy aliases */
+      --hud-red:        var(--primary);
+      --hud-red-glow:   var(--primary-glow);
+      --hud-red-dim:    var(--primary-dim);
+      --hud-border-dim: var(--primary-border);
+
+      /* Threat level palette */
       --color-critical: #d30d30;
-      --color-high: #e65c00;
-      --color-medium: #a87900;
-      --color-low: #008f7a;
-      --color-info: #0076a3;
-      --color-secure: #008a34;
+      --color-high:     #e65c00;
+      --color-medium:   #a87900;
+      --color-low:      #008f7a;
+      --color-info:     #0076a3;
+      --color-secure:   #008a34;
 
-      /* Typography */
-      --font-mono: 'Share Tech Mono', 'Courier New', monospace;
-      --font-sans: 'Rajdhani', 'Inter', system-ui, sans-serif;
+      /* Typography scale */
+      --font-mono:  'Share Tech Mono', 'Courier New', monospace;
+      --font-sans:  'Rajdhani', 'Inter', system-ui, sans-serif;
+      --text-xs:    0.68rem;
+      --text-sm:    0.78rem;
+      --text-base:  0.9rem;
+      --text-lg:    1.1rem;
+      --text-xl:    1.4rem;
+      --text-2xl:   1.8rem;
+
+      /* Spacing scale */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+
+      /* Border radius */
+      --radius-sm: 2px;
+      --radius-md: 4px;
+
+      /* Transition */
+      --transition-fast:   0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow:   0.4s  cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* ═══════════════ DARK THEME OVERRIDES ═══════════════ */
     body.dark-theme {
-      --hud-bg: #0b0d10;
-      --text-muted: #8a99ad;
-      --text-main: #f8fafc;
+      /* Glassmorphic dark surfaces */
+      --card-bg:        rgba(18, 22, 27, 0.82);
+      --card-bg-hover:  rgba(211, 13, 48, 0.10);
+      --card-border:    rgba(211, 13, 48, 0.35);
+      --glass-bg:       rgba(11, 13, 16, 0.72);
+      --glass-border:   rgba(255, 255, 255, 0.08);
+      --glass-shadow:   0 8px 32px rgba(0, 0, 0, 0.45),
+                        0 2px 8px rgba(211, 13, 48, 0.12);
+
+      /* Surface hierarchy */
+      --surface-base:   #0b0d10;
+      --surface-raised: #12161b;
+      --surface-overlay:rgba(11, 13, 16, 0.96);
+
+      /* Text */
+      --text-muted:     #8a99ad;
+      --text-main:      #f8fafc;
       --text-secondary: #8a99ad;
-      --hud-bg-trans: rgba(11, 13, 16, 0.9);
-      --hud-panel-bg: #12161b;
-      --hud-panel-bg-hover: rgba(211, 13, 48, 0.08);
-      
-      --hud-red-glow: rgba(211, 13, 48, 0.15);
-      --hud-red-dim: rgba(211, 13, 48, 0.05);
-      --hud-border-dim: rgba(211, 13, 48, 0.35);
+      --hud-bg-trans:   rgba(11, 13, 16, 0.9);
+
+      /* Primary glow intensifies in dark */
+      --primary-glow:   rgba(211, 13, 48, 0.22);
+      --primary-dim:    rgba(211, 13, 48, 0.07);
+      --primary-border: rgba(211, 13, 48, 0.38);
+
+      /* Legacy aliases */
+      --hud-bg:         var(--surface-base);
+      --hud-panel-bg:   var(--surface-raised);
+      --hud-panel-bg-hover: var(--card-bg-hover);
+      --hud-red-glow:   var(--primary-glow);
+      --hud-red-dim:    var(--primary-dim);
+      --hud-border-dim: var(--primary-border);
     }
 
     .theme-toggle-btn {
@@ -138,7 +205,7 @@
 
     body {
       font-family: var(--font-sans);
-      background-color: var(--hud-bg);
+      background-color: var(--surface-base);
       color: var(--text-main);
       padding: 24px;
       min-height: 100vh;
@@ -178,20 +245,35 @@
       z-index: 10;
     }
 
-    /* ═══════════════ CYBER HUD CONTAINER & BORDERS ═══════════════ */
+    /* ═══════════════ GLASSMORPHIC HUD PANELS ═══════════════ */
     .hud-panel {
       position: relative;
-      background: var(--hud-panel-bg);
-      border: 1px solid var(--hud-border-dim);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 0 5px rgba(0, 0, 0, 0.01);
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--glass-shadow);
       padding: 20px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: var(--transition-normal);
     }
     .hud-panel::before {
       content: '';
       position: absolute;
       top: 3px; left: 3px; right: 3px; bottom: 3px;
       border: 1px dashed rgba(255, 0, 60, 0.08);
+      pointer-events: none;
+    }
+    /* Glassmorphic inner highlight on top edge (not for finding-cards) */
+    .hud-panel:not(.finding-card)::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--glass-border) 30%,
+        var(--glass-border) 70%,
+        transparent 100%);
       pointer-events: none;
     }
 
@@ -487,11 +569,14 @@
       gap: 16px;
     }
     .metric-card {
-      background: var(--hud-panel-bg); box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-      border: 1px solid var(--hud-border-dim);
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--glass-shadow);
+      border: 1px solid var(--card-border);
       padding: 16px;
       position: relative;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: var(--transition-normal);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -509,11 +594,30 @@
       border: 1px dashed rgba(255, 0, 60, 0.05);
       pointer-events: none;
     }
+    /* Glassmorphic shimmer on hover */
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -60%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.12) 50%,
+        transparent 60%);
+      transform: skewX(-15deg);
+      transition: left 0.5s ease;
+      pointer-events: none;
+    }
+    .metric-card:hover::after {
+      left: 130%;
+    }
     .metric-card:hover {
-      transform: translateY(-2px);
-      background: var(--hud-panel-bg-hover);
-      border-color: var(--hud-red);
-      box-shadow: 0 0 15px rgba(211, 13, 48, 0.04);
+      transform: translateY(-3px);
+      background: var(--card-bg-hover);
+      border-color: var(--primary);
+      box-shadow: 0 12px 28px var(--primary-glow),
+                  0 4px 12px rgba(0,0,0,0.06);
     }
     .metric-header {
       display: flex;
@@ -1133,6 +1237,26 @@
       border-color: var(--hud-red);
       color: var(--text-main);
     }
+    /* Excel button gets a green accent */
+    .export-btn-excel {
+      color: #007a3d;
+      border-color: rgba(0, 122, 61, 0.35);
+    }
+    .export-btn-excel:hover {
+      background: rgba(0, 122, 61, 0.08);
+      border-color: #007a3d;
+      color: #005a2b;
+      box-shadow: 0 0 10px rgba(0, 122, 61, 0.18);
+    }
+    body.dark-theme .export-btn-excel {
+      color: #00e676;
+      border-color: rgba(0, 230, 118, 0.3);
+    }
+    body.dark-theme .export-btn-excel:hover {
+      background: rgba(0, 230, 118, 0.08);
+      border-color: #00e676;
+      color: #69ffb4;
+    }
 
     /* ═══════════════ ALERT BADGES (Day 4) ═══════════════ */
     .alert-badge {
@@ -1230,6 +1354,68 @@
     }
     ::-webkit-scrollbar-thumb:hover {
       background: var(--hud-red);
+    }
+
+    /* ═══════════════ RESPONSIVE — MOBILE (480px) ═══════════════ */
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+
+      .container { gap: 14px; }
+
+      /* Header stacks vertically */
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+      }
+      .header-right { align-items: flex-start; }
+      .header-title h1 { font-size: 1.3rem; }
+
+      /* Summary section single column */
+      .summary-section { grid-template-columns: 1fr; gap: 14px; }
+
+      /* Metrics grid: 2 columns on mobile */
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .metric-value { font-size: 1.6rem; }
+
+      /* Host info: single column */
+      .host-info-bar { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+      /* Main grid: single column */
+      .main-grid { grid-template-columns: 1fr; }
+
+      /* 5-dimension rows: stack label above bar */
+      .dim-row {
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .dim-label { width: 100%; }
+      .dim-bar-track { flex: 1; }
+
+      /* Filter bar: stack */
+      .filter-bar { flex-direction: column; gap: 8px; }
+      .hud-input, .hud-select { min-width: unset; width: 100%; }
+
+      /* Filter tabs: wrap small */
+      .filter-tabs { gap: 4px; }
+      .filter-tab { font-size: 0.65rem; padding: 5px 8px; }
+
+      /* Export bar */
+      .export-bar { gap: 6px; }
+      .export-btn { font-size: 0.65rem; padding: 4px 10px; }
+
+      /* PDF modal */
+      .pdf-modal { min-width: unset; padding: 20px; }
+      .pdf-option-row { flex-direction: column; }
+      .pdf-radio-btn { min-width: unset; }
+    }
+
+    /* ═══════════════ RESPONSIVE — TABLET (768px) ═══════════════ */
+    @media (max-width: 768px) {
+      .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+      .host-info-bar { grid-template-columns: repeat(2, 1fr); }
+      .hud-dial-wrapper { width: 150px; height: 150px; }
     }
 
     /* ═══════════════ PREMIUM HUD MENU BAR ═══════════════ */
@@ -1625,13 +1811,17 @@
         print-color-adjust: exact;
       }
 
-      /* Flatten panels */
+      /* Flatten glassmorphic panels */
       .hud-panel {
         border: 1px solid #e2e8f0 !important;
         box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: #ffffff !important;
         break-inside: avoid;
       }
       .hud-panel::before { display: none; }
+      .hud-panel:not(.finding-card)::after { display: none; }
       .hud-corner { display: none; }
 
       /* Summary section: stack vertically */
@@ -2229,6 +2419,9 @@
           <button class="export-btn" onclick="exportDashboardCSV()" title="Download findings as CSV">
             ⬇ CSV
           </button>
+          <button class="export-btn export-btn-excel" onclick="exportDashboardExcel()" title="Download full report as Excel workbook (.xlsx)">
+            📊 Excel
+          </button>
           <button class="export-btn" onclick="openPdfModal()" title="Configure and generate a formatted PDF report">
             🖨 PDF Report
           </button>
@@ -2650,6 +2843,318 @@
       a.href     = url;
       a.download = 'ai_scan_sbom_' + SCAN_DATA.scan_id + '.csv';
       a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Client-side Excel export (.xlsx) ─────────────────────────────────
+    // Pure JS XLSX writer — no external libraries.
+    // Produces a valid multi-sheet .xlsx (Office Open XML / ZIP) workbook.
+    function exportDashboardExcel() {
+      // ── helpers ──────────────────────────────────────────────────────────
+      function escXml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&apos;');
+      }
+
+      // Shared-string table
+      const sst = [], sstMap = {};
+      function si(text) {
+        const k = String(text);
+        if (!(k in sstMap)) { sstMap[k] = sst.length; sst.push(k); }
+        return sstMap[k];
+      }
+
+      // Column letter (0-based)
+      function col(n) {
+        let r = ''; n++;
+        while (n) { r = String.fromCharCode(64 + (n % 26 || 26)) + r; n = Math.floor((n - 1) / 26); }
+        return r;
+      }
+      const ref = (r, c) => col(c) + (r + 1);
+
+      // Build worksheet XML from a 2-D array of {t, v} objects
+      // t: 's'=shared-str, 'n'=number, 'i'=inline-str, 'h'=header(bold)
+      function sheetXml(rows) {
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
+          + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
+          + `<sheetData>`;
+        rows.forEach((row, ri) => {
+          if (!row || row.length === 0) return;
+          xml += `<row r="${ri + 1}">`;
+          row.forEach((cell, ci) => {
+            if (!cell) return;
+            const {t, v} = cell;
+            if (v === null || v === undefined) return;
+            const r = ref(ri, ci);
+            if (t === 'n') {
+              xml += `<c r="${r}"><v>${escXml(v)}</v></c>`;
+            } else if (t === 'h') {
+              xml += `<c r="${r}" t="s" s="1"><v>${si(v)}</v></c>`;
+            } else if (t === 'i') {
+              xml += `<c r="${r}" t="inlineStr"><is><t xml:space="preserve">${escXml(v)}</t></is></c>`;
+            } else {
+              xml += `<c r="${r}" t="s"><v>${si(v)}</v></c>`;
+            }
+          });
+          xml += `</row>`;
+        });
+        xml += `</sheetData></worksheet>`;
+        return xml;
+      }
+
+      // ── Sheet 1: Summary ─────────────────────────────────────────────────
+      const S = SCAN_DATA;
+      const summaryRows = [
+        [{t:'h',v:'AI Discovery Scanner — Full Scan Report'}],
+        [],
+        [{t:'h',v:'Field'},{t:'h',v:'Value'}],
+        [{t:'s',v:'Scan ID'},          {t:'s',v:S.scan_id}],
+        [{t:'s',v:'Scan Timestamp'},   {t:'s',v:S.scan_timestamp}],
+        [{t:'s',v:'Hostname'},         {t:'s',v:S.hostname}],
+        [{t:'s',v:'Operating System'}, {t:'s',v:S.os_info}],
+        [{t:'s',v:'Total Findings'},   {t:'n',v:S.total_findings}],
+        [{t:'s',v:'Overall Risk Score'},{t:'n',v:S.risk_score}],
+      ];
+
+      // ── Sheet 2: All Findings ─────────────────────────────────────────────
+      const fHeader = ['Finding ID','Module','Title','Description','Category',
+                       'Risk Level','Source','Confidence %','Timestamp'].map(h=>({t:'h',v:h}));
+      const findingsRows = [fHeader, ...S.findings.map(f => [
+        {t:'s',v:f.finding_id},
+        {t:'s',v:f.module},
+        {t:'s',v:f.title},
+        {t:'i',v:f.description||''},
+        {t:'s',v:f.category},
+        {t:'s',v:(f.risk_level||'').toUpperCase()},
+        {t:'i',v:f.source||''},
+        {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10},
+        {t:'s',v:f.timestamp},
+      ])];
+
+      // ── Sheet 3: By Category ──────────────────────────────────────────────
+      const catCounts = {};
+      S.findings.forEach(f => { catCounts[f.category] = (catCounts[f.category]||0)+1; });
+      const catRows = [
+        [{t:'h',v:'Category'},{t:'h',v:'Count'}],
+        ...Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[{t:'s',v:k},{t:'n',v:v}])
+      ];
+
+      // ── Sheet 4: By Risk Level ────────────────────────────────────────────
+      const riskCounts = {};
+      S.findings.forEach(f => {
+        const r = (f.risk_level||'info').toLowerCase();
+        riskCounts[r] = (riskCounts[r]||0)+1;
+      });
+      const riskOrder = ['critical','high','medium','low','info'];
+      const riskRows = [
+        [{t:'h',v:'Risk Level'},{t:'h',v:'Count'}],
+        ...riskOrder.filter(r=>riskCounts[r]).map(r=>[
+          {t:'s',v:r.toUpperCase()},{t:'n',v:riskCounts[r]}
+        ])
+      ];
+
+      // ── Sheet 5: Risk Breakdown ───────────────────────────────────────────
+      const total = Math.max(S.total_findings, 1);
+      const crit  = (riskCounts['critical']||0);
+      const high  = (riskCounts['high']||0);
+      const med   = (riskCounts['medium']||0);
+      const apiC  = S.findings.filter(f=>f.module==='APIScanner').length;
+      const agentC= S.findings.filter(f=>f.module==='AgentScanner').length;
+      const modelC= S.findings.filter(f=>f.category==='AI Model').length;
+      const pkgC  = S.findings.filter(f=>f.module==='PackageScanner').length;
+      const rtC   = S.findings.filter(f=>f.module==='RuntimeScanner').length;
+      const secScore  = Math.min(Math.max(Math.floor((crit*100+high*75)/total),0),100);
+      const privScore = Math.min(Math.max(Math.floor((apiC*85+agentC*55)/total),0),100);
+      const compScore = Math.min(Math.max(Math.floor(S.risk_score*0.8),0),100);
+      const supScore  = Math.min(Math.max(Math.floor((modelC*60+pkgC*40)/total),0),100);
+      const opsScore  = Math.min(Math.max(Math.floor((rtC*50+med*25)/total),0),100);
+      const dimLevel  = s => s>=75?'CRITICAL':s>=50?'HIGH':s>=25?'MEDIUM':'LOW';
+      const dimRows = [
+        [{t:'h',v:'Dimension'},{t:'h',v:'Weight'},{t:'h',v:'Score (0-100)'},{t:'h',v:'Level'}],
+        [{t:'s',v:'Security'},      {t:'s',v:'25%'},{t:'n',v:secScore}, {t:'s',v:dimLevel(secScore)}],
+        [{t:'s',v:'Data Privacy'},  {t:'s',v:'25%'},{t:'n',v:privScore},{t:'s',v:dimLevel(privScore)}],
+        [{t:'s',v:'Compliance'},    {t:'s',v:'25%'},{t:'n',v:compScore},{t:'s',v:dimLevel(compScore)}],
+        [{t:'s',v:'Supply Chain'},  {t:'s',v:'15%'},{t:'n',v:supScore}, {t:'s',v:dimLevel(supScore)}],
+        [{t:'s',v:'Operational'},   {t:'s',v:'10%'},{t:'n',v:opsScore}, {t:'s',v:dimLevel(opsScore)}],
+        [],
+        [{t:'h',v:'Overall Risk Score'},{t:'n',v:S.risk_score},{t:'s',v:''},{t:'s',v:''}],
+      ];
+
+      // ── Assemble workbook XML ─────────────────────────────────────────────
+      const sheets = [
+        {name:'Summary',       xml:sheetXml(summaryRows)},
+        {name:'Findings',      xml:sheetXml(findingsRows)},
+        {name:'By Category',   xml:sheetXml(catRows)},
+        {name:'By Risk Level', xml:sheetXml(riskRows)},
+        {name:'Risk Breakdown',xml:sheetXml(dimRows)},
+      ];
+
+      const wbXml = `<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    ${sheets.map((s,i)=>`<sheet name="${escXml(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('\n    ')}
+  </sheets>
+</workbook>`;
+
+      const wbRels = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('\n  ')}
+  <Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>
+  <Relationship Id="rId${sheets.length+2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+      const sstXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+     count="${sst.length}" uniqueCount="${sst.length}">
+${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
+</sst>`;
+
+      const stylesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="2">
+    <font><sz val="11"/><name val="Calibri"/></font>
+    <font><sz val="11"/><name val="Calibri"/><b/></font>
+  </fonts>
+  <fills count="2">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+  </fills>
+  <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="2">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0"/>
+  </cellXfs>
+</styleSheet>`;
+
+      const ctXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml"  ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  ${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('\n  ')}
+  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+  <Override PartName="/xl/styles.xml"        ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>`;
+
+      const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`;
+
+      // ── Zip it up using JSZip-free approach (raw ZIP bytes in browser) ─────
+      // Build the zip file manually using the Compression Streams API if available,
+      // otherwise fall back to uncompressed (store-only) which is still valid xlsx.
+      const enc = new TextEncoder();
+      const files = {
+        '[Content_Types].xml':       enc.encode(ctXml),
+        '_rels/.rels':               enc.encode(relsXml),
+        'xl/workbook.xml':           enc.encode(wbXml),
+        'xl/_rels/workbook.xml.rels':enc.encode(wbRels),
+        'xl/sharedStrings.xml':      enc.encode(sstXml),
+        'xl/styles.xml':             enc.encode(stylesXml),
+      };
+      sheets.forEach((s, i) => {
+        files[`xl/worksheets/sheet${i+1}.xml`] = enc.encode(s.xml);
+      });
+
+      // Write a minimal ZIP (store, no compression) — universally compatible
+      function u32le(n) {
+        return [n&0xff,(n>>8)&0xff,(n>>16)&0xff,(n>>24)&0xff];
+      }
+      function u16le(n) { return [n&0xff,(n>>8)&0xff]; }
+
+      function crc32(buf) {
+        let c = 0xffffffff;
+        const table = crc32.t || (crc32.t = (() => {
+          const t = new Uint32Array(256);
+          for (let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?(0xedb88320^(c>>>1)):c>>>1;t[n]=c;}
+          return t;
+        })());
+        for (let i=0;i<buf.length;i++) c=table[(c^buf[i])&0xff]^(c>>>8);
+        return (c^0xffffffff) >>> 0;
+      }
+
+      const parts = [];
+      const centralDir = [];
+      let offset = 0;
+
+      for (const [name, data] of Object.entries(files)) {
+        const nameBytes = enc.encode(name);
+        const crc = crc32(data);
+        const header = [
+          0x50,0x4b,0x03,0x04,   // local file header signature
+          ...u16le(20),            // version needed
+          ...u16le(0),             // flags
+          ...u16le(0),             // compression: store
+          ...u16le(0),             // mod time
+          ...u16le(0),             // mod date
+          ...u32le(crc),
+          ...u32le(data.length),
+          ...u32le(data.length),
+          ...u16le(nameBytes.length),
+          ...u16le(0),             // extra field length
+          ...nameBytes,
+        ];
+        const cdEntry = [
+          0x50,0x4b,0x01,0x02,   // central dir signature
+          ...u16le(20),            // version made by
+          ...u16le(20),            // version needed
+          ...u16le(0),             // flags
+          ...u16le(0),             // compression
+          ...u16le(0),             // mod time
+          ...u16le(0),             // mod date
+          ...u32le(crc),
+          ...u32le(data.length),
+          ...u32le(data.length),
+          ...u16le(nameBytes.length),
+          ...u16le(0),             // extra
+          ...u16le(0),             // comment
+          ...u16le(0),             // disk start
+          ...u16le(0),             // int attrs
+          ...u32le(0),             // ext attrs
+          ...u32le(offset),        // offset of local header
+          ...nameBytes,
+        ];
+        parts.push(new Uint8Array(header), data);
+        centralDir.push(cdEntry);
+        offset += header.length + data.length;
+      }
+
+      const cdBytes   = centralDir.flat();
+      const cdSize    = cdBytes.length;
+      const eocd      = [
+        0x50,0x4b,0x05,0x06,
+        ...u16le(0),
+        ...u16le(0),
+        ...u16le(Object.keys(files).length),
+        ...u16le(Object.keys(files).length),
+        ...u32le(cdSize),
+        ...u32le(offset),
+        ...u16le(0),
+      ];
+
+      const allParts = [...parts, new Uint8Array(cdBytes), new Uint8Array(eocd)];
+      const total    = allParts.reduce((s,a)=>s+a.length,0);
+      const out      = new Uint8Array(total);
+      let pos = 0;
+      for (const p of allParts) { out.set(p,pos); pos+=p.length; }
+
+      const blob = new Blob([out], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href     = url;
+      a.download = 'ai_scan_report_' + S.scan_id + '.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 

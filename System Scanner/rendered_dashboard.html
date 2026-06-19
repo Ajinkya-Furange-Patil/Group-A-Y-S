@@ -15,46 +15,113 @@
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
     :root {
-      /* Theme colors matching the cyber hud uploaded photo */
-      --hud-bg: #ffffff;
-      --text-muted: #475569;
-      --text-main: #1e293b;
+      /* ═══════════════ GLASSMORPHIC DESIGN SYSTEM ═══════════════ */
+      /* Required named variables per Developer C spec */
+      --primary:        #d30d30;          /* primary brand / accent color     */
+      --primary-glow:   rgba(211, 13, 48, 0.18);
+      --primary-dim:    rgba(211, 13, 48, 0.06);
+      --primary-border: rgba(211, 13, 48, 0.28);
+
+      /* Card / surface aliases (glassmorphic layer) */
+      --card-bg:        rgba(255, 255, 255, 0.82);   /* frosted glass card    */
+      --card-bg-hover:  rgba(255, 245, 246, 0.92);
+      --card-border:    rgba(211, 13, 48, 0.22);
+      --glass-bg:       rgba(255, 255, 255, 0.65);   /* stronger glass layer  */
+      --glass-border:   rgba(255, 255, 255, 0.45);
+      --glass-blur:     blur(12px);
+      --glass-shadow:   0 8px 32px rgba(211, 13, 48, 0.08),
+                        0 2px 8px rgba(0, 0, 0, 0.04);
+
+      /* Surface hierarchy */
+      --surface-base:   #f8fafc;          /* page background                  */
+      --surface-raised: #ffffff;          /* raised card / panel              */
+      --surface-overlay:rgba(255,255,255,0.95); /* modal overlay              */
+
+      /* Theme colors (legacy aliases kept for backwards compat) */
+      --hud-bg:         var(--surface-base);
+      --text-muted:     #475569;
+      --text-main:      #1e293b;
       --text-secondary: #475569;
-      --hud-bg-trans: rgba(255, 255, 255, 0.9);
-      --hud-panel-bg: #ffffff;
-      --hud-panel-bg-hover: rgba(255, 245, 246, 0.8);
-      
-      /* Glowing red primary colors */
-      --hud-red: #d30d30;
-      --hud-red-glow: rgba(211, 13, 48, 0.08);
-      --hud-red-dim: rgba(211, 13, 48, 0.03);
-      --hud-border-dim: rgba(211, 13, 48, 0.22);
+      --hud-bg-trans:   rgba(255, 255, 255, 0.9);
+      --hud-panel-bg:   var(--surface-raised);
+      --hud-panel-bg-hover: var(--card-bg-hover);
 
-      /* Threat levels and status colors */
+      /* Primary color legacy aliases */
+      --hud-red:        var(--primary);
+      --hud-red-glow:   var(--primary-glow);
+      --hud-red-dim:    var(--primary-dim);
+      --hud-border-dim: var(--primary-border);
+
+      /* Threat level palette */
       --color-critical: #d30d30;
-      --color-high: #e65c00;
-      --color-medium: #a87900;
-      --color-low: #008f7a;
-      --color-info: #0076a3;
-      --color-secure: #008a34;
+      --color-high:     #e65c00;
+      --color-medium:   #a87900;
+      --color-low:      #008f7a;
+      --color-info:     #0076a3;
+      --color-secure:   #008a34;
 
-      /* Typography */
-      --font-mono: 'Share Tech Mono', 'Courier New', monospace;
-      --font-sans: 'Rajdhani', 'Inter', system-ui, sans-serif;
+      /* Typography scale */
+      --font-mono:  'Share Tech Mono', 'Courier New', monospace;
+      --font-sans:  'Rajdhani', 'Inter', system-ui, sans-serif;
+      --text-xs:    0.68rem;
+      --text-sm:    0.78rem;
+      --text-base:  0.9rem;
+      --text-lg:    1.1rem;
+      --text-xl:    1.4rem;
+      --text-2xl:   1.8rem;
+
+      /* Spacing scale */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+
+      /* Border radius */
+      --radius-sm: 2px;
+      --radius-md: 4px;
+
+      /* Transition */
+      --transition-fast:   0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow:   0.4s  cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* ═══════════════ DARK THEME OVERRIDES ═══════════════ */
     body.dark-theme {
-      --hud-bg: #0b0d10;
-      --text-muted: #8a99ad;
-      --text-main: #f8fafc;
+      /* Glassmorphic dark surfaces */
+      --card-bg:        rgba(18, 22, 27, 0.82);
+      --card-bg-hover:  rgba(211, 13, 48, 0.10);
+      --card-border:    rgba(211, 13, 48, 0.35);
+      --glass-bg:       rgba(11, 13, 16, 0.72);
+      --glass-border:   rgba(255, 255, 255, 0.08);
+      --glass-shadow:   0 8px 32px rgba(0, 0, 0, 0.45),
+                        0 2px 8px rgba(211, 13, 48, 0.12);
+
+      /* Surface hierarchy */
+      --surface-base:   #0b0d10;
+      --surface-raised: #12161b;
+      --surface-overlay:rgba(11, 13, 16, 0.96);
+
+      /* Text */
+      --text-muted:     #8a99ad;
+      --text-main:      #f8fafc;
       --text-secondary: #8a99ad;
-      --hud-bg-trans: rgba(11, 13, 16, 0.9);
-      --hud-panel-bg: #12161b;
-      --hud-panel-bg-hover: rgba(211, 13, 48, 0.08);
-      
-      --hud-red-glow: rgba(211, 13, 48, 0.15);
-      --hud-red-dim: rgba(211, 13, 48, 0.05);
-      --hud-border-dim: rgba(211, 13, 48, 0.35);
+      --hud-bg-trans:   rgba(11, 13, 16, 0.9);
+
+      /* Primary glow intensifies in dark */
+      --primary-glow:   rgba(211, 13, 48, 0.22);
+      --primary-dim:    rgba(211, 13, 48, 0.07);
+      --primary-border: rgba(211, 13, 48, 0.38);
+
+      /* Legacy aliases */
+      --hud-bg:         var(--surface-base);
+      --hud-panel-bg:   var(--surface-raised);
+      --hud-panel-bg-hover: var(--card-bg-hover);
+      --hud-red-glow:   var(--primary-glow);
+      --hud-red-dim:    var(--primary-dim);
+      --hud-border-dim: var(--primary-border);
     }
 
     .theme-toggle-btn {
@@ -85,7 +152,7 @@
 
     body {
       font-family: var(--font-sans);
-      background-color: var(--hud-bg);
+      background-color: var(--surface-base);
       color: var(--text-main);
       padding: 24px;
       min-height: 100vh;
@@ -125,20 +192,35 @@
       z-index: 10;
     }
 
-    /* ═══════════════ CYBER HUD CONTAINER & BORDERS ═══════════════ */
+    /* ═══════════════ GLASSMORPHIC HUD PANELS ═══════════════ */
     .hud-panel {
       position: relative;
-      background: var(--hud-panel-bg);
-      border: 1px solid var(--hud-border-dim);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 0 5px rgba(0, 0, 0, 0.01);
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--glass-shadow);
       padding: 20px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: var(--transition-normal);
     }
     .hud-panel::before {
       content: '';
       position: absolute;
       top: 3px; left: 3px; right: 3px; bottom: 3px;
       border: 1px dashed rgba(255, 0, 60, 0.08);
+      pointer-events: none;
+    }
+    /* Glassmorphic inner highlight on top edge (not for finding-cards) */
+    .hud-panel:not(.finding-card)::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--glass-border) 30%,
+        var(--glass-border) 70%,
+        transparent 100%);
       pointer-events: none;
     }
 
@@ -402,65 +484,6 @@
       
       
         
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
-        
-      
-    
-      
-      
-      
         
       
     
@@ -498,210 +521,6 @@
       
       
       
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
-        
-      
-    
-      
-      
-      
-        
         
       
     
@@ -712,15 +531,23 @@
       gap: 16px;
     }
     .metric-card {
-      background: var(--hud-panel-bg); box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-      border: 1px solid var(--hud-border-dim);
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--glass-shadow);
+      border: 1px solid var(--card-border);
       padding: 16px;
       position: relative;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: var(--transition-normal);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       overflow: hidden;
+    }
+    a.metric-card {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
     }
     .metric-card::before {
       content: '';
@@ -729,11 +556,30 @@
       border: 1px dashed rgba(255, 0, 60, 0.05);
       pointer-events: none;
     }
+    /* Glassmorphic shimmer on hover */
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -60%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.12) 50%,
+        transparent 60%);
+      transform: skewX(-15deg);
+      transition: left 0.5s ease;
+      pointer-events: none;
+    }
+    .metric-card:hover::after {
+      left: 130%;
+    }
     .metric-card:hover {
-      transform: translateY(-2px);
-      background: var(--hud-panel-bg-hover);
-      border-color: var(--hud-red);
-      box-shadow: 0 0 15px rgba(211, 13, 48, 0.04);
+      transform: translateY(-3px);
+      background: var(--card-bg-hover);
+      border-color: var(--primary);
+      box-shadow: 0 12px 28px var(--primary-glow),
+                  0 4px 12px rgba(0,0,0,0.06);
     }
     .metric-header {
       display: flex;
@@ -1235,6 +1081,227 @@
       letter-spacing: 0.05em;
     }
 
+    /* ═══════════════ FILTER TABS (Day 3) ═══════════════ */
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter-tab {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--hud-red);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      background: rgba(211, 13, 48, 0.05);
+      border-color: var(--hud-red);
+    }
+    .filter-tab.active {
+      background: var(--hud-red);
+      color: #fff;
+      border-color: var(--hud-red);
+    }
+    .filter-tab .tab-count {
+      opacity: 0.75;
+      font-size: 0.68rem;
+      margin-left: 5px;
+    }
+
+    /* ═══════════════ RISK DIMENSION BARS (Day 4) ═══════════════ */
+    .risk-dimensions-panel {
+      margin-top: 18px;
+    }
+    .dim-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .dim-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      width: 120px;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .dim-bar-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(211,13,48,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .dim-bar-fill {
+      height: 100%;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dim-bar-fill.dim-security    { background: linear-gradient(90deg, #d30d30, #ff003c); }
+    .dim-bar-fill.dim-privacy     { background: linear-gradient(90deg, #e65c00, #ff7733); }
+    .dim-bar-fill.dim-compliance  { background: linear-gradient(90deg, #a87900, #ffd200); }
+    .dim-bar-fill.dim-supply      { background: linear-gradient(90deg, #005f99, #00aaff); }
+    .dim-bar-fill.dim-ops         { background: linear-gradient(90deg, #008f7a, #00ffcc); }
+    .dim-score-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-main);
+      width: 34px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════ EXPORT BUTTONS (Day 8) ═══════════════ */
+    .export-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+    .export-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .export-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--hud-red);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .export-btn:hover {
+      background: rgba(211, 13, 48, 0.08);
+      border-color: var(--hud-red);
+      color: var(--text-main);
+    }
+    /* Excel button gets a green accent */
+    .export-btn-excel {
+      color: #007a3d;
+      border-color: rgba(0, 122, 61, 0.35);
+    }
+    .export-btn-excel:hover {
+      background: rgba(0, 122, 61, 0.08);
+      border-color: #007a3d;
+      color: #005a2b;
+      box-shadow: 0 0 10px rgba(0, 122, 61, 0.18);
+    }
+    body.dark-theme .export-btn-excel {
+      color: #00e676;
+      border-color: rgba(0, 230, 118, 0.3);
+    }
+    body.dark-theme .export-btn-excel:hover {
+      background: rgba(0, 230, 118, 0.08);
+      border-color: #00e676;
+      color: #69ffb4;
+    }
+
+    /* ═══════════════ ALERT BADGES (Day 4) ═══════════════ */
+    .alert-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .alert-badge-critical {
+      background: rgba(211, 13, 48, 0.18);
+      color: var(--color-critical);
+      border: 1px solid var(--color-critical);
+      animation: flashCritical 2s infinite alternate;
+    }
+    .alert-badge-high {
+      background: rgba(230, 92, 0, 0.15);
+      color: var(--color-high);
+      border: 1px solid var(--color-high);
+    }
+    .alert-badge-medium {
+      background: rgba(255, 210, 0, 0.12);
+      color: var(--color-medium);
+      border: 1px solid var(--color-medium);
+    }
+
+    /* ═══════════════ SCAN PROGRESS / STATE FEEDBACK (Day 9) ═══════════════ */
+    .scan-progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(211, 13, 48, 0.08);
+      border-bottom: 1px solid var(--hud-border-dim);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .scan-progress-fill {
+      height: 100%;
+      background: var(--hud-red);
+      box-shadow: 0 0 8px rgba(211, 13, 48, 0.4);
+      transition: width 1.5s ease-in-out;
+    }
+
+    /* Hover card lift micro-animation (Day 9) */
+    .finding-card {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.22s ease,
+                  transform 0.22s ease;
+    }
+    .finding-card:hover {
+      transform: translateX(3px);
+    }
+    .metric-card {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.22s ease;
+    }
+    /* Sliding panel for finding body */
+    .finding-body {
+      animation: none;
+    }
+    .finding-card.open .finding-body {
+      display: block;
+      animation: slideDown 0.18s ease-out;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Fading tab transition */
+    @keyframes fadeTabIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .findings-container {
+      animation: fadeTabIn 0.2s ease-in;
+    }
+
     /* ═══════════════ SCROLLBAR ═══════════════ */
     ::-webkit-scrollbar {
       width: 6px;
@@ -1249,6 +1316,68 @@
     }
     ::-webkit-scrollbar-thumb:hover {
       background: var(--hud-red);
+    }
+
+    /* ═══════════════ RESPONSIVE — MOBILE (480px) ═══════════════ */
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+
+      .container { gap: 14px; }
+
+      /* Header stacks vertically */
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+      }
+      .header-right { align-items: flex-start; }
+      .header-title h1 { font-size: 1.3rem; }
+
+      /* Summary section single column */
+      .summary-section { grid-template-columns: 1fr; gap: 14px; }
+
+      /* Metrics grid: 2 columns on mobile */
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .metric-value { font-size: 1.6rem; }
+
+      /* Host info: single column */
+      .host-info-bar { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+      /* Main grid: single column */
+      .main-grid { grid-template-columns: 1fr; }
+
+      /* 5-dimension rows: stack label above bar */
+      .dim-row {
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .dim-label { width: 100%; }
+      .dim-bar-track { flex: 1; }
+
+      /* Filter bar: stack */
+      .filter-bar { flex-direction: column; gap: 8px; }
+      .hud-input, .hud-select { min-width: unset; width: 100%; }
+
+      /* Filter tabs: wrap small */
+      .filter-tabs { gap: 4px; }
+      .filter-tab { font-size: 0.65rem; padding: 5px 8px; }
+
+      /* Export bar */
+      .export-bar { gap: 6px; }
+      .export-btn { font-size: 0.65rem; padding: 4px 10px; }
+
+      /* PDF modal */
+      .pdf-modal { min-width: unset; padding: 20px; }
+      .pdf-option-row { flex-direction: column; }
+      .pdf-radio-btn { min-width: unset; }
+    }
+
+    /* ═══════════════ RESPONSIVE — TABLET (768px) ═══════════════ */
+    @media (max-width: 768px) {
+      .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+      .host-info-bar { grid-template-columns: repeat(2, 1fr); }
+      .hud-dial-wrapper { width: 150px; height: 150px; }
     }
 
     /* ═══════════════ PREMIUM HUD MENU BAR ═══════════════ */
@@ -1374,6 +1503,352 @@
       font-size: 0.72rem;
       color: var(--hud-red);
     }
+    /* ═══════════════ PDF MODAL ═══════════════ */
+    .pdf-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .pdf-modal-overlay.open {
+      display: flex;
+      animation: fadeTabIn 0.15s ease-out;
+    }
+    .pdf-modal {
+      background: var(--hud-panel-bg);
+      border: 1px solid var(--hud-red);
+      box-shadow: 0 0 40px rgba(211, 13, 48, 0.25), 0 20px 60px rgba(0,0,0,0.5);
+      padding: 32px 36px;
+      min-width: 440px;
+      max-width: 560px;
+      width: 90vw;
+      position: relative;
+      animation: slideDown 0.18s ease-out;
+    }
+    .pdf-modal-title {
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .pdf-modal-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--hud-red);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+    .pdf-option-group {
+      margin-bottom: 20px;
+    }
+    .pdf-option-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .pdf-option-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pdf-radio-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border: 1px solid var(--hud-border-dim);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      transition: all 0.18s;
+      user-select: none;
+      flex: 1;
+      min-width: 120px;
+    }
+    .pdf-radio-btn input[type="radio"] {
+      accent-color: var(--hud-red);
+      width: 13px;
+      height: 13px;
+    }
+    .pdf-radio-btn:has(input:checked),
+    .pdf-radio-btn.selected {
+      border-color: var(--hud-red);
+      background: rgba(211, 13, 48, 0.06);
+      color: var(--hud-red);
+    }
+    .pdf-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      user-select: none;
+    }
+    .pdf-checkbox-row input[type="checkbox"] {
+      accent-color: var(--hud-red);
+      width: 14px;
+      height: 14px;
+    }
+    .pdf-divider {
+      border: none;
+      border-top: 1px solid var(--hud-border-dim);
+      margin: 20px 0;
+    }
+    .pdf-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    .pdf-btn-cancel {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 9px 22px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.18s;
+    }
+    .pdf-btn-cancel:hover {
+      border-color: var(--text-muted);
+      color: var(--text-main);
+    }
+    .pdf-btn-generate {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 9px 26px;
+      border: 1px solid var(--hud-red);
+      background: var(--hud-red);
+      color: #ffffff;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .pdf-btn-generate:hover {
+      background: #b00027;
+      border-color: #b00027;
+      box-shadow: 0 0 14px rgba(211, 13, 48, 0.35);
+    }
+    .pdf-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .pdf-close-btn:hover { color: var(--hud-red); }
+    .pdf-preview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(211, 13, 48, 0.05);
+      border: 1px dashed var(--hud-border-dim);
+      padding: 8px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* ═══════════════ PRINT COVER PAGE ═══════════════ */
+    .print-cover {
+      display: none;  /* hidden in browser; shown only during print */
+    }
+
+    /* ═══════════════ PRINT / PDF MEDIA QUERY ═══════════════ */
+    @media print {
+      /* Reset page geometry */
+      @page {
+        size: A4 portrait;
+        margin: 14mm 12mm 12mm 12mm;
+      }
+
+      /* Hide everything interactive */
+      .hud-menu-bar,
+      .scan-progress-bar,
+      .filter-tabs,
+      .export-bar,
+      .filter-bar,
+      .theme-toggle-btn,
+      .scan-status-badge,
+      .scanline,
+      .pdf-modal-overlay,
+      .telemetry-addons-grid,
+      ::-webkit-scrollbar { display: none !important; }
+
+      /* Show cover page only in print */
+      .print-cover {
+        display: block !important;
+        page-break-after: always;
+        padding: 60px 40px 40px 40px;
+        border-bottom: 3px solid #d30d30;
+        margin-bottom: 32px;
+      }
+      .print-cover-title {
+        font-size: 28pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #d30d30;
+        margin-bottom: 6pt;
+      }
+      .print-cover-subtitle {
+        font-size: 11pt;
+        color: #475569;
+        font-family: 'Courier New', monospace;
+        margin-bottom: 40pt;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .print-cover-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10pt;
+        margin-bottom: 30pt;
+      }
+      .print-cover-item { padding: 8pt 0; border-bottom: 1px solid #e2e8f0; }
+      .print-cover-item-label {
+        font-size: 7.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        font-family: 'Courier New', monospace;
+      }
+      .print-cover-item-value {
+        font-size: 11pt;
+        font-weight: 700;
+        color: #1e293b;
+        font-family: 'Courier New', monospace;
+      }
+      .print-cover-risk-badge {
+        display: inline-block;
+        padding: 6pt 18pt;
+        font-size: 14pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border: 2px solid;
+        font-family: 'Courier New', monospace;
+        margin-top: 12pt;
+      }
+
+      /* Force white background, black text for print */
+      body, body.dark-theme {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Flatten glassmorphic panels */
+      .hud-panel {
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: #ffffff !important;
+        break-inside: avoid;
+      }
+      .hud-panel::before { display: none; }
+      .hud-panel:not(.finding-card)::after { display: none; }
+      .hud-corner { display: none; }
+
+      /* Summary section: stack vertically */
+      .summary-section {
+        grid-template-columns: 1fr !important;
+        break-inside: avoid;
+      }
+
+      /* Main grid: full width, no sidebar */
+      .main-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .sidebar-panel { display: none !important; }
+
+      /* Risk dimension panel */
+      .risk-dimensions-panel { break-inside: avoid; }
+
+      /* Expand ALL finding cards when printing */
+      .finding-card .finding-body {
+        display: block !important;
+      }
+      .expand-chevron { display: none; }
+
+      /* Finding cards: keep together */
+      .finding-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        transform: none !important;
+      }
+
+      /* Module sections: try to keep section header with first card */
+      .module-section { break-inside: auto; }
+      .module-section-title { break-after: avoid; }
+
+      /* Host info bar: single row */
+      .host-info-bar {
+        grid-template-columns: repeat(4, 1fr) !important;
+      }
+
+      /* Footer: always at page bottom */
+      .footer { break-before: page; }
+
+      /* Colour accents survive print */
+      .badge-severity-critical {
+        color: #d30d30 !important;
+        border-color: #d30d30 !important;
+        animation: none !important;
+      }
+      .badge-severity-high { color: #e65c00 !important; }
+      .badge-severity-medium { color: #a87900 !important; }
+      .badge-severity-low { color: #008f7a !important; }
+      .badge-severity-info { color: #0076a3 !important; }
+
+      /* Confidence bar: print-safe */
+      .confidence-bar {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      /* Dimension bars: print-safe */
+      .dim-bar-fill {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1381,8 +1856,106 @@
   <div class="scanline"></div>
 
   <div class="container">
+
+    <!-- ═══════════════ PRINT COVER PAGE (visible only during @media print) ═══════════════ -->
+    <div class="print-cover">
+      <div class="print-cover-title">AI Discovery Scanner</div>
+      <div class="print-cover-subtitle">// Telemetry &amp; Security Report — Confidential</div>
+      <div class="print-cover-grid">
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Scan ID</div>
+          <div class="print-cover-item-value">demo-2026-001</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Generated</div>
+          <div class="print-cover-item-value">2026-06-19T10:30:00.000000</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Target Host</div>
+          <div class="print-cover-item-value">DEMO-WORKSTATION</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Operating System</div>
+          <div class="print-cover-item-value">Windows 11 (x64)</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Total Findings</div>
+          <div class="print-cover-item-value">8</div>
+        </div>
+        <div class="print-cover-item">
+          <div class="print-cover-item-label">Scan Duration</div>
+          <div class="print-cover-item-value">61.82s</div>
+        </div>
+      </div>
+      <div class="print-cover-risk-badge" style="
+        color: #ff5500;
+        border-color: #ff5500;
+      ">
+        RISK LEVEL: HIGH &nbsp;|&nbsp; SCORE: 59.4/100
+      </div>
+    </div>
+
+    <!-- ═══════════════ PDF EXPORT MODAL ═══════════════ -->
+    <div class="pdf-modal-overlay" id="pdf-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-title">
+      <div class="pdf-modal">
+        <button class="pdf-close-btn" onclick="closePdfModal()" aria-label="Close">✕</button>
+
+        <div class="pdf-modal-title" id="pdf-modal-title">📄 Generate PDF Report</div>
+        <div class="pdf-modal-subtitle">// Configure and download a formatted report</div>
+
+        <!-- Content scope -->
+        <div class="pdf-option-group">
+          <span class="pdf-option-label">Report Content</span>
+          <div class="pdf-option-row">
+            <label class="pdf-radio-btn">
+              <input type="radio" name="pdf-scope" value="all" checked onchange="updatePdfPreview()"> All Findings
+            </label>
+            <label class="pdf-radio-btn">
+              <input type="radio" name="pdf-scope" value="filtered" onchange="updatePdfPreview()"> Current Filter View
+            </label>
+            <label class="pdf-radio-btn">
+              <input type="radio" name="pdf-scope" value="summary" onchange="updatePdfPreview()"> Summary Only
+            </label>
+          </div>
+        </div>
+
+        <hr class="pdf-divider">
+
+        <!-- Sections to include -->
+        <div class="pdf-option-group">
+          <span class="pdf-option-label">Include Sections</span>
+          <label class="pdf-checkbox-row">
+            <input type="checkbox" id="pdf-inc-risk" checked onchange="updatePdfPreview()">
+            Risk Dimension Breakdown
+          </label>
+          <label class="pdf-checkbox-row">
+            <input type="checkbox" id="pdf-inc-host" checked onchange="updatePdfPreview()">
+            Host Information Bar
+          </label>
+          <label class="pdf-checkbox-row">
+            <input type="checkbox" id="pdf-inc-modules" checked onchange="updatePdfPreview()">
+            Module Compliance Panel (Sidebar)
+          </label>
+        </div>
+
+        <hr class="pdf-divider">
+
+        <!-- Preview badge -->
+        <div class="pdf-preview-badge" id="pdf-preview-badge">
+          <span>📋</span>
+          <span id="pdf-preview-text">Estimated: 8 findings across 7 modules</span>
+        </div>
+
+        <div class="pdf-modal-actions">
+          <button class="pdf-btn-cancel" onclick="closePdfModal()">Cancel</button>
+          <button class="pdf-btn-generate" onclick="generatePDF()">
+            <span>🖨</span> Generate PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
     
-    <!-- ═══════════════ HEADER PANEL ═══════════════ -->
     <header class="hud-panel header">
       <div class="hud-corner c-tl"></div>
       <div class="hud-corner c-tr"></div>
@@ -1409,7 +1982,7 @@
             STATUS: INTRUSION SCAN COMPLETE
           </div>
         </div>
-        <div style="opacity: 0.7; font-size: 0.75rem;">// SESSION_ID: 80997a31-dff</div>
+        <div style="opacity: 0.7; font-size: 0.75rem;">// SESSION_ID: demo-2026-001</div>
       </div>
     </header>
 
@@ -1419,6 +1992,11 @@
       <a href="#FileScanner" class="menu-item">THREAT VECTORS</a>
       <a href="#RuntimeScanner" class="menu-item">DIAGNOSTICS</a>
     </nav>
+
+    <!-- ═══════════════ SCAN PROGRESS BAR (Day 9 feedback) ═══════════════ -->
+    <div class="scan-progress-bar" title="Scan completion: 100%">
+      <div class="scan-progress-fill" id="scan-progress-fill" style="width: 0%;"></div>
+    </div>
 
     <!-- ═══════════════ TOP SECTION: GAUGES & SUMMARY METRICS ═══════════════ -->
     <div class="summary-section">
@@ -1446,10 +2024,10 @@
             <circle cx="80" cy="80" r="70" class="gauge-progress"
                     style="stroke: #ff5500; filter: drop-shadow(0 0 8px rgba(255, 85, 0, 0.5));"
                     stroke-dasharray="440"
-                    stroke-dashoffset="163.68"></circle>
+                    stroke-dashoffset="178.64"></circle>
           </svg>
           <div class="hud-dial-content">
-            <span class="hud-dial-number">63</span>
+            <span class="hud-dial-number">59</span>
             <span class="hud-dial-lbl">INDEX VALUE</span>
           </div>
         </div>
@@ -1468,65 +2046,65 @@
 
         <div class="metrics-grid">
           <!-- Total findings -->
-          <div class="metric-card alert-metric">
+          <a href="#findings-list" class="metric-card alert-metric">
             <div class="metric-header">
               <span class="metric-title">Discovered Artifacts</span>
               <span class="metric-icon">🛡️</span>
             </div>
-            <div class="metric-value">47</div>
+            <div class="metric-value">8</div>
             <div class="metric-footer">// Total detections</div>
-          </div>
+          </a>
 
           <!-- Models detected -->
-          <div class="metric-card">
+          <a href="#FileScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">AI Models</span>
               <span class="metric-icon">🧠</span>
             </div>
-            <div class="metric-value">2</div>
+            <div class="metric-value">1</div>
             <div class="metric-footer">// GGUF, weights detected</div>
-          </div>
+          </a>
 
           <!-- Frameworks -->
-          <div class="metric-card">
+          <a href="#PackageScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">AI Frameworks</span>
               <span class="metric-icon">📦</span>
             </div>
-            <div class="metric-value">0</div>
+            <div class="metric-value">1</div>
             <div class="metric-footer">// Torch, CrewAI libraries</div>
-          </div>
+          </a>
 
           <!-- Runtimes / Services -->
-          <div class="metric-card">
+          <a href="#RuntimeScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">Active Runtimes</span>
               <span class="metric-icon">⚡</span>
             </div>
-            <div class="metric-value">2</div>
+            <div class="metric-value">1</div>
             <div class="metric-footer">// Port bindings, nodes</div>
-          </div>
+          </a>
 
           <!-- Agents -->
-          <div class="metric-card">
+          <a href="#AgentScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">Agent Frameworks</span>
               <span class="metric-icon">🤖</span>
             </div>
-            <div class="metric-value">10</div>
+            <div class="metric-value">2</div>
             <div class="metric-footer">// Langchain, CrewAI scripts</div>
-          </div>
+          </a>
 
           <!-- API Keys -->
           
-          <div class="metric-card alert-metric">
+          <a href="#APIScanner" class="metric-card alert-metric">
             <div class="metric-header">
               <span class="metric-title">API Keys</span>
               <span class="metric-icon">🔑</span>
             </div>
-            <div class="metric-value">31</div>
+            <div class="metric-value">2</div>
             <div class="metric-footer">// Exposed credentials</div>
-          </div>
+          </a>
 
           <!-- Classification status -->
           
@@ -1558,7 +2136,7 @@
       
       <div class="info-item">
         <span class="info-label">Target Hostname</span>
-        <span class="info-value">AJINKYA-PATIL</span>
+        <span class="info-value">DEMO-WORKSTATION</span>
       </div>
       <div class="info-item">
         <span class="info-label">Operating System</span>
@@ -1566,17 +2144,173 @@
       </div>
       <div class="info-item">
         <span class="info-label">Scan Period Timestamp</span>
-        <span class="info-value">2026-06-17T16:58:43.153221</span>
+        <span class="info-value">2026-06-19T10:30:00.000000</span>
       </div>
       <div class="info-item">
         <span class="info-label">Scan Exec Time</span>
-        <span class="info-value">35.906s</span>
+        <span class="info-value">61.820s</span>
       </div>
     </div>
 
+    <!-- ═══════════════ RISK DIMENSION BREAKDOWN (Day 4) ═══════════════ -->
+    
+    
+    
+    
+    
+    
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    <!-- ═══════════════ MAIN SECTIONS LAYOUT: FINDINGS & SIDEBAR ═══════════════ -->
+    <div class="hud-panel" style="padding: 20px 24px;">
+      <div class="hud-corner c-tl"></div>
+      <div class="hud-corner c-tr"></div>
+      <div class="hud-corner c-bl"></div>
+      <div class="hud-corner c-br"></div>
+      <div class="hud-header-tab" style="left: 20px;">5-DIMENSION RISK BREAKDOWN</div>
+      <div class="risk-dimensions-panel" style="margin-top: 24px;">
+
+        <div class="dim-row">
+          <span class="dim-label">Security (25%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-security" style="width: 43%;"></div>
+          </div>
+          <span class="dim-score-lbl">43</span>
+          <span class="alert-badge alert-badge-medium">MEDIUM</span>
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Privacy (25%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-privacy" style="width: 35%;"></div>
+          </div>
+          <span class="dim-score-lbl">35</span>
+          <span class="alert-badge alert-badge-medium">MEDIUM</span>
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Compliance (25%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-compliance" style="width: 47%;"></div>
+          </div>
+          <span class="dim-score-lbl">47</span>
+          <span class="alert-badge alert-badge-medium">MEDIUM</span>
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Supply Chain (15%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-supply" style="width: 12%;"></div>
+          </div>
+          <span class="dim-score-lbl">12</span>
+          
+        </div>
+
+        <div class="dim-row">
+          <span class="dim-label">Operational (10%)</span>
+          <div class="dim-bar-track">
+            <div class="dim-bar-fill dim-ops" style="width: 12%;"></div>
+          </div>
+          <span class="dim-score-lbl">12</span>
+          
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ TELEMETRY ADDON PANELS (radar + loop) ═══════════════ -->
+    <div class="telemetry-addons-grid">
+
+      <!-- Radar Dome Panel -->
+      <div class="hud-panel addon-panel">
+        <div class="hud-corner c-tl"></div><div class="hud-corner c-tr"></div>
+        <div class="hud-corner c-bl"></div><div class="hud-corner c-br"></div>
+        <div class="hud-header-tab" style="left: 14px;">THREAT RADAR</div>
+        <div class="addon-content">
+          <svg class="dome-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <!-- Dome arc grid lines -->
+            <path d="M10,100 A90,90 0 0,1 190,100" class="dome-grid-line"/>
+            <path d="M28,100 A72,72 0 0,1 172,100" class="dome-grid-line"/>
+            <path d="M46,100 A54,54 0 0,1 154,100" class="dome-grid-line"/>
+            <path d="M64,100 A36,36 0 0,1 136,100" class="dome-grid-line"/>
+            <!-- Radial spokes -->
+            <line x1="100" y1="10" x2="100" y2="100" class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="10" y2="100" class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="190" y2="100" class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="36" y2="36"  class="dome-grid-line"/>
+            <line x1="100" y1="100" x2="164" y2="36" class="dome-grid-line"/>
+            <!-- Sweep line -->
+            <line x1="100" y1="100" x2="100" y2="10" class="dome-sweep-line"/>
+            <!-- Risk nodes -->
+            
+            <circle cx="58"  cy="52" r="5" class="dome-node critical"/>
+            
+            
+            <circle cx="142" cy="48" r="4" class="dome-node high"/>
+            <circle cx="120" cy="70" r="3" class="dome-node high"/>
+            
+            
+            <circle cx="75"  cy="75" r="3" class="dome-node medium"/>
+            
+            <!-- Baseline -->
+            <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(211,13,48,0.4)" stroke-width="1.5"/>
+          </svg>
+          <div class="addon-meta">
+            <div class="addon-title">Active Threat Nodes</div>
+            <div class="addon-status">
+              CRITICAL: 2 &nbsp;|&nbsp;
+              HIGH: 2 &nbsp;|&nbsp;
+              MEDIUM: 2
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loop Particle Panel -->
+      <div class="hud-panel addon-panel">
+        <div class="hud-corner c-tl"></div><div class="hud-corner c-tr"></div>
+        <div class="hud-corner c-bl"></div><div class="hud-corner c-br"></div>
+        <div class="hud-header-tab" style="left: 14px;">TELEMETRY STREAM</div>
+        <div class="addon-content">
+          <svg class="loop-svg" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ellipse track -->
+            <ellipse cx="100" cy="50" rx="88" ry="36" class="loop-track"/>
+            <!-- Particle 1 -->
+            <circle r="5" class="loop-particle">
+              <animateMotion dur="3s" repeatCount="indefinite">
+                <mpath href="#loop-path"/>
+              </animateMotion>
+            </circle>
+            <!-- Particle 2 (offset) -->
+            <circle r="3.5" class="loop-particle-delayed">
+              <animateMotion dur="3s" begin="-1.5s" repeatCount="indefinite">
+                <mpath href="#loop-path"/>
+              </animateMotion>
+            </circle>
+            <defs>
+              <path id="loop-path" d="M 188,50 A 88,36 0 1,1 12,50 A 88,36 0 1,1 188,50"/>
+            </defs>
+          </svg>
+          <div class="addon-meta">
+            <div class="addon-title">Scan Pipeline</div>
+            <div class="addon-status">
+              7 MODULES &nbsp;|&nbsp;
+              8 SIGNALS
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
     <div class="main-grid">
       
       <!-- LEFT CONTAINER: FINDINGS -->
@@ -1587,6 +2321,85 @@
         <div class="hud-corner c-br"></div>
         <div class="hud-header-tab" style="left: 20px;">SUSPECTED DETECTION VECTORS</div>
 
+        <!-- Filter Tabs (Day 3) -->
+        
+        
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-tab="all"
+                  onclick="setTabFilter('all', this)">
+            ALL
+            <span class="tab-count">(8)</span>
+          </button>
+          <button class="filter-tab" data-tab="approved"
+                  onclick="setTabFilter('approved', this)">
+            ✅ APPROVED &amp; MODERATE
+            <span class="tab-count">(4)</span>
+          </button>
+          <button class="filter-tab" data-tab="banned"
+                  onclick="setTabFilter('banned', this)">
+            🚫 REVIEW &amp; BANNED
+            <span class="tab-count">(4)</span>
+          </button>
+        </div>
+
+        <!-- Export Bar (Day 8) -->
+        <div class="export-bar">
+          <span class="export-lbl">Export:</span>
+          <button class="export-btn" onclick="exportDashboardJSON()" title="Download findings as JSON">
+            ⬇ JSON
+          </button>
+          <button class="export-btn" onclick="exportDashboardCSV()" title="Download findings as CSV">
+            ⬇ CSV
+          </button>
+          <button class="export-btn export-btn-excel" onclick="exportDashboardExcel()" title="Download full report as Excel workbook (.xlsx)">
+            📊 Excel
+          </button>
+          <button class="export-btn" onclick="openPdfModal()" title="Configure and generate a formatted PDF report">
+            🖨 PDF Report
+          </button>
+        </div>
+
         <!-- Filter bar -->
         <div class="filter-bar">
           <input type="text" id="search-box" class="hud-input" placeholder="Search telemetry findings (source, title)..." />
@@ -1594,28 +2407,32 @@
           <select id="filter-category" class="hud-select">
             <option value="all">All Categories</option>
             
-            <option value="System Info">System Info (2)</option>
+            <option value="AI Agent">AI Agent (2)</option>
             
-            <option value="LLM Runtime">LLM Runtime (2)</option>
+            <option value="Configuration">Configuration (2)</option>
             
-            <option value="AI Agent">AI Agent (10)</option>
+            <option value="AI Model">AI Model (1)</option>
             
-            <option value="AI Model">AI Model (2)</option>
+            <option value="ML Framework">ML Framework (1)</option>
             
-            <option value="Configuration">Configuration (31)</option>
+            <option value="LLM Runtime">LLM Runtime (1)</option>
+            
+            <option value="System Info">System Info (1)</option>
             
           </select>
           
           <select id="filter-risk" class="hud-select">
             <option value="all">All Risks</option>
             
-            <option value="info">INFO (3)</option>
+            <option value="high">HIGH (2)</option>
             
-            <option value="medium">MEDIUM (12)</option>
+            <option value="critical">CRITICAL (2)</option>
+            
+            <option value="medium">MEDIUM (2)</option>
             
             <option value="low">LOW (1)</option>
             
-            <option value="high">HIGH (31)</option>
+            <option value="info">INFO (1)</option>
             
           </select>
         </div>
@@ -1665,207 +2482,12 @@
               
             
           
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
-            
-            
-              
-            
-          
 
           <!-- SECTION 1: SYSTEM SCANNER -->
           <section class="module-section" id="SystemScanner" data-section-name="SystemScanner">
             <div class="module-section-title">
               <span class="title-txt">🖥️ Module 01: System Information Scanner</span>
-              <span class="module-badge">2 findings</span>
+              <span class="module-badge">1 findings</span>
             </div>
             <div class="findings-list-wrapper">
               
@@ -1879,7 +2501,7 @@
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">Host Machine: AJINKYA-PATIL</span>
+        <span class="finding-title">Windows 11 x64</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">System Info</span>
@@ -1890,10 +2512,10 @@
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">System scan target identified: AJINKYA-PATIL running Windows 11 (x64)</span>
+        <span class="details-val">Host system information collected</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">hostname=AJINKYA-PATIL</span></span>
+        <span class="details-val"><span class="details-val-source">System</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
@@ -1906,104 +2528,8 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.700067</span>
+        <span class="details-val">2026-06-19T14:45:32.001389</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "cpu": {
-    "cpu_freq_mhz": 2688.0,
-    "cpu_logical_cores": 12,
-    "cpu_percent_usage": 29.4,
-    "cpu_physical_cores": 6
-  },
-  "disks": [
-    {
-      "device": "C:\\",
-      "filesystem": "NTFS",
-      "free_gb": 239.22,
-      "mountpoint": "C:\\",
-      "total_gb": 425.44,
-      "used_percent": 43.8
-    },
-    {
-      "device": "D:\\",
-      "filesystem": "NTFS",
-      "free_gb": 39.82,
-      "mountpoint": "D:\\",
-      "total_gb": 50.0,
-      "used_percent": 20.3
-    }
-  ],
-  "hostname": "AJINKYA-PATIL",
-  "ip_address": "10.50.20.122",
-  "os": {
-    "architecture": "x64",
-    "name": "Windows",
-    "processor": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
-    "release": "11",
-    "version": "10.0.26200"
-  },
-  "python_version": "3.14.3",
-  "ram": {
-    "available_gb": 0.33,
-    "total_gb": 7.65,
-    "used_percent": 95.7
-  }
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-info" data-category="System Info" data-risk="info">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">GPU Detected: NVIDIA GeForce GTX 1650</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">System Info</span>
-        <span class="badge badge-severity badge-severity-info">info</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A GPU was detected on this machine. GPUs are commonly used to accelerate AI/ML model inference and training.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">system_gpu_detection</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 100%;"></div>
-            </div>
-            <span class="confidence-lbl">100% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.814354</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "detection_method": "nvidia-smi",
-  "driver_version": "592.27",
-  "name": "NVIDIA GeForce GTX 1650",
-  "vendor": "NVIDIA",
-  "vram_mb": "4096"
-}</pre>
         
       </div>
     </div>
@@ -2018,7 +2544,7 @@
           <section class="module-section" id="FileScanner" data-section-name="FileScanner">
             <div class="module-section-title">
               <span class="title-txt">🧠 Module 02: AI Models & Weights Scanner</span>
-              <span class="module-badge">2 findings</span>
+              <span class="module-badge">1 findings</span>
             </div>
             <div class="findings-list-wrapper">
               
@@ -2028,101 +2554,39 @@
   
   
   
-  <div class="finding-card risk-level-low" data-category="AI Model" data-risk="low">
+  <div class="finding-card risk-level-medium" data-category="AI Model" data-risk="medium">
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">model.safetensors</span>
+        <span class="finding-title">llama3.Q4_K_M.gguf</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">AI Model</span>
-        <span class="badge badge-severity badge-severity-low">low</span>
+        <span class="badge badge-severity badge-severity-medium">medium</span>
         <span class="expand-chevron">▼</span>
       </div>
     </div>
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">Discovered AI model file: model.safetensors (420.05 MB)</span>
+        <span class="details-val">Local LLM model weight file found on disk</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3</span></span>
+        <span class="details-val"><span class="details-val-source">C:/models/llama3.Q4_K_M.gguf</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
           <div class="confidence-wrapper">
             <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
+              <div class="confidence-bar" style="width: 92%;"></div>
             </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
+            <span class="confidence-lbl">92% CONFIRMATION</span>
           </div>
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.226003</span>
+        <span class="details-val">2026-06-19T14:45:32.001358</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "extension": ".safetensors",
-  "file_path": "C:/Users/Ajinkya Patil/.cache/huggingface/hub/models--bert-base-uncased/blobs/68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
-  "file_size_bytes": 440449768,
-  "file_size_formatted": "420.05 MB",
-  "last_modified": "2026-05-08T14:07:45.875645"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-info" data-category="AI Model" data-risk="info">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">bert_ftpi_model.pt</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Model</span>
-        <span class="badge badge-severity badge-severity-info">info</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Discovered AI model file: bert_ftpi_model.pt (418.23 MB)</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Dhande/main/bert_ftpi_model.pt</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:49.657181</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "extension": ".pt",
-  "file_path": "D:/College Work/Dhande/main/bert_ftpi_model.pt",
-  "file_size_bytes": 438545313,
-  "file_size_formatted": "418.23 MB",
-  "last_modified": "2026-05-08T13:26:25.938653"
-}</pre>
         
       </div>
     </div>
@@ -2156,17 +2620,55 @@
           <section class="module-section" id="PackageScanner" data-section-name="PackageScanner">
             <div class="module-section-title">
               <span class="title-txt">📦 Module 04: Machine Learning Frameworks</span>
-              <span class="module-badge">0 findings</span>
+              <span class="module-badge">1 findings</span>
             </div>
             <div class="findings-list-wrapper">
               
                 
-  <div class="empty-state">
-    <div class="empty-state-icon">⚠️</div>
-    <div class="empty-state-title">NO FINDINGS RECORDED</div>
-    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
+                  
+  
+  
+  
+  
+  <div class="finding-card risk-level-low" data-category="ML Framework" data-risk="low">
+    <div class="finding-header" onclick="toggleFinding(this)">
+      <div class="finding-main-info">
+        <div class="finding-icon-state"></div>
+        <span class="finding-title">torch==2.3.0</span>
+      </div>
+      <div class="finding-meta">
+        <span class="badge badge-category">ML Framework</span>
+        <span class="badge badge-severity badge-severity-low">low</span>
+        <span class="expand-chevron">▼</span>
+      </div>
+    </div>
+    <div class="finding-body">
+      <div class="details-grid">
+        <span class="details-label">Description</span>
+        <span class="details-val">PyTorch ML framework installed in Python environment</span>
+        
+        <span class="details-label">Attribution</span>
+        <span class="details-val"><span class="details-val-source">pip: torch 2.3.0</span></span>
+        
+        <span class="details-label">Confidence</span>
+        <span class="details-val">
+          <div class="confidence-wrapper">
+            <div class="confidence-track">
+              <div class="confidence-bar" style="width: 88%;"></div>
+            </div>
+            <span class="confidence-lbl">88% CONFIRMATION</span>
+          </div>
+        </span>
+
+        <span class="details-label">Timestamp</span>
+        <span class="details-val">2026-06-19T14:45:32.001365</span>
+
+        
+      </div>
+    </div>
   </div>
 
+                
               
             </div>
           </section>
@@ -2175,7 +2677,7 @@
           <section class="module-section" id="AgentScanner" data-section-name="AgentScanner">
             <div class="module-section-title">
               <span class="title-txt">🤖 Module 05: AI Agent Frameworks</span>
-              <span class="module-badge">10 findings</span>
+              <span class="module-badge">2 findings</span>
             </div>
             <div class="findings-list-wrapper">
               
@@ -2185,47 +2687,39 @@
   
   
   
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
+  <div class="finding-card risk-level-high" data-category="AI Agent" data-risk="high">
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: LangChain Import</span>
+        <span class="finding-title">GitHub Copilot CLI</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
+        <span class="badge badge-severity badge-severity-high">high</span>
         <span class="expand-chevron">▼</span>
       </div>
     </div>
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 25 (LangChain Import).</span>
+        <span class="details-val">AI coding assistant detected via npm global package</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:25</span></span>
+        <span class="details-val"><span class="details-val-source">C:/Users/ADMIN/AppData/Roaming/npm/gh</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
           <div class="confidence-wrapper">
             <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
+              <div class="confidence-bar" style="width: 95%;"></div>
             </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
+            <span class="confidence-lbl">95% CONFIRMATION</span>
           </div>
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.258090</span>
+        <span class="details-val">2026-06-19T14:45:32.001307</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 25,
-  "matched_pattern": "LangChain Import",
-  "snippet": "from langchain.chat_models import ChatOpenAI"
-}</pre>
         
       </div>
     </div>
@@ -2241,7 +2735,7 @@
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: CrewAI Import</span>
+        <span class="finding-title">LangChain Agent Framework</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">AI Agent</span>
@@ -2252,10 +2746,10 @@
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 26 (CrewAI Import).</span>
+        <span class="details-val">LangChain agent orchestration scripts detected</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:26</span></span>
+        <span class="details-val"><span class="details-val-source">C:/projects/ai_bot/agent.py</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
@@ -2268,432 +2762,8 @@
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.258706</span>
+        <span class="details-val">2026-06-19T14:45:32.001378</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 26,
-  "matched_pattern": "CrewAI Import",
-  "snippet": "from crewai import Agent"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: Agent Instantiation</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 30 (Agent Instantiation).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:30</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.259080</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 30,
-  "matched_pattern": "Agent Instantiation",
-  "snippet": "agent = Agent(role=\"researcher\", goal=\"find info\")"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: Crew Instantiation</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 31 (Crew Instantiation).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:31</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.259639</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 31,
-  "matched_pattern": "Crew Instantiation",
-  "snippet": "crew = Crew(agents=[agent], tasks=[])"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: AssistantAgent Instantiation</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 32 (AssistantAgent Instantiation).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:32</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.260443</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 32,
-  "matched_pattern": "AssistantAgent Instantiation",
-  "snippet": "assistant = AssistantAgent(name=\"autogen_assistant\")"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: CrewAI Import</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 81 (CrewAI Import).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:81</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.261101</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 81,
-  "matched_pattern": "CrewAI Import",
-  "snippet": "(home_dir / \"home_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: LangChain Import</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 82 (LangChain Import).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:82</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.261647</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 82,
-  "matched_pattern": "LangChain Import",
-  "snippet": "(workspace_dir / \"project_script.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: LangChain Import</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 87 (LangChain Import).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:87</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.262182</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 87,
-  "matched_pattern": "LangChain Import",
-  "snippet": "(excluded_dir / \"dependency.py\").write_text(\"from langchain import OpenAI\\n\", encoding=\"utf-8\")"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: CrewAI Import</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py' at line 92 (CrewAI Import).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py:92</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.262597</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_agent_scanner.py",
-  "line_number": 92,
-  "matched_pattern": "CrewAI Import",
-  "snippet": "(deep_home_dir / \"deep_script.py\").write_text(\"from crewai import Agent\\n\", encoding=\"utf-8\")"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Agent Usage: Agent Instantiation</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">AI Agent</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Potential AI Agent signature detected in script 'test_classifier.py' at line 103 (Agent Instantiation).</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py:103</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 85%;"></div>
-            </div>
-            <span class="confidence-lbl">85% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:43.265963</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_classifier.py",
-  "line_number": 103,
-  "matched_pattern": "Agent Instantiation",
-  "snippet": "description=\"Found CrewAI code patterns: Agent(role=\u0027Researcher\u0027)\","
-}</pre>
         
       </div>
     </div>
@@ -2708,7 +2778,7 @@
           <section class="module-section" id="RuntimeScanner" data-section-name="RuntimeScanner">
             <div class="module-section-title">
               <span class="title-txt">⚡ Module 06: LLM Runtimes & Active Services</span>
-              <span class="module-badge">2 findings</span>
+              <span class="module-badge">1 findings</span>
             </div>
             <div class="findings-list-wrapper">
               
@@ -2718,97 +2788,39 @@
   
   
   
-  <div class="finding-card risk-level-medium" data-category="LLM Runtime" data-risk="medium">
+  <div class="finding-card risk-level-high" data-category="LLM Runtime" data-risk="high">
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">Active LLM Service Port: 8000</span>
+        <span class="finding-title">Ollama LLM Server</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">LLM Runtime</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
+        <span class="badge badge-severity badge-severity-high">high</span>
         <span class="expand-chevron">▼</span>
       </div>
     </div>
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">An active service was detected listening on port 8000 (vLLM / LocalAI / LiteLLM). This port is commonly used by local LLM APIs, services, or model servers.</span>
+        <span class="details-val">Ollama inference server listening on port 11434</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">127.0.0.1:8000</span></span>
+        <span class="details-val"><span class="details-val-source">localhost:11434</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
           <div class="confidence-wrapper">
             <div class="confidence-track">
-              <div class="confidence-bar" style="width: 90%;"></div>
+              <div class="confidence-bar" style="width: 97%;"></div>
             </div>
-            <span class="confidence-lbl">90% CONFIRMATION</span>
+            <span class="confidence-lbl">97% CONFIRMATION</span>
           </div>
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:44.225930</span>
+        <span class="details-val">2026-06-19T14:45:32.001372</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "host": "127.0.0.1",
-  "label": "vLLM / LocalAI / LiteLLM",
-  "port": 8000
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-medium" data-category="LLM Runtime" data-risk="medium">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Active LLM Service Port: 8080</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">LLM Runtime</span>
-        <span class="badge badge-severity badge-severity-medium">medium</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">An active service was detected listening on port 8080 (llama.cpp / LocalAI Server). This port is commonly used by local LLM APIs, services, or model servers.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">127.0.0.1:8080</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 90%;"></div>
-            </div>
-            <span class="confidence-lbl">90% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:44.225947</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "host": "127.0.0.1",
-  "label": "llama.cpp / LocalAI Server",
-  "port": 8080
-}</pre>
         
       </div>
     </div>
@@ -2823,7 +2835,7 @@
           <section class="module-section" id="APIScanner" data-section-name="APIScanner">
             <div class="module-section-title">
               <span class="title-txt">🔑 Module 07: API Keys & Credentials Scanner</span>
-              <span class="module-badge">31 findings</span>
+              <span class="module-badge">2 findings</span>
             </div>
             <div class="findings-list-wrapper">
               
@@ -2833,48 +2845,39 @@
   
   
   
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
+  <div class="finding-card risk-level-critical" data-category="Configuration" data-risk="critical">
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
+        <span class="finding-title">OpenAI API Key Exposed</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
+        <span class="badge badge-severity badge-severity-critical">critical</span>
         <span class="expand-chevron">▼</span>
       </div>
     </div>
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 21.</span>
+        <span class="details-val">OPENAI_API_KEY found in environment variables</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:21</span></span>
+        <span class="details-val"><span class="details-val-source">.env / System Environment</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
           <div class="confidence-wrapper">
             <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
+              <div class="confidence-bar" style="width: 99%;"></div>
             </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
+            <span class="confidence-lbl">99% CONFIRMATION</span>
           </div>
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:51.506138</span>
+        <span class="details-val">2026-06-19T14:45:32.001348</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
-  "line_number": 21,
-  "masked_key": "sk-...5678",
-  "provider": "OpenAI"
-}</pre>
         
       </div>
     </div>
@@ -2886,1573 +2889,39 @@
   
   
   
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
+  <div class="finding-card risk-level-critical" data-category="Configuration" data-risk="critical">
     <div class="finding-header" onclick="toggleFinding(this)">
       <div class="finding-main-info">
         <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
+        <span class="finding-title">Anthropic API Key</span>
       </div>
       <div class="finding-meta">
         <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
+        <span class="badge badge-severity badge-severity-critical">critical</span>
         <span class="expand-chevron">▼</span>
       </div>
     </div>
     <div class="finding-body">
       <div class="details-grid">
         <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 30.</span>
+        <span class="details-val">ANTHROPIC_API_KEY detected in shell profile</span>
         
         <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:30</span></span>
+        <span class="details-val"><span class="details-val-source">~/.bashrc</span></span>
         
         <span class="details-label">Confidence</span>
         <span class="details-val">
           <div class="confidence-wrapper">
             <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
+              <div class="confidence-bar" style="width: 98%;"></div>
             </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
+            <span class="confidence-lbl">98% CONFIRMATION</span>
           </div>
         </span>
 
         <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:51.506265</span>
+        <span class="details-val">2026-06-19T14:45:32.001383</span>
 
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
-  "line_number": 30,
-  "masked_key": "sk-...ef12",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 47.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:47</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:51.506466</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
-  "line_number": 47,
-  "masked_key": "key...n_20"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed AWS Access Key ID</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a AWS Access Key ID was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 48.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:48</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:51.506481</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "AWS Access Key ID",
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
-  "line_number": 48,
-  "masked_key": "AKIA...MPLE"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py' at line 69.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py:69</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:51.506697</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/College Work/Internship/Group A-Y-S/System Scanner/System Scanner/tests/test_api_scanner.py",
-  "line_number": 69,
-  "masked_key": "sk-...es12",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'C:/Users/Ajinkya Patil/main.c7d1f819.js' at line 2.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">C:/Users/Ajinkya Patil/main.c7d1f819.js:2</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:58:51.619245</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "C:/Users/Ajinkya Patil/main.c7d1f819.js",
-  "line_number": 2,
-  "masked_key": "AIzaSy...p9uE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 28.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:28</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.982963</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 28,
-  "masked_key": "sk-...4633",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 68.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:68</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.983301</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 68,
-  "masked_key": "sk-...4633",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 222.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:222</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.985253</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 222,
-  "masked_key": "AIzaSy...Q2HE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 223.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:223</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.985283</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 223,
-  "masked_key": "key...6mEQ"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 237.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:237</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.985396</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 237,
-  "masked_key": "AIzaSy...Q2HE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 238.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:238</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.985419</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 238,
-  "masked_key": "key...6mEQ"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 262.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:262</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.985616</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 262,
-  "masked_key": "AIzaSy...Q2HE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/img - api/all_env_data.txt' at line 263.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/img - api/all_env_data.txt:263</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:02.985641</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Professional Webiste/img - api/all_env_data.txt",
-  "line_number": 263,
-  "masked_key": "key...6mEQ"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science/backend/.env' at line 8.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/V4 Science/backend/.env:8</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.010114</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Professional Webiste/V4 Science/backend/.env",
-  "line_number": 8,
-  "masked_key": "AIzaSy...Q2HE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science/backend/.env' at line 9.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/V4 Science/backend/.env:9</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.010161</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Professional Webiste/V4 Science/backend/.env",
-  "line_number": 9,
-  "masked_key": "key...6mEQ"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science/frontend/.env.local' at line 11.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/V4 Science/frontend/.env.local:11</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.055630</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Professional Webiste/V4 Science/frontend/.env.local",
-  "line_number": 11,
-  "masked_key": "AIzaSy...Q2HE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science/frontend/.env.local' at line 12.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/V4 Science/frontend/.env.local:12</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.055793</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Professional Webiste/V4 Science/frontend/.env.local",
-  "line_number": 12,
-  "masked_key": "key...6mEQ"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Professional Webiste/V4 Science - Copy/backend/.env' at line 3.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/V4 Science - Copy/backend/.env:3</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.173694</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Professional Webiste/V4 Science - Copy/backend/.env",
-  "line_number": 3,
-  "masked_key": "AIzaSy...Q2HE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Professional Webiste/V4 Science - Copy/backend/.env' at line 4.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Professional Webiste/V4 Science - Copy/backend/.env:4</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.173745</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Professional Webiste/V4 Science - Copy/backend/.env",
-  "line_number": 4,
-  "masked_key": "key...6mEQ"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/aa.js' at line 46652.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Personal Work/GLM 5.1 Testing/aa.js:46652</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.764501</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/Personal Work/GLM 5.1 Testing/aa.js",
-  "line_number": 46652,
-  "masked_key": "AIzaSy...p9uE",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Cloudflare User Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Cloudflare User Token was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py' at line 6.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py:6</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.799363</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Cloudflare User Token",
-  "file_path": "D:/Personal Work/GLM 5.1 Testing/API/cloudfare.py",
-  "line_number": 6,
-  "masked_key": "cfut_...c476"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed NVIDIA API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a NVIDIA API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/nvidia.py' at line 12.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Personal Work/GLM 5.1 Testing/API/nvidia.py:12</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.799944</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "NVIDIA API Key",
-  "file_path": "D:/Personal Work/GLM 5.1 Testing/API/nvidia.py",
-  "line_number": 12,
-  "masked_key": "nvapi-...Hbmk"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py' at line 4.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py:4</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.800295</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/Personal Work/GLM 5.1 Testing/API/Zyphra.py",
-  "line_number": 4,
-  "masked_key": "sk-...4633",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/Personal Work/RAG/llm_engine.py' at line 8.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Personal Work/RAG/llm_engine.py:8</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:03.801085</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/Personal Work/RAG/llm_engine.py",
-  "line_number": 8,
-  "masked_key": "sk-...4633",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Generic API Key/Token</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Generic API Key/Token was discovered in config file 'D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py' at line 23.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py:23</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:06.513663</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Generic API Key/Token",
-  "file_path": "D:/Advantech Work/Python/Classes Advantech/djnago/project/project/settings.py",
-  "line_number": 23,
-  "masked_key": "key...x9t5"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/AY/First try/.env.example' at line 15.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/AY/First try/.env.example:15</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:06.515537</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/AY/First try/.env.example",
-  "line_number": 15,
-  "masked_key": "sk-...4633",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed OpenAI API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a OpenAI API Key was discovered in config file 'D:/AY/First try/server/.env' at line 14.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/AY/First try/server/.env:14</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:06.542916</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "OpenAI API Key",
-  "file_path": "D:/AY/First try/server/.env",
-  "line_number": 14,
-  "masked_key": "sk-...4633",
-  "provider": "OpenAI"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/College Work/Learning Platform/google-services.json' at line 23.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/College Work/Learning Platform/google-services.json:23</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:18.231143</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/College Work/Learning Platform/google-services.json",
-  "line_number": 23,
-  "masked_key": "AIzaSy...56H4",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Exposed Google AI/Gemini API Key</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">A matching pattern for a Google AI/Gemini API Key was discovered in config file 'D:/RoadMap DFIR/Extension/SmartFill/popup.js' at line 4.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">D:/RoadMap DFIR/Extension/SmartFill/popup.js:4</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:18.297329</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google AI/Gemini API Key",
-  "file_path": "D:/RoadMap DFIR/Extension/SmartFill/popup.js",
-  "line_number": 4,
-  "masked_key": "AIzaSy...phjk",
-  "provider": "Google"
-}</pre>
-        
-      </div>
-    </div>
-  </div>
-
-                
-                  
-  
-  
-  
-  
-  <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">Environment Variable: GEMINI_API_KEY</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">Configuration</span>
-        <span class="badge badge-severity badge-severity-high">high</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">Active environment variable 'GEMINI_API_KEY' contains a potential Google/Gemini credential.</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">env://GEMINI_API_KEY</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: 95%;"></div>
-            </div>
-            <span class="confidence-lbl">95% CONFIRMATION</span>
-          </div>
-        </span>
-
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">2026-06-17T16:59:19.042823</span>
-
-        
-          <span class="details-label">Metadata Trace</span>
-          <pre class="details-code">{
-  "credential_type": "Google/Gemini Environment Credential",
-  "env_var_name": "GEMINI_API_KEY",
-  "masked_key": "AIzaSy...y_kg",
-  "provider": "Google"
-}</pre>
         
       </div>
     </div>
@@ -4486,12 +2955,12 @@
                 <span class="module-name-lbl" title="SystemScanner">SystemScanner</span>
               </div>
               <div class="module-telemetry">
-                <span class="module-time">0.649s</span>
+                <span class="module-time">0.710s</span>
                 
                   <span class="module-status-indicator status-ok">OK</span>
                 
                 
-                <span class="sidebar-findings-counter">2</span>
+                <span class="sidebar-findings-counter">1</span>
                 
               </div>
             </div>
@@ -4502,12 +2971,12 @@
                 <span class="module-name-lbl" title="FileScanner">FileScanner</span>
               </div>
               <div class="module-telemetry">
-                <span class="module-time">7.245s</span>
+                <span class="module-time">5.370s</span>
                 
                   <span class="module-status-indicator status-ok">OK</span>
                 
                 
-                <span class="sidebar-findings-counter">2</span>
+                <span class="sidebar-findings-counter">1</span>
                 
               </div>
             </div>
@@ -4518,7 +2987,7 @@
                 <span class="module-name-lbl" title="ProcessScanner">ProcessScanner</span>
               </div>
               <div class="module-telemetry">
-                <span class="module-time">0.028s</span>
+                <span class="module-time">0.050s</span>
                 
                   <span class="module-status-indicator status-ok">OK</span>
                 
@@ -4532,10 +3001,12 @@
                 <span class="module-name-lbl" title="PackageScanner">PackageScanner</span>
               </div>
               <div class="module-telemetry">
-                <span class="module-time">0.658s</span>
+                <span class="module-time">1.730s</span>
                 
                   <span class="module-status-indicator status-ok">OK</span>
                 
+                
+                <span class="sidebar-findings-counter">1</span>
                 
               </div>
             </div>
@@ -4546,23 +3017,7 @@
                 <span class="module-name-lbl" title="AgentScanner">AgentScanner</span>
               </div>
               <div class="module-telemetry">
-                <span class="module-time">7.092s</span>
-                
-                  <span class="module-status-indicator status-ok">OK</span>
-                
-                
-                <span class="sidebar-findings-counter">10</span>
-                
-              </div>
-            </div>
-            
-            <div class="module-row">
-              <div class="module-title-box">
-                <span class="module-index">6</span>
-                <span class="module-name-lbl" title="RuntimeScanner">RuntimeScanner</span>
-              </div>
-              <div class="module-telemetry">
-                <span class="module-time">1.030s</span>
+                <span class="module-time">40.200s</span>
                 
                   <span class="module-status-indicator status-ok">OK</span>
                 
@@ -4574,16 +3029,32 @@
             
             <div class="module-row">
               <div class="module-title-box">
-                <span class="module-index">7</span>
-                <span class="module-name-lbl" title="APIScanner">APIScanner</span>
+                <span class="module-index">6</span>
+                <span class="module-name-lbl" title="RuntimeScanner">RuntimeScanner</span>
               </div>
               <div class="module-telemetry">
-                <span class="module-time">35.849s</span>
+                <span class="module-time">1.540s</span>
                 
                   <span class="module-status-indicator status-ok">OK</span>
                 
                 
-                <span class="sidebar-findings-counter">31</span>
+                <span class="sidebar-findings-counter">1</span>
+                
+              </div>
+            </div>
+            
+            <div class="module-row">
+              <div class="module-title-box">
+                <span class="module-index">7</span>
+                <span class="module-name-lbl" title="APIScanner">APIScanner</span>
+              </div>
+              <div class="module-telemetry">
+                <span class="module-time">12.200s</span>
+                
+                  <span class="module-status-indicator status-ok">OK</span>
+                
+                
+                <span class="sidebar-findings-counter">2</span>
                 
               </div>
             </div>
@@ -4602,9 +3073,9 @@
             &gt; PARALLEL MODULE DISPATCH ON<br/>
             &gt; 7 WORKERS DETECTED.<br/>
             &gt; SUCCESS: 7 MODULES OK.<br/>
-            &gt; RETRIEVED 47 SEGMENTS.<br/>
+            &gt; RETRIEVED 8 SEGMENTS.<br/>
             &gt; COMPUTE ATTRIBUTION VALUE...<br/>
-            &gt; RISK ATTRIBUTION VALUE: 62.8<br/>
+            &gt; RISK ATTRIBUTION VALUE: 59.4<br/>
             &gt; SYSTEM STATE: UNSECURE - INVESTIGATE
           </div>
         </div>
@@ -4622,7 +3093,108 @@
 
   <!-- ═══════════════ INTERACTION SCRIPTS ═══════════════ -->
   <script>
-    // Theme Toggling Logic
+    // ─── Embedded report data for client-side export ───────────────────────
+    const SCAN_DATA = {
+      scan_id:         "demo-2026-001",
+      scan_timestamp:  "2026-06-19T10:30:00.000000",
+      hostname:        "DEMO-WORKSTATION",
+      os_info:         "Windows 11 (x64)",
+      risk_score:      59.4,
+      total_findings:  8,
+      findings: [
+        
+        {
+          finding_id:  "b5a54ccd",
+          module:      "AgentScanner",
+          title:       "GitHub Copilot CLI",
+          category:    "AI Agent",
+          risk_level:  "high",
+          source:      "C:/Users/ADMIN/AppData/Roaming/npm/gh",
+          confidence:  0.95,
+          timestamp:   "2026-06-19T14:45:32.001307"
+        },
+        
+        {
+          finding_id:  "741bf2b0",
+          module:      "APIScanner",
+          title:       "OpenAI API Key Exposed",
+          category:    "Configuration",
+          risk_level:  "critical",
+          source:      ".env / System Environment",
+          confidence:  0.99,
+          timestamp:   "2026-06-19T14:45:32.001348"
+        },
+        
+        {
+          finding_id:  "452fa224",
+          module:      "FileScanner",
+          title:       "llama3.Q4_K_M.gguf",
+          category:    "AI Model",
+          risk_level:  "medium",
+          source:      "C:/models/llama3.Q4_K_M.gguf",
+          confidence:  0.92,
+          timestamp:   "2026-06-19T14:45:32.001358"
+        },
+        
+        {
+          finding_id:  "f3721fc2",
+          module:      "PackageScanner",
+          title:       "torch==2.3.0",
+          category:    "ML Framework",
+          risk_level:  "low",
+          source:      "pip: torch 2.3.0",
+          confidence:  0.88,
+          timestamp:   "2026-06-19T14:45:32.001365"
+        },
+        
+        {
+          finding_id:  "747695a0",
+          module:      "RuntimeScanner",
+          title:       "Ollama LLM Server",
+          category:    "LLM Runtime",
+          risk_level:  "high",
+          source:      "localhost:11434",
+          confidence:  0.97,
+          timestamp:   "2026-06-19T14:45:32.001372"
+        },
+        
+        {
+          finding_id:  "ecb70070",
+          module:      "AgentScanner",
+          title:       "LangChain Agent Framework",
+          category:    "AI Agent",
+          risk_level:  "medium",
+          source:      "C:/projects/ai_bot/agent.py",
+          confidence:  0.85,
+          timestamp:   "2026-06-19T14:45:32.001378"
+        },
+        
+        {
+          finding_id:  "579ab594",
+          module:      "APIScanner",
+          title:       "Anthropic API Key",
+          category:    "Configuration",
+          risk_level:  "critical",
+          source:      "~/.bashrc",
+          confidence:  0.98,
+          timestamp:   "2026-06-19T14:45:32.001383"
+        },
+        
+        {
+          finding_id:  "022b086f",
+          module:      "SystemScanner",
+          title:       "Windows 11 x64",
+          category:    "System Info",
+          risk_level:  "info",
+          source:      "System",
+          confidence:  1.00,
+          timestamp:   "2026-06-19T14:45:32.001389"
+        }
+        
+      ]
+    };
+
+    // ─── Theme Toggling Logic ───────────────────────────────────────────────
     const themeToggleBtn = document.getElementById('theme-toggle');
     
     // Check local storage or document class list for theme
@@ -4649,65 +3221,86 @@
       });
     }
 
-    // Expand/Collapse disclosures
+    // ─── Expand/Collapse disclosures ───────────────────────────────────────
     function toggleFinding(header) {
       const card = header.closest('.finding-card');
       card.classList.toggle('open');
     }
 
-    // Dynamic Filter Processing
-    const searchBox = document.getElementById('search-box');
+    // ─── Tab Filter (Day 3) ────────────────────────────────────────────────
+    // Maps tab name → which risk levels are included
+    const TAB_RISK_LEVELS = {
+      'all':      null,                          // null = show all
+      'approved': ['info', 'low', 'medium'],     // Approved & Moderate
+      'banned':   ['high', 'critical'],          // Review & Banned
+    };
+
+    let _activeTab = 'all';
+
+    function setTabFilter(tab, btnEl) {
+      _activeTab = tab;
+      // Update button active states
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      // Re-apply all filters
+      applyFilters();
+    }
+
+    // ─── Dynamic Filter Processing ─────────────────────────────────────────
+    const searchBox      = document.getElementById('search-box');
     const categorySelect = document.getElementById('filter-category');
-    const riskSelect = document.getElementById('filter-risk');
-    const findingCards = document.querySelectorAll('.finding-card');
-    const sections = document.querySelectorAll('.module-section');
+    const riskSelect     = document.getElementById('filter-risk');
+    const findingCards   = document.querySelectorAll('.finding-card');
+    const sections       = document.querySelectorAll('.module-section');
 
     function applyFilters() {
-      const query = searchBox.value.toLowerCase().trim();
+      const query    = (searchBox.value || '').toLowerCase().trim();
       const category = categorySelect.value;
-      const risk = riskSelect.value;
+      const risk     = riskSelect.value;
+      const tabRisks = TAB_RISK_LEVELS[_activeTab];   // array or null
 
-      // Track how many cards are visible per section to handle empty state overlays
       sections.forEach(section => {
         const sectionCards = section.querySelectorAll('.finding-card');
-        const emptyState = section.querySelector('.empty-state');
-        let visibleInSectionCount = 0;
+        const emptyState   = section.querySelector('.empty-state');
+        let visibleCount   = 0;
 
         sectionCards.forEach(card => {
-          const cardCategory = card.getAttribute('data-category');
-          const cardRisk = card.getAttribute('data-risk');
+          const cardCategory = card.getAttribute('data-category') || '';
+          const cardRisk     = card.getAttribute('data-risk') || '';
           
-          const titleText = card.querySelector('.finding-title').textContent.toLowerCase();
-          const bodyEl = card.querySelector('.finding-body');
-          const bodyText = bodyEl ? bodyEl.textContent.toLowerCase() : '';
+          const titleText = (card.querySelector('.finding-title') || {textContent:''}).textContent.toLowerCase();
+          const bodyEl    = card.querySelector('.finding-body');
+          const bodyText  = bodyEl ? bodyEl.textContent.toLowerCase() : '';
           
-          const matchesSearch = titleText.includes(query) || bodyText.includes(query);
-          const matchesCategory = (category === 'all' || cardCategory === category);
-          const matchesRisk = (risk === 'all' || cardRisk === risk);
+          const matchesSearch   = !query || titleText.includes(query) || bodyText.includes(query);
+          const matchesCategory = category === 'all' || cardCategory === category;
+          const matchesRisk     = risk === 'all' || cardRisk === risk;
+          const matchesTab      = !tabRisks || tabRisks.includes(cardRisk);
 
-          if (matchesSearch && matchesCategory && matchesRisk) {
+          if (matchesSearch && matchesCategory && matchesRisk && matchesTab) {
             card.style.display = 'block';
-            visibleInSectionCount++;
+            visibleCount++;
           } else {
             card.style.display = 'none';
           }
         });
 
-        // Toggle visibility of the section empty state dynamically
-        if (visibleInSectionCount === 0) {
+        // Toggle empty-state overlay
+        if (visibleCount === 0) {
           if (!emptyState) {
-            // If no static empty state exists, render a temporary one
-            const wrapper = section.querySelector('.findings-list-wrapper');
-            let tempEmpty = wrapper.querySelector('.temp-empty-state');
-            if (!tempEmpty) {
-              tempEmpty = document.createElement('div');
-              tempEmpty.className = 'empty-state temp-empty-state';
-              tempEmpty.innerHTML = `
-                <div class="empty-state-icon">⚠️</div>
-                <div class="empty-state-title">FILTER MATCH EXCLUDED</div>
-                <div class="empty-state-text">All elements in this section were excluded by search or filter metrics.</div>
-              `;
-              wrapper.appendChild(tempEmpty);
+            const wrapper  = section.querySelector('.findings-list-wrapper');
+            if (wrapper) {
+              let tempEmpty = wrapper.querySelector('.temp-empty-state');
+              if (!tempEmpty) {
+                tempEmpty = document.createElement('div');
+                tempEmpty.className = 'empty-state temp-empty-state';
+                tempEmpty.innerHTML = `
+                  <div class="empty-state-icon">⚠️</div>
+                  <div class="empty-state-title">FILTER MATCH EXCLUDED</div>
+                  <div class="empty-state-text">All elements in this section were excluded by the active filter.</div>
+                `;
+                wrapper.appendChild(tempEmpty);
+              }
             }
           } else {
             emptyState.style.display = 'flex';
@@ -4723,6 +3316,531 @@
     searchBox.addEventListener('input', applyFilters);
     categorySelect.addEventListener('change', applyFilters);
     riskSelect.addEventListener('change', applyFilters);
+
+    // ─── Scan progress bar animation (Day 9) ──────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.getElementById('scan-progress-fill');
+      if (bar) {
+        setTimeout(() => { bar.style.width = '100%'; }, 120);
+      }
+    });
+
+    // ─── Client-side JSON export (Day 8) ──────────────────────────────────
+    function exportDashboardJSON() {
+      const blob = new Blob([JSON.stringify(SCAN_DATA, null, 2)], {type: 'application/json'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'ai_scan_' + SCAN_DATA.scan_id + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Client-side CSV export (Day 8) ───────────────────────────────────
+    function exportDashboardCSV() {
+      const header = ['finding_id','module','title','category','risk_level','source','confidence','timestamp'];
+      const rows   = SCAN_DATA.findings.map(f => [
+        f.finding_id, f.module,
+        '"' + (f.title  || '').replace(/"/g,'""') + '"',
+        f.category, f.risk_level,
+        '"' + (f.source || '').replace(/"/g,'""') + '"',
+        (parseFloat(f.confidence) * 100).toFixed(0) + '%',
+        f.timestamp
+      ]);
+      const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob([csv], {type: 'text/csv'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'ai_scan_sbom_' + SCAN_DATA.scan_id + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Client-side Excel export (.xlsx) ─────────────────────────────────
+    // Pure JS XLSX writer — no external libraries.
+    // Produces a valid multi-sheet .xlsx (Office Open XML / ZIP) workbook.
+    function exportDashboardExcel() {
+      // ── helpers ──────────────────────────────────────────────────────────
+      function escXml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&apos;');
+      }
+
+      // Shared-string table
+      const sst = [], sstMap = {};
+      function si(text) {
+        const k = String(text);
+        if (!(k in sstMap)) { sstMap[k] = sst.length; sst.push(k); }
+        return sstMap[k];
+      }
+
+      // Column letter (0-based)
+      function col(n) {
+        let r = ''; n++;
+        while (n) { r = String.fromCharCode(64 + (n % 26 || 26)) + r; n = Math.floor((n - 1) / 26); }
+        return r;
+      }
+      const ref = (r, c) => col(c) + (r + 1);
+
+      // Build worksheet XML from a 2-D array of {t, v} objects
+      // t: 's'=shared-str, 'n'=number, 'i'=inline-str, 'h'=header(bold)
+      function sheetXml(rows) {
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
+          + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
+          + `<sheetData>`;
+        rows.forEach((row, ri) => {
+          if (!row || row.length === 0) return;
+          xml += `<row r="${ri + 1}">`;
+          row.forEach((cell, ci) => {
+            if (!cell) return;
+            const {t, v} = cell;
+            if (v === null || v === undefined) return;
+            const r = ref(ri, ci);
+            if (t === 'n') {
+              xml += `<c r="${r}"><v>${escXml(v)}</v></c>`;
+            } else if (t === 'h') {
+              xml += `<c r="${r}" t="s" s="1"><v>${si(v)}</v></c>`;
+            } else if (t === 'i') {
+              xml += `<c r="${r}" t="inlineStr"><is><t xml:space="preserve">${escXml(v)}</t></is></c>`;
+            } else {
+              xml += `<c r="${r}" t="s"><v>${si(v)}</v></c>`;
+            }
+          });
+          xml += `</row>`;
+        });
+        xml += `</sheetData></worksheet>`;
+        return xml;
+      }
+
+      // ── Sheet 1: Summary ─────────────────────────────────────────────────
+      const S = SCAN_DATA;
+      const summaryRows = [
+        [{t:'h',v:'AI Discovery Scanner — Full Scan Report'}],
+        [],
+        [{t:'h',v:'Field'},{t:'h',v:'Value'}],
+        [{t:'s',v:'Scan ID'},          {t:'s',v:S.scan_id}],
+        [{t:'s',v:'Scan Timestamp'},   {t:'s',v:S.scan_timestamp}],
+        [{t:'s',v:'Hostname'},         {t:'s',v:S.hostname}],
+        [{t:'s',v:'Operating System'}, {t:'s',v:S.os_info}],
+        [{t:'s',v:'Total Findings'},   {t:'n',v:S.total_findings}],
+        [{t:'s',v:'Overall Risk Score'},{t:'n',v:S.risk_score}],
+      ];
+
+      // ── Sheet 2: All Findings ─────────────────────────────────────────────
+      const fHeader = ['Finding ID','Module','Title','Description','Category',
+                       'Risk Level','Source','Confidence %','Timestamp'].map(h=>({t:'h',v:h}));
+      const findingsRows = [fHeader, ...S.findings.map(f => [
+        {t:'s',v:f.finding_id},
+        {t:'s',v:f.module},
+        {t:'s',v:f.title},
+        {t:'i',v:f.description||''},
+        {t:'s',v:f.category},
+        {t:'s',v:(f.risk_level||'').toUpperCase()},
+        {t:'i',v:f.source||''},
+        {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10},
+        {t:'s',v:f.timestamp},
+      ])];
+
+      // ── Sheet 3: By Category ──────────────────────────────────────────────
+      const catCounts = {};
+      S.findings.forEach(f => { catCounts[f.category] = (catCounts[f.category]||0)+1; });
+      const catRows = [
+        [{t:'h',v:'Category'},{t:'h',v:'Count'}],
+        ...Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[{t:'s',v:k},{t:'n',v:v}])
+      ];
+
+      // ── Sheet 4: By Risk Level ────────────────────────────────────────────
+      const riskCounts = {};
+      S.findings.forEach(f => {
+        const r = (f.risk_level||'info').toLowerCase();
+        riskCounts[r] = (riskCounts[r]||0)+1;
+      });
+      const riskOrder = ['critical','high','medium','low','info'];
+      const riskRows = [
+        [{t:'h',v:'Risk Level'},{t:'h',v:'Count'}],
+        ...riskOrder.filter(r=>riskCounts[r]).map(r=>[
+          {t:'s',v:r.toUpperCase()},{t:'n',v:riskCounts[r]}
+        ])
+      ];
+
+      // ── Sheet 5: Risk Breakdown ───────────────────────────────────────────
+      const total = Math.max(S.total_findings, 1);
+      const crit  = (riskCounts['critical']||0);
+      const high  = (riskCounts['high']||0);
+      const med   = (riskCounts['medium']||0);
+      const apiC  = S.findings.filter(f=>f.module==='APIScanner').length;
+      const agentC= S.findings.filter(f=>f.module==='AgentScanner').length;
+      const modelC= S.findings.filter(f=>f.category==='AI Model').length;
+      const pkgC  = S.findings.filter(f=>f.module==='PackageScanner').length;
+      const rtC   = S.findings.filter(f=>f.module==='RuntimeScanner').length;
+      const secScore  = Math.min(Math.max(Math.floor((crit*100+high*75)/total),0),100);
+      const privScore = Math.min(Math.max(Math.floor((apiC*85+agentC*55)/total),0),100);
+      const compScore = Math.min(Math.max(Math.floor(S.risk_score*0.8),0),100);
+      const supScore  = Math.min(Math.max(Math.floor((modelC*60+pkgC*40)/total),0),100);
+      const opsScore  = Math.min(Math.max(Math.floor((rtC*50+med*25)/total),0),100);
+      const dimLevel  = s => s>=75?'CRITICAL':s>=50?'HIGH':s>=25?'MEDIUM':'LOW';
+      const dimRows = [
+        [{t:'h',v:'Dimension'},{t:'h',v:'Weight'},{t:'h',v:'Score (0-100)'},{t:'h',v:'Level'}],
+        [{t:'s',v:'Security'},      {t:'s',v:'25%'},{t:'n',v:secScore}, {t:'s',v:dimLevel(secScore)}],
+        [{t:'s',v:'Data Privacy'},  {t:'s',v:'25%'},{t:'n',v:privScore},{t:'s',v:dimLevel(privScore)}],
+        [{t:'s',v:'Compliance'},    {t:'s',v:'25%'},{t:'n',v:compScore},{t:'s',v:dimLevel(compScore)}],
+        [{t:'s',v:'Supply Chain'},  {t:'s',v:'15%'},{t:'n',v:supScore}, {t:'s',v:dimLevel(supScore)}],
+        [{t:'s',v:'Operational'},   {t:'s',v:'10%'},{t:'n',v:opsScore}, {t:'s',v:dimLevel(opsScore)}],
+        [],
+        [{t:'h',v:'Overall Risk Score'},{t:'n',v:S.risk_score},{t:'s',v:''},{t:'s',v:''}],
+      ];
+
+      // ── Assemble workbook XML ─────────────────────────────────────────────
+      const sheets = [
+        {name:'Summary',       xml:sheetXml(summaryRows)},
+        {name:'Findings',      xml:sheetXml(findingsRows)},
+        {name:'By Category',   xml:sheetXml(catRows)},
+        {name:'By Risk Level', xml:sheetXml(riskRows)},
+        {name:'Risk Breakdown',xml:sheetXml(dimRows)},
+      ];
+
+      const wbXml = `<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    ${sheets.map((s,i)=>`<sheet name="${escXml(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('\n    ')}
+  </sheets>
+</workbook>`;
+
+      const wbRels = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('\n  ')}
+  <Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>
+  <Relationship Id="rId${sheets.length+2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+      const sstXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+     count="${sst.length}" uniqueCount="${sst.length}">
+${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
+</sst>`;
+
+      const stylesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="2">
+    <font><sz val="11"/><name val="Calibri"/></font>
+    <font><sz val="11"/><name val="Calibri"/><b/></font>
+  </fonts>
+  <fills count="2">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+  </fills>
+  <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="2">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0"/>
+  </cellXfs>
+</styleSheet>`;
+
+      const ctXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml"  ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  ${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('\n  ')}
+  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+  <Override PartName="/xl/styles.xml"        ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>`;
+
+      const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`;
+
+      // ── Zip it up using JSZip-free approach (raw ZIP bytes in browser) ─────
+      // Build the zip file manually using the Compression Streams API if available,
+      // otherwise fall back to uncompressed (store-only) which is still valid xlsx.
+      const enc = new TextEncoder();
+      const files = {
+        '[Content_Types].xml':       enc.encode(ctXml),
+        '_rels/.rels':               enc.encode(relsXml),
+        'xl/workbook.xml':           enc.encode(wbXml),
+        'xl/_rels/workbook.xml.rels':enc.encode(wbRels),
+        'xl/sharedStrings.xml':      enc.encode(sstXml),
+        'xl/styles.xml':             enc.encode(stylesXml),
+      };
+      sheets.forEach((s, i) => {
+        files[`xl/worksheets/sheet${i+1}.xml`] = enc.encode(s.xml);
+      });
+
+      // Write a minimal ZIP (store, no compression) — universally compatible
+      function u32le(n) {
+        return [n&0xff,(n>>8)&0xff,(n>>16)&0xff,(n>>24)&0xff];
+      }
+      function u16le(n) { return [n&0xff,(n>>8)&0xff]; }
+
+      function crc32(buf) {
+        let c = 0xffffffff;
+        const table = crc32.t || (crc32.t = (() => {
+          const t = new Uint32Array(256);
+          for (let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?(0xedb88320^(c>>>1)):c>>>1;t[n]=c;}
+          return t;
+        })());
+        for (let i=0;i<buf.length;i++) c=table[(c^buf[i])&0xff]^(c>>>8);
+        return (c^0xffffffff) >>> 0;
+      }
+
+      const parts = [];
+      const centralDir = [];
+      let offset = 0;
+
+      for (const [name, data] of Object.entries(files)) {
+        const nameBytes = enc.encode(name);
+        const crc = crc32(data);
+        const header = [
+          0x50,0x4b,0x03,0x04,   // local file header signature
+          ...u16le(20),            // version needed
+          ...u16le(0),             // flags
+          ...u16le(0),             // compression: store
+          ...u16le(0),             // mod time
+          ...u16le(0),             // mod date
+          ...u32le(crc),
+          ...u32le(data.length),
+          ...u32le(data.length),
+          ...u16le(nameBytes.length),
+          ...u16le(0),             // extra field length
+          ...nameBytes,
+        ];
+        const cdEntry = [
+          0x50,0x4b,0x01,0x02,   // central dir signature
+          ...u16le(20),            // version made by
+          ...u16le(20),            // version needed
+          ...u16le(0),             // flags
+          ...u16le(0),             // compression
+          ...u16le(0),             // mod time
+          ...u16le(0),             // mod date
+          ...u32le(crc),
+          ...u32le(data.length),
+          ...u32le(data.length),
+          ...u16le(nameBytes.length),
+          ...u16le(0),             // extra
+          ...u16le(0),             // comment
+          ...u16le(0),             // disk start
+          ...u16le(0),             // int attrs
+          ...u32le(0),             // ext attrs
+          ...u32le(offset),        // offset of local header
+          ...nameBytes,
+        ];
+        parts.push(new Uint8Array(header), data);
+        centralDir.push(cdEntry);
+        offset += header.length + data.length;
+      }
+
+      const cdBytes   = centralDir.flat();
+      const cdSize    = cdBytes.length;
+      const eocd      = [
+        0x50,0x4b,0x05,0x06,
+        ...u16le(0),
+        ...u16le(0),
+        ...u16le(Object.keys(files).length),
+        ...u16le(Object.keys(files).length),
+        ...u32le(cdSize),
+        ...u32le(offset),
+        ...u16le(0),
+      ];
+
+      const allParts = [...parts, new Uint8Array(cdBytes), new Uint8Array(eocd)];
+      const total    = allParts.reduce((s,a)=>s+a.length,0);
+      const out      = new Uint8Array(total);
+      let pos = 0;
+      for (const p of allParts) { out.set(p,pos); pos+=p.length; }
+
+      const blob = new Blob([out], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href     = url;
+      a.download = 'ai_scan_report_' + S.scan_id + '.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Active nav section highlighting ──────────────────────────────────
+    const menuItems = document.querySelectorAll('.menu-item');
+    const sectionEls = document.querySelectorAll('.module-section');
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            menuItems.forEach(item => {
+              item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { threshold: 0.3 });
+      sectionEls.forEach(s => observer.observe(s));
+    }
+
+    // ─── PDF Modal (open / close) ──────────────────────────────────────────
+    function openPdfModal() {
+      const overlay = document.getElementById('pdf-modal-overlay');
+      if (overlay) {
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closePdfModal() {
+      const overlay = document.getElementById('pdf-modal-overlay');
+      if (overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Close when clicking the backdrop
+    document.getElementById('pdf-modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closePdfModal();
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePdfModal();
+    });
+
+    // ─── PDF Preview text update ───────────────────────────────────────────
+    function updatePdfPreview() {
+      const scope = document.querySelector('input[name="pdf-scope"]:checked');
+      const scopeVal = scope ? scope.value : 'all';
+      const previewEl = document.getElementById('pdf-preview-text');
+      if (!previewEl) return;
+
+      const allCards    = document.querySelectorAll('.finding-card');
+      const visibleCards = Array.from(allCards).filter(c => c.style.display !== 'none');
+
+      let countText = '';
+      if (scopeVal === 'all') {
+        countText = allCards.length + ' findings across all modules';
+      } else if (scopeVal === 'filtered') {
+        countText = visibleCards.length + ' visible findings (current filter)';
+      } else {
+        countText = 'Executive summary + risk metrics only';
+      }
+
+      const incModules = document.getElementById('pdf-inc-modules');
+      const sidebarNote = incModules && incModules.checked ? ' + sidebar panel' : '';
+      previewEl.textContent = 'Estimated: ' + countText + sidebarNote;
+    }
+
+    // ─── PDF Generation (browser print with pre-print DOM prep) ───────────
+    function generatePDF() {
+      const scope = document.querySelector('input[name="pdf-scope"]:checked');
+      const scopeVal = scope ? scope.value : 'all';
+
+      const incRisk    = document.getElementById('pdf-inc-risk');
+      const incHost    = document.getElementById('pdf-inc-host');
+      const incModules = document.getElementById('pdf-inc-modules');
+
+      // Store state to restore after print
+      const allCards     = document.querySelectorAll('.finding-card');
+      const riskPanel    = document.querySelector('.risk-dimensions-panel') || document.querySelector('[class*="risk-dimension"]');
+      const hostBar      = document.querySelector('.host-info-bar');
+      const sidebar      = document.querySelector('.sidebar-panel');
+      const prevOverflows = {};
+
+      // ── Apply scope visibility ──
+      if (scopeVal === 'summary') {
+        // Hide all findings sections
+        allCards.forEach(c => {
+          prevOverflows[c] = c.style.display;
+          c.style.display = 'none';
+        });
+        document.querySelectorAll('.module-section').forEach(s => {
+          s.setAttribute('data-pdf-hidden', '1');
+          s._prevDisplay = s.style.display;
+          s.style.display = 'none';
+        });
+      } else if (scopeVal === 'filtered') {
+        // Hide only cards that are already hidden by filters
+        allCards.forEach(c => {
+          if (c.style.display === 'none') {
+            c.setAttribute('data-pdf-was-hidden', '1');
+          }
+        });
+        // Sections with ALL cards hidden → hide section
+        document.querySelectorAll('.module-section').forEach(s => {
+          const visible = Array.from(s.querySelectorAll('.finding-card'))
+                              .some(c => c.style.display !== 'none');
+          if (!visible) {
+            s.setAttribute('data-pdf-hidden', '1');
+            s._prevDisplay = s.style.display;
+            s.style.display = 'none';
+          }
+        });
+      }
+
+      // ── Optional sections ──
+      const riskDimPanel = document.querySelector('.hud-panel:has(.risk-dimensions-panel)') ||
+                           (() => {
+                             // Fallback: find by header tab text
+                             const tabs = document.querySelectorAll('.hud-header-tab');
+                             for (const t of tabs) {
+                               if (t.textContent.includes('5-DIMENSION')) return t.closest('.hud-panel');
+                             }
+                             return null;
+                           })();
+
+      if (riskDimPanel && incRisk && !incRisk.checked) {
+        riskDimPanel._prevDisplay = riskDimPanel.style.display;
+        riskDimPanel.setAttribute('data-pdf-hidden', '1');
+        riskDimPanel.style.display = 'none';
+      }
+      if (hostBar && incHost && !incHost.checked) {
+        hostBar._prevDisplay = hostBar.style.display;
+        hostBar.setAttribute('data-pdf-hidden', '1');
+        hostBar.style.display = 'none';
+      }
+      if (sidebar && incModules && !incModules.checked) {
+        sidebar._prevDisplay = sidebar.style.display;
+        sidebar.setAttribute('data-pdf-hidden', '1');
+        sidebar.style.display = 'none';
+      }
+
+      // ── Open all finding cards for print ──
+      if (scopeVal !== 'summary') {
+        allCards.forEach(c => {
+          if (c.style.display !== 'none') c.classList.add('open');
+        });
+      }
+
+      closePdfModal();
+
+      // Small delay to let DOM settle, then print
+      setTimeout(() => {
+        window.print();
+
+        // ── Restore everything after print dialog closes ──
+        setTimeout(() => {
+          allCards.forEach(c => {
+            c.classList.remove('open');
+            if (c.style.display === 'none' && !c.getAttribute('data-pdf-was-hidden')) {
+              c.style.display = '';
+            }
+            c.removeAttribute('data-pdf-was-hidden');
+          });
+          document.querySelectorAll('[data-pdf-hidden]').forEach(el => {
+            el.style.display = el._prevDisplay || '';
+            el.removeAttribute('data-pdf-hidden');
+          });
+        }, 800);
+      }, 80);
+    }
   </script>
 </body>
 </html>

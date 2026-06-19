@@ -4,6 +4,7 @@ Reporter Package
 Handles report generation in multiple formats:
   - JSON        : Machine-readable structured output
   - HTML        : Visual dashboard via Jinja2 templates
+  - Excel (.xlsx): Multi-sheet workbook (stdlib only, no openpyxl)
   - SIEM/SOC    : Syslog / HTTP / NDJSON exporters
   - CSV         : SBOM export
   - Log Archive : 180-day SQLite retention database
@@ -12,6 +13,7 @@ Handles report generation in multiple formats:
 from scanner.reporter.report_generator import generate_json_report, generate_html_report
 from scanner.reporter.exporter import SIEMExporter, export_sbom_csv
 from scanner.reporter.log_retention import LogRetentionDB
+from scanner.reporter.excel_exporter import export_excel
 
 __all__ = [
     "generate_json_report",
@@ -19,4 +21,5 @@ __all__ = [
     "SIEMExporter",
     "export_sbom_csv",
     "LogRetentionDB",
+    "export_excel",
 ]

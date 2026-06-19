@@ -127,6 +127,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Export findings as a CSV SBOM (e.g. --export-csv sbom.csv)",
     )
     parser.add_argument(
+        "--export-excel",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Export full report as an Excel workbook (e.g. --export-excel report.xlsx)",
+    )
+    parser.add_argument(
         "--no-db",
         action="store_true",
         help="Skip writing this scan to the 180-day log retention database",
@@ -435,6 +442,16 @@ def main() -> None:
                 print(f"  {GREEN}SBOM CSV export:{RESET}  {csv_file}")
             except Exception as csv_err:
                 logger.warning("CSV SBOM export failed: %s", csv_err)
+
+        # Optional: Excel full report export
+        excel_file = getattr(args, "export_excel", None)
+        if excel_file:
+            try:
+                from scanner.reporter.excel_exporter import export_excel
+                export_excel(result, excel_file)
+                print(f"  {GREEN}Excel report:{RESET}     {excel_file}")
+            except Exception as xl_err:
+                logger.warning("Excel export failed: %s", xl_err)
         # Select risk color based on score
         risk_score = summary.get("overall_risk_score", 0.0)
         if risk_score >= 75:
