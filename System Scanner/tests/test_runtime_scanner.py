@@ -113,6 +113,54 @@ class TestRuntimeScanner(unittest.TestCase):
             self.assertEqual(f_8080.title, "Active LLM Service Port: 8080")
             self.assertEqual(f_8080.risk_level, RiskLevel.MEDIUM)
 
+    @patch("psutil.net_connections")
+    @patch("psutil.Process")
+    def test_find_process_for_port_success(self, mock_process_class, mock_net_connections):
+        # Setup mock connection
+        mock_conn = MagicMock()
+        mock_conn.laddr.port = 11434
+        mock_conn.status = "LISTEN"
+        mock_conn.pid = 4567
+        mock_net_connections.return_value = [mock_conn]
+
+        # Setup mock process
+        mock_proc = MagicMock()
+        mock_proc.name.return_value = "ollama.exe"
+        mock_proc.cmdline.return_value = ["ollama", "serve"]
+        mock_process_class.return_value = mock_proc
+
+        result = runtime_scanner._find_process_for_port(11434)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["pid"], 4567)
+        self.assertEqual(result["name"], "ollama.exe")
+        self.assertEqual(result["cmdline"], ["ollama", "serve"])
+
+    @patch("psutil.net_connections")
+    @patch("psutil.process_iter")
+    def test_find_process_for_port_fallback(self, mock_process_iter, mock_net_connections):
+        # Force net_connections to raise AccessDenied
+        import psutil
+        mock_net_connections.side_effect = psutil.AccessDenied()
+
+        # Setup mock process iteration
+        mock_proc = MagicMock()
+        mock_proc.pid = 7890
+        mock_proc.name.return_value = "lmstudio.exe"
+        mock_proc.cmdline.return_value = ["lmstudio", "--port", "1234"]
+        
+        mock_conn = MagicMock()
+        mock_conn.laddr.port = 1234
+        mock_conn.status = "LISTEN"
+        mock_proc.connections.return_value = [mock_conn]
+
+        mock_process_iter.return_value = [mock_proc]
+
+        result = runtime_scanner._find_process_for_port(1234)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["pid"], 7890)
+        self.assertEqual(result["name"], "lmstudio.exe")
+        self.assertEqual(result["cmdline"], ["lmstudio", "--port", "1234"])
+
     def test_class_wrapper(self):
         scanner = runtime_scanner.RuntimeScanner()
         self.assertEqual(scanner.MODULE_NAME, "RuntimeScanner")

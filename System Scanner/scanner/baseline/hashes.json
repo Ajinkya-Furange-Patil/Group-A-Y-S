@@ -1,0 +1,25 @@
+{
+  "pip": {
+    "psutil": {
+      "7.2.2": "a263a40220d921d9cb963fc636d34f817aa2eb72c2696e3e3465d088cdb1976b"
+    },
+    "Jinja2": {
+      "3.1.6": "68c5548fb67c4132a13898d9b31ec50c6bea2abdd915d921f214355c3a6499c8"
+    },
+    "MarkupSafe": {
+      "3.0.3": "f0ae5dbb09d50fb5f7632c3d53f0220995ef76019e5892e0a545740136a4e3cb"
+    },
+    "openai": {
+      "1.58.1": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "4.0.0": "d2a3f4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9a5f8e6c4"
+    },
+    "transformers": {
+      "4.35.2": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8"
+    }
+  },
+  "npm": {
+    "@anthropic-ai/claude-code": {
+      "1.0.0": "3b0270a48b1111d08cc200c04fc295ee1e293b47556947556947556947556947"
+    }
+  }
+}

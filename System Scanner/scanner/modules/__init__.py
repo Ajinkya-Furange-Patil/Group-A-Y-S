@@ -10,4 +10,5 @@ Contains all 8 scanner modules:
   MODULE 06 — RuntimeScanner  : Active AI runtimes (ports & folders)
   MODULE 07 — APIScanner      : AI API key configurations
   MODULE 08 — MCPScanner      : Model Context Protocol config file parser
+  MODULE 09 — LicenseScanner  : AST parser and license taxonomy scanner
 """

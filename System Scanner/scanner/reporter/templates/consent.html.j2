@@ -448,7 +448,7 @@
     const themeBtn = document.getElementById('themeToggle');
 
     // Load persisted theme
-    const savedTheme = localStorage.getItem('hud-theme');
+    const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
       body.classList.remove('dark-theme');
       themeBtn.textContent = '// THEME: LIGHT';
@@ -461,11 +461,11 @@
       if (body.classList.contains('dark-theme')) {
         body.classList.remove('dark-theme');
         themeBtn.textContent = '// THEME: LIGHT';
-        localStorage.setItem('hud-theme', 'light');
+        localStorage.setItem('theme', 'light');
       } else {
         body.classList.add('dark-theme');
         themeBtn.textContent = '// THEME: DARK';
-        localStorage.setItem('hud-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       }
     }
 

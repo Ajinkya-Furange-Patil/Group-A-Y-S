@@ -137,6 +137,16 @@ class ScanController:
         except Exception as e:
             logger.warning("Failed to initialize MODULE 08: MCPScanner: %s", e, exc_info=True)
 
+        # ── MODULE 09: License Scanner ───────────────────────────────────
+        try:
+            from scanner.modules.license_scanner import LicenseScanner
+            self._engine.register_module(LicenseScanner(scan_folder=self._scan_folder, max_depth=self._max_depth))
+            logger.info("Successfully registered MODULE 09: LicenseScanner")
+        except ImportError:
+            logger.debug("MODULE 09: LicenseScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 09: LicenseScanner: %s", e, exc_info=True)
+
         logger.info("Module registration complete. Registered %d active modules.", len(self._engine._modules))
 
     def run_scan(self) -> ScanResult:

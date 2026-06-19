@@ -136,6 +136,19 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Show scan history trend from the 180-day retention database and exit",
     )
+    parser.add_argument(
+        "--export-sbom",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Export dependencies as a standard JSON SBOM (e.g. --export-sbom sbom.json)",
+    )
+    parser.add_argument(
+        "--sbom-format",
+        choices=["spdx", "cyclonedx"],
+        default="cyclonedx",
+        help="Format for the exported SBOM JSON (default: cyclonedx)",
+    )
     return parser
 
 
@@ -294,6 +307,8 @@ def main() -> None:
                 verbose = False
                 folder = None
                 depth = None
+                export_sbom = None
+                sbom_format = "cyclonedx"
 
             args = InteractiveArgs()
             if not choice or choice == "1":
@@ -388,7 +403,7 @@ def main() -> None:
         summary = result_dict.get("summary", {})
 
         # ── Developer C: SIEM / CSV / Log-Retention post-processing ──
-        from scanner.reporter.exporter import SIEMExporter, export_sbom_csv
+        from scanner.reporter.exporter import SIEMExporter, export_sbom_csv, export_sbom_json
         from scanner.reporter.log_retention import LogRetentionDB
 
         # Always archive to 180-day retention DB (unless --no-db)
@@ -420,6 +435,16 @@ def main() -> None:
                 print(f"  {GREEN}SBOM CSV export:{RESET}  {csv_file}")
             except Exception as csv_err:
                 logger.warning("CSV SBOM export failed: %s", csv_err)
+
+        # Optional: JSON SBOM export (CycloneDX / SPDX)
+        sbom_file = getattr(args, "export_sbom", None)
+        if sbom_file:
+            try:
+                format_type = getattr(args, "sbom_format", "cyclonedx")
+                export_sbom_json(result, sbom_file, format_type)
+                print(f"  {GREEN}SBOM JSON ({format_type}):{RESET} {sbom_file}")
+            except Exception as sbom_err:
+                logger.warning("JSON SBOM export failed: %s", sbom_err)
         # Select risk color based on score
         risk_score = summary.get("overall_risk_score", 0.0)
         if risk_score >= 75:

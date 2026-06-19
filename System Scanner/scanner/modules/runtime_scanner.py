@@ -62,6 +62,62 @@ def _check_port(port: int) -> bool:
         return False
 
 
+def _find_process_for_port(port: int) -> dict[str, Any] | None:
+    """Find process info listening on a local port using psutil.
+
+    Returns a dict with process details (pid, name, cmdline) or None.
+    """
+    try:
+        import psutil
+    except ImportError:
+        logger.debug("RuntimeScanner: psutil is not available")
+        return None
+
+    # First try psutil.net_connections() which is fast but might raise AccessDenied on some systems
+    try:
+        conns = psutil.net_connections(kind="inet")
+        for conn in conns:
+            if conn.laddr and conn.laddr.port == port and conn.status == "LISTEN":
+                if conn.pid is not None:
+                    try:
+                        p = psutil.Process(conn.pid)
+                        return {
+                            "pid": conn.pid,
+                            "name": p.name(),
+                            "cmdline": p.cmdline(),
+                        }
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        return {
+                            "pid": conn.pid,
+                            "name": "Unknown (Access Denied)",
+                            "cmdline": [],
+                        }
+    except (psutil.AccessDenied, PermissionError):
+        # Fall back to process iteration
+        pass
+    except Exception as e:
+        logger.debug("RuntimeScanner: Global net_connections check failed: %s", e)
+
+    # Fallback: iterate over all processes and inspect connections
+    try:
+        for p in psutil.process_iter(["pid", "name"]):
+            try:
+                conns = p.connections(kind="inet")
+                for conn in conns:
+                    if conn.laddr and conn.laddr.port == port and conn.status == "LISTEN":
+                        return {
+                            "pid": p.pid,
+                            "name": p.name(),
+                            "cmdline": p.cmdline(),
+                        }
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    except Exception as e:
+        logger.debug("RuntimeScanner: Process connections iteration failed: %s", e)
+
+    return None
+
+
 def run() -> tuple[list[Finding], ModuleInfo]:
     """Execute the Runtime Scanner module.
 
@@ -138,6 +194,18 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                 )
                 risk_level = RiskLevel.LOW
 
+            details = {
+                "port_11434_open": ollama_active,
+                "dir_ollama_exists": ollama_installed,
+                "runtime": "Ollama",
+            }
+            if ollama_active:
+                p_info = _find_process_for_port(11434)
+                if p_info:
+                    details["process_id"] = p_info["pid"]
+                    details["process_name"] = p_info["name"]
+                    details["process_cmdline"] = p_info["cmdline"]
+
             findings.append(
                 Finding(
                     module_name=MODULE_NAME,
@@ -147,11 +215,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                     category=FindingCategory.LLM_RUNTIME,
                     risk_level=risk_level,
                     confidence=0.95 if (ollama_active and ollama_installed) else 0.85,
-                    details={
-                        "port_11434_open": ollama_active,
-                        "dir_ollama_exists": ollama_installed,
-                        "runtime": "Ollama",
-                    },
+                    details=details,
                 )
             )
 
@@ -185,6 +249,17 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             if port == 11434:
                 continue  # Already handled above
             
+            p_details = {
+                "port": port,
+                "label": label,
+                "host": "127.0.0.1",
+            }
+            p_info = _find_process_for_port(port)
+            if p_info:
+                p_details["process_id"] = p_info["pid"]
+                p_details["process_name"] = p_info["name"]
+                p_details["process_cmdline"] = p_info["cmdline"]
+
             findings.append(
                 Finding(
                     module_name=MODULE_NAME,
@@ -197,11 +272,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                     category=FindingCategory.LLM_RUNTIME,
                     risk_level=RiskLevel.MEDIUM,
                     confidence=0.80,
-                    details={
-                        "port": port,
-                        "label": label,
-                        "host": "127.0.0.1",
-                    },
+                    details=p_details,
                 )
             )
 

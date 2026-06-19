@@ -290,3 +290,157 @@ def export_sbom_csv(scan_result: ScanResult, output_path: str) -> None:
     except OSError as exc:
         logger.error("Failed to write SBOM CSV to %s: %s", output_path, exc)
         raise
+
+
+def export_sbom_json(scan_result: ScanResult, output_path: str, format_type: str = "cyclonedx") -> None:
+    """Export a standard JSON SBOM of discovered AI/ML package dependencies.
+
+    Supports CycloneDX (v1.5) and SPDX (v2.3) formats, compliant with SEBI CSCRF guidelines.
+    """
+    import uuid
+    import json
+    from datetime import datetime, timezone
+
+    result_dict = scan_result.to_dict()
+    findings = result_dict.get("findings", [])
+
+    # Filter to only package scanner findings
+    pkg_findings = [f for f in findings if f.get("module_name") == "PackageScanner"]
+
+    if format_type.lower() == "spdx":
+        # Generate SPDX v2.3 JSON representation
+        spdx_doc = {
+            "spdxVersion": "SPDX-2.3",
+            "dataLicense": "CC0-1.0",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "AI-Discovery-Scanner-SBOM",
+            "documentNamespace": f"http://spdx.org/spdxdocs/ai-discovery-scanner-{uuid.uuid4()}",
+            "creationInfo": {
+                "creators": [
+                    "Tool: AI-Discovery-Scanner-1.0.0",
+                    "Organization: Group A-Y-S"
+                ],
+                "created": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            },
+            "packages": []
+        }
+
+        for f in pkg_findings:
+            details = f.get("details", {})
+            pkg_name = details.get("package_name") or f.get("title").split(":")[1].strip()
+            version = details.get("version") or "unknown"
+            installer = details.get("installer") or "pip"
+            install_loc = details.get("install_location") or "unknown"
+            sha256 = details.get("sha256_hash") or ""
+            verification = details.get("verification_status") or "unverified"
+
+            purl_type = "pip" if "pip" in installer.lower() else ("npm" if "npm" in installer.lower() else "generic")
+            purl = f"pkg:{purl_type}/{pkg_name}@{version}"
+            license_declared = "NOASSERTION"
+            pkg_ref = f"SPDXRef-Package-{pkg_name.lower().replace('/', '-')}-{version}"
+
+            checksums = []
+            if sha256:
+                checksums.append({
+                    "algorithm": "SHA256",
+                    "checksumValue": sha256
+                })
+
+            spdx_doc["packages"].append({
+                "name": pkg_name,
+                "SPDXID": pkg_ref,
+                "versionInfo": version,
+                "downloadLocation": "NOASSERTION",
+                "filesAnalyzed": False,
+                "licenseConcluded": license_declared,
+                "licenseDeclared": license_declared,
+                "copyrightText": "NOASSERTION",
+                "checksums": checksums,
+                "externalRefs": [
+                    {
+                        "referenceCategory": "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": purl
+                    }
+                ],
+                "comment": f"SEBI CSCRF Verification Status: {verification}. Installer: {installer}. Installed at: {install_loc}."
+            })
+
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(spdx_doc, f, indent=2, ensure_ascii=False)
+            logger.info("SPDX SBOM JSON export written to: %s", output_path)
+        except OSError as exc:
+            logger.error("Failed to write SPDX SBOM JSON to %s: %s", output_path, exc)
+            raise
+
+    else:
+        # Default: CycloneDX v1.5 JSON representation
+        cyclonedx_doc = {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.5",
+            "serialNumber": f"urn:uuid:{uuid.uuid4()}",
+            "version": 1,
+            "metadata": {
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "tools": [
+                    {
+                        "vendor": "Group A-Y-S",
+                        "name": "AI Discovery Scanner",
+                        "version": "1.0.0"
+                    }
+                ]
+            },
+            "components": []
+        }
+
+        for f in pkg_findings:
+            details = f.get("details", {})
+            pkg_name = details.get("package_name") or f.get("title").split(":")[1].strip()
+            version = details.get("version") or "unknown"
+            installer = details.get("installer") or "pip"
+            install_loc = details.get("install_location") or "unknown"
+            sha256 = details.get("sha256_hash") or ""
+            verification = details.get("verification_status") or "unverified"
+
+            purl_type = "pip" if "pip" in installer.lower() else ("npm" if "npm" in installer.lower() else "generic")
+            purl = f"pkg:{purl_type}/{pkg_name}@{version}"
+
+            component = {
+                "type": "library",
+                "name": pkg_name,
+                "version": version,
+                "purl": purl,
+                "properties": [
+                    {
+                        "name": "sebi:cscrf:verification",
+                        "value": verification
+                    },
+                    {
+                        "name": "sebi:cscrf:install_location",
+                        "value": install_loc
+                    },
+                    {
+                        "name": "sebi:cscrf:installer",
+                        "value": installer
+                    }
+                ]
+            }
+
+            if sha256:
+                component["hashes"] = [
+                    {
+                        "alg": "SHA-256",
+                        "content": sha256
+                    }
+                ]
+
+            cyclonedx_doc["components"].append(component)
+
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(cyclonedx_doc, f, indent=2, ensure_ascii=False)
+            logger.info("CycloneDX SBOM JSON export written to: %s", output_path)
+        except OSError as exc:
+            logger.error("Failed to write CycloneDX SBOM JSON to %s: %s", output_path, exc)
+            raise
