@@ -462,7 +462,10 @@ def main() -> None:
                 print(f"  {GREEN}SBOM JSON ({format_type}):{RESET} {sbom_file}")
             except Exception as sbom_err:
                 logger.warning("JSON SBOM export failed: %s", sbom_err)
+<<<<<<< HEAD
 
+=======
+>>>>>>> d627453133c8f2989019496b86c8c19918e825d1
         # Select risk color based on score
         risk_score = summary.get("overall_risk_score", 0.0)
         if risk_score >= 75:

@@ -294,6 +294,121 @@ def _build_by_risk_sheet(result_dict: dict) -> list[list[tuple]]:
     return rows
 
 
+def _build_cbom_sheet(result_dict: dict) -> list[list[tuple]]:
+    header = [("h", h, 1) for h in [
+        "Finding ID", "Module", "Setting Name", "Description",
+        "Value / Source", "Risk Level", "Confidence %", "Timestamp"
+    ]]
+    rows = [header]
+    
+    cbom_cats = ("Configuration", "System Info")
+    findings = [f for f in result_dict.get("findings", []) if f.get("category") in cbom_cats]
+    
+    for idx, f in enumerate(findings):
+        is_even = idx % 2 == 0
+        rl = f.get("risk_level", "").lower()
+        
+        risk_style = 10 if is_even else 11
+        if rl == "critical":
+            risk_style = 5
+        elif rl == "high":
+            risk_style = 6
+        elif rl == "medium":
+            risk_style = 7
+        elif rl in ("low", "info"):
+            risk_style = 8
+
+        conf_pct = round(float(f.get("confidence", 0)) * 100, 1)
+        rows.append([
+            ("s", f.get("finding_id", ""), 10 if is_even else 11),
+            ("s", f.get("module_name", ""), 0 if is_even else 4),
+            ("s", f.get("title", ""), 0 if is_even else 4),
+            ("i", f.get("description", ""), 14 if is_even else 15),
+            ("i", f.get("source", ""), 14 if is_even else 15),
+            ("s", f.get("risk_level", "").upper(), risk_style),
+            ("n", conf_pct, 10 if is_even else 11),
+            ("s", f.get("timestamp", ""), 10 if is_even else 11),
+        ])
+    return rows
+
+
+def _build_sbom_sheet(result_dict: dict) -> list[list[tuple]]:
+    header = [("h", h, 1) for h in [
+        "Finding ID", "Module", "Package / Library", "Description",
+        "Location / Source", "Risk Level", "Confidence %", "Timestamp"
+    ]]
+    rows = [header]
+    
+    sbom_cats = ("ML Framework", "AI Service")
+    findings = [f for f in result_dict.get("findings", []) if f.get("category") in sbom_cats]
+    
+    for idx, f in enumerate(findings):
+        is_even = idx % 2 == 0
+        rl = f.get("risk_level", "").lower()
+        
+        risk_style = 10 if is_even else 11
+        if rl == "critical":
+            risk_style = 5
+        elif rl == "high":
+            risk_style = 6
+        elif rl == "medium":
+            risk_style = 7
+        elif rl in ("low", "info"):
+            risk_style = 8
+
+        conf_pct = round(float(f.get("confidence", 0)) * 100, 1)
+        rows.append([
+            ("s", f.get("finding_id", ""), 10 if is_even else 11),
+            ("s", f.get("module_name", ""), 0 if is_even else 4),
+            ("s", f.get("title", ""), 0 if is_even else 4),
+            ("i", f.get("description", ""), 14 if is_even else 15),
+            ("i", f.get("source", ""), 14 if is_even else 15),
+            ("s", f.get("risk_level", "").upper(), risk_style),
+            ("n", conf_pct, 10 if is_even else 11),
+            ("s", f.get("timestamp", ""), 10 if is_even else 11),
+        ])
+    return rows
+
+
+def _build_aibom_sheet(result_dict: dict) -> list[list[tuple]]:
+    header = [("h", h, 1) for h in [
+        "Finding ID", "Module", "AI Model / Agent / Runtime", "Description",
+        "Type (Category)", "Location / Endpoint", "Risk Level", "Confidence %", "Timestamp"
+    ]]
+    rows = [header]
+    
+    aibom_cats = ("AI Model", "AI Agent", "LLM Runtime")
+    findings = [f for f in result_dict.get("findings", []) if f.get("category") in aibom_cats]
+    
+    for idx, f in enumerate(findings):
+        is_even = idx % 2 == 0
+        rl = f.get("risk_level", "").lower()
+        
+        risk_style = 10 if is_even else 11
+        if rl == "critical":
+            risk_style = 5
+        elif rl == "high":
+            risk_style = 6
+        elif rl == "medium":
+            risk_style = 7
+        elif rl in ("low", "info"):
+            risk_style = 8
+
+        conf_pct = round(float(f.get("confidence", 0)) * 100, 1)
+        rows.append([
+            ("s", f.get("finding_id", ""), 10 if is_even else 11),
+            ("s", f.get("module_name", ""), 0 if is_even else 4),
+            ("s", f.get("title", ""), 0 if is_even else 4),
+            ("i", f.get("description", ""), 14 if is_even else 15),
+            ("s", f.get("category", ""), 10 if is_even else 11),
+            ("i", f.get("source", ""), 14 if is_even else 15),
+            ("s", f.get("risk_level", "").upper(), risk_style),
+            ("n", conf_pct, 10 if is_even else 11),
+            ("s", f.get("timestamp", ""), 10 if is_even else 11),
+        ])
+    return rows
+
+
 # ── XLSX static parts (styles, relationships, content-types) ─────────────
 
 _STYLES_XML = b"""<?xml version='1.0' encoding='UTF-8'?>
@@ -416,6 +531,33 @@ def _shared_strings_xml() -> bytes:
     return buf.getvalue()
 
 
+def _workbook_rels_xml(num_sheets: int) -> str:
+    rels = []
+    for i in range(1, num_sheets + 1):
+        rels.append(f'  <Relationship Id="rId{i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet{i}.xml"/>')
+    rels.append(f'  <Relationship Id="rId{num_sheets + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>')
+    rels.append(f'  <Relationship Id="rId{num_sheets + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>')
+    return f"""<?xml version='1.0' encoding='UTF-8'?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+{"\n".join(rels)}
+</Relationships>"""
+
+
+def _content_types_xml(num_sheets: int) -> str:
+    overrides = []
+    for i in range(1, num_sheets + 1):
+        overrides.append(f'  <Override PartName="/xl/worksheets/sheet{i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>')
+    return f"""<?xml version='1.0' encoding='UTF-8'?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml"  ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml"               ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+{"\n".join(overrides)}
+  <Override PartName="/xl/sharedStrings.xml"           ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+  <Override PartName="/xl/styles.xml"                  ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>"""
+
+
 # ── Public API ────────────────────────────────────────────────────────────
 
 def export_excel(scan_result: ScanResult, output_path: str) -> None:
@@ -439,11 +581,14 @@ def export_excel(scan_result: ScanResult, output_path: str) -> None:
     result_dict = scan_result.to_dict()
 
     sheet_defs = [
-        ("Summary",        _build_summary_sheet(result_dict), [30, 30, 15, 15]),
-        ("Findings",       _build_findings_sheet(result_dict), [15, 18, 28, 45, 18, 15, 40, 15, 25]),
-        ("Risk Breakdown", _build_risk_breakdown_sheet(result_dict), [22, 12, 15, 15]),
-        ("By Category",    _build_by_category_sheet(result_dict), [25, 15]),
-        ("By Risk Level",  _build_by_risk_sheet(result_dict), [18, 15]),
+        ("Configuration BOM (CBOM)", _build_cbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
+        ("Software BOM (SBOM)",      _build_sbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
+        ("AI BOM (AIBOM)",          _build_aibom_sheet(result_dict), [15, 18, 28, 45, 18, 40, 15, 15, 25]),
+        ("Summary",                 _build_summary_sheet(result_dict), [30, 30, 15, 15]),
+        ("All Findings",            _build_findings_sheet(result_dict), [15, 18, 28, 45, 18, 15, 40, 15, 25]),
+        ("Risk Breakdown",          _build_risk_breakdown_sheet(result_dict), [22, 12, 15, 15]),
+        ("By Category",             _build_by_category_sheet(result_dict), [25, 15]),
+        ("By Risk Level",           _build_by_risk_sheet(result_dict), [18, 15]),
     ]
 
     # Build all sheet XMLs first (populates shared-string table)
@@ -452,11 +597,11 @@ def export_excel(scan_result: ScanResult, output_path: str) -> None:
 
     try:
         with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr("[Content_Types].xml",  _CONTENT_TYPES_XML)
+            zf.writestr("[Content_Types].xml",  _content_types_xml(len(sheet_defs)))
             zf.writestr("_rels/.rels",          _RELS_XML)
             zf.writestr("xl/workbook.xml",      _workbook_xml(sheet_names))
             zf.writestr("xl/styles.xml",        _STYLES_XML)
-            zf.writestr("xl/_rels/workbook.xml.rels", _WORKBOOK_RELS_XML)
+            zf.writestr("xl/_rels/workbook.xml.rels", _workbook_rels_xml(len(sheet_defs)))
 
             for i, xml_bytes in enumerate(sheet_xmls, start=1):
                 zf.writestr(f"xl/worksheets/sheet{i}.xml", xml_bytes)

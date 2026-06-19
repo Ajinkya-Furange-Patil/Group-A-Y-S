@@ -88,15 +88,18 @@ class TestExportExcel(unittest.TestCase):
             "xl/worksheets/sheet3.xml",
             "xl/worksheets/sheet4.xml",
             "xl/worksheets/sheet5.xml",
+            "xl/worksheets/sheet6.xml",
+            "xl/worksheets/sheet7.xml",
+            "xl/worksheets/sheet8.xml",
         }
         for member in required:
             self.assertIn(member, names, f"Missing: {member}")
 
-    def test_five_sheets(self):
+    def test_eight_sheets(self):
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
             sheets = [n for n in zf.namelist() if n.startswith("xl/worksheets/sheet")]
-        self.assertEqual(len(sheets), 5)
+        self.assertEqual(len(sheets), 8)
 
     # ── Content checks ────────────────────────────────────────────────────
 
@@ -104,7 +107,17 @@ class TestExportExcel(unittest.TestCase):
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
             wb = zf.read("xl/workbook.xml").decode("utf-8")
-        for name in ["Summary", "Findings", "Risk Breakdown", "By Category", "By Risk Level"]:
+        expected_names = [
+            "Configuration BOM (CBOM)",
+            "Software BOM (SBOM)",
+            "AI BOM (AIBOM)",
+            "Summary",
+            "All Findings",
+            "Risk Breakdown",
+            "By Category",
+            "By Risk Level",
+        ]
+        for name in expected_names:
             self.assertIn(name, wb, f"Sheet name missing from workbook.xml: {name}")
 
     def test_shared_strings_contains_scan_id(self):
@@ -121,24 +134,24 @@ class TestExportExcel(unittest.TestCase):
         self.assertIn("test-host", sst)
 
     def test_findings_sheet_has_all_rows(self):
-        """Sheet2 (Findings) should have header + n_findings rows."""
+        """Sheet5 (All Findings) should have header + n_findings rows."""
         n = 6
         export_excel(_make_result(n_findings=n), self.path)
         with zipfile.ZipFile(self.path) as zf:
-            sheet2 = zf.read("xl/worksheets/sheet2.xml").decode("utf-8")
+            sheet5 = zf.read("xl/worksheets/sheet5.xml").decode("utf-8")
         # Count <row> elements — header + n data rows = n+1
-        row_count = sheet2.count('<row r=')
+        row_count = sheet5.count('<row r=')
         self.assertEqual(row_count, n + 1)
 
     def test_xml_escaping_in_description(self):
         """Special XML chars in description must be escaped, not break XML."""
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
-            sheet2 = zf.read("xl/worksheets/sheet2.xml").decode("utf-8")
+            sheet5 = zf.read("xl/worksheets/sheet5.xml").decode("utf-8")
         # If escaping works the file is valid XML — just verify no raw < inside cell values
         # (our inline strings should use &lt;)
         import xml.etree.ElementTree as ET
-        ET.fromstring(sheet2)   # raises if malformed
+        ET.fromstring(sheet5)   # raises if malformed
 
     def test_zero_findings(self):
         """Should produce a valid file even with no findings."""
