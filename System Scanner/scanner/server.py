@@ -124,13 +124,22 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         elif path == "/run-scan":
             query = urllib.parse.parse_qs(parsed_url.query)
             quick = query.get("quick", ["false"])[0].lower() == "true"
+            folder = query.get("folder", [None])[0]
+            depth_str = query.get("depth", [None])[0]
+
+            depth = None
+            if depth_str and depth_str.strip():
+                try:
+                    depth = int(depth_str)
+                except ValueError:
+                    pass
 
             try:
                 from scanner.controller import ScanController
                 from scanner.reporter import generate_json_report, generate_html_report
 
                 # Perform scan directly inside the handler thread
-                controller = ScanController(quick=quick)
+                controller = ScanController(quick=quick, scan_folder=folder, max_depth=depth)
                 result = controller.run_scan()
 
                 # Generate reports on filesystem

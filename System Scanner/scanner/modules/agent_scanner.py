@@ -208,7 +208,7 @@ def get_drive_targets() -> list[pathlib.Path]:
     return list(set(targets))
 
 
-def run() -> tuple[list[Finding], ModuleInfo]:
+def run(scan_folder: str | None = None, max_depth: int | None = None) -> tuple[list[Finding], ModuleInfo]:
     """Execute the Agent Scanner module.
 
     Searches CWD and home directory up to specified depths for Python files
@@ -236,41 +236,49 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                 repo_root = parent
                 break
 
-        # Targets with their search depth
-        # Scan local workspace (repo root) up to depth 6
-        # Scan user home directory up to depth 3
-        targets = [
-            (repo_root, 6),
-            (home, 3),
-        ]
+        # Define targets with search depth
+        if scan_folder:
+            target_path = pathlib.Path(scan_folder).resolve()
+            depth = max_depth if max_depth is not None else 6
+            targets = [(target_path, depth)]
+        else:
+            # Targets with their search depth
+            # Scan local workspace (repo root) up to depth 6
+            # Scan user home directory up to depth 3
+            repo_depth = max_depth if max_depth is not None else 6
+            home_depth = max_depth if max_depth is not None else 3
+            targets = [
+                (repo_root, repo_depth),
+                (home, home_depth),
+            ]
 
-        # Dynamically discover other drive directories
-        for drive_target in get_drive_targets():
-            try:
-                # Avoid duplicating home or repo_root
-                drive_target_res = drive_target.resolve()
-                home_res = home.resolve()
-                repo_res = repo_root.resolve()
-                if drive_target_res == home_res or drive_target_res == repo_res:
-                    continue
-                if drive_target_res == home_res.parent:
-                    continue
-                targets.append((drive_target, 6))
-            except Exception:
-                targets.append((drive_target, 6))
+            # Dynamically discover other drive directories
+            for drive_target in get_drive_targets():
+                try:
+                    # Avoid duplicating home or repo_root
+                    drive_target_res = drive_target.resolve()
+                    home_res = home.resolve()
+                    repo_res = repo_root.resolve()
+                    if drive_target_res == home_res or drive_target_res == repo_res:
+                        continue
+                    if drive_target_res == home_res.parent:
+                        continue
+                    targets.append((drive_target, repo_depth))
+                except Exception:
+                    targets.append((drive_target, repo_depth))
 
-        for target_dir, max_depth in targets:
+        for target_dir, max_depth_val in targets:
             if not target_dir.exists() or not target_dir.is_dir():
                 continue
 
             logger.debug(
                 "AgentScanner: Scanning directory %s (depth limit: %d)",
                 target_dir,
-                max_depth,
+                max_depth_val,
             )
 
             try:
-                for folder, files in _depth_limited_walk(target_dir, max_depth):
+                for folder, files in _depth_limited_walk(target_dir, max_depth_val):
                     for file in files:
                         if file.endswith(".py"):
                             file_path = folder / file
@@ -305,8 +313,12 @@ class AgentScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
+    def __init__(self, scan_folder: str | None = None, max_depth: int | None = None) -> None:
+        self.scan_folder = scan_folder
+        self.max_depth = max_depth
+
     def scan(self) -> list[Finding]:
-        findings, _ = run()
+        findings, _ = run(scan_folder=self.scan_folder, max_depth=self.max_depth)
         return findings
 
 

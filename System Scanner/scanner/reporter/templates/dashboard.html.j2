@@ -497,6 +497,11 @@
       justify-content: space-between;
       overflow: hidden;
     }
+    a.metric-card {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
     .metric-card::before {
       content: '';
       position: absolute;
@@ -1889,65 +1894,65 @@
 
         <div class="metrics-grid">
           <!-- Total findings -->
-          <div class="metric-card alert-metric">
+          <a href="#findings-list" class="metric-card alert-metric">
             <div class="metric-header">
               <span class="metric-title">Discovered Artifacts</span>
               <span class="metric-icon">🛡️</span>
             </div>
             <div class="metric-value">{{ result.summary.total_findings }}</div>
             <div class="metric-footer">// Total detections</div>
-          </div>
+          </a>
 
           <!-- Models detected -->
-          <div class="metric-card">
+          <a href="#FileScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">AI Models</span>
               <span class="metric-icon">🧠</span>
             </div>
             <div class="metric-value">{{ model_count.value }}</div>
             <div class="metric-footer">// GGUF, weights detected</div>
-          </div>
+          </a>
 
           <!-- Frameworks -->
-          <div class="metric-card">
+          <a href="#PackageScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">AI Frameworks</span>
               <span class="metric-icon">📦</span>
             </div>
             <div class="metric-value">{{ package_count.value }}</div>
             <div class="metric-footer">// Torch, CrewAI libraries</div>
-          </div>
+          </a>
 
           <!-- Runtimes / Services -->
-          <div class="metric-card">
+          <a href="#RuntimeScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">Active Runtimes</span>
               <span class="metric-icon">⚡</span>
             </div>
             <div class="metric-value">{{ runtime_count.value }}</div>
             <div class="metric-footer">// Port bindings, nodes</div>
-          </div>
+          </a>
 
           <!-- Agents -->
-          <div class="metric-card">
+          <a href="#AgentScanner" class="metric-card">
             <div class="metric-header">
               <span class="metric-title">Agent Frameworks</span>
               <span class="metric-icon">🤖</span>
             </div>
             <div class="metric-value">{{ agent_count.value }}</div>
             <div class="metric-footer">// Langchain, CrewAI scripts</div>
-          </div>
+          </a>
 
           <!-- API Keys -->
           {% set api_alert = 'alert-metric' if api_count.value > 0 else '' %}
-          <div class="metric-card {{ api_alert }}">
+          <a href="#APIScanner" class="metric-card {{ api_alert }}">
             <div class="metric-header">
               <span class="metric-title">API Keys</span>
               <span class="metric-icon">🔑</span>
             </div>
             <div class="metric-value">{{ api_count.value }}</div>
             <div class="metric-footer">// Exposed credentials</div>
-          </div>
+          </a>
 
           <!-- Classification status -->
           {% if risk_score >= 51 %}
