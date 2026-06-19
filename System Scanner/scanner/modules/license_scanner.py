@@ -70,13 +70,13 @@ LICENSE_TAXONOMY = {
     }
 }
 
-# Known Python imports associated with copyleft packages
-KNOWN_RESTRICTIVE_IMPORTS = {
-    "pyqt5": ("GPL", RiskLevel.HIGH),
-    "pyqt6": ("GPL", RiskLevel.HIGH),
-    "mysql.connector": ("GPL", RiskLevel.HIGH),
-    "pygobject": ("LGPL", RiskLevel.MEDIUM),
-    "readline": ("GPL", RiskLevel.HIGH),
+# Restrictive imports dictionary mapping libraries to their license types
+RESTRICTED_IMPORTS = {
+    "PyQt5": {"license": "GPL", "risk": RiskLevel.HIGH},
+    "PyQt6": {"license": "GPL", "risk": RiskLevel.HIGH},
+    "mysql.connector": {"license": "GPL", "risk": RiskLevel.HIGH},
+    "pygobject": {"license": "LGPL", "risk": RiskLevel.MEDIUM},
+    "readline": {"license": "GPL", "risk": RiskLevel.HIGH},
 }
 
 
@@ -138,16 +138,24 @@ def scan_py_file_ast(file_path: pathlib.Path) -> list[Finding]:
         visitor.visit(tree)
 
         for imp_name, lineno in visitor.imports:
+            # Normalize for case-insensitive matching
             imp_name_lower = imp_name.lower()
             imp_base = imp_name_lower.split(".")[0]
+            
+            # Check if import matches restricted libraries (case-insensitive)
             matched_key = None
-            if imp_name_lower in KNOWN_RESTRICTIVE_IMPORTS:
-                matched_key = imp_name_lower
-            elif imp_base in KNOWN_RESTRICTIVE_IMPORTS:
-                matched_key = imp_base
+            for restricted_name in RESTRICTED_IMPORTS.keys():
+                if imp_name_lower == restricted_name.lower():
+                    matched_key = restricted_name
+                    break
+                elif imp_base == restricted_name.lower():
+                    matched_key = restricted_name
+                    break
 
             if matched_key:
-                lic_type, risk = KNOWN_RESTRICTIVE_IMPORTS[matched_key]
+                restriction_data = RESTRICTED_IMPORTS[matched_key]
+                lic_type = restriction_data["license"]
+                risk = restriction_data["risk"]
                 findings.append(Finding(
                     module_name=MODULE_NAME,
                     title=f"Restrictive Import: {imp_name} ({lic_type})",

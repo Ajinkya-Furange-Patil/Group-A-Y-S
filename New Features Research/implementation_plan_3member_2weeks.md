@@ -1,4 +1,4 @@
-# 2-Week Team Sprint: Enterprise AI Agent Discovery & Governance Module
+, # 2-Week Team Sprint: Enterprise AI Agent Discovery & Governance Module
 
 This document details an optimized, production-grade **2-week (10 working days) implementation plan** for a **3-member development team** to build, test, and deploy the **Enterprise AI Agent Discovery and Governance Module**. 
 
