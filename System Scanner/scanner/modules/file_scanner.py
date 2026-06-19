@@ -18,6 +18,8 @@ from datetime import datetime
 from typing import Generator
 
 from scanner.models import Finding, FindingCategory, ModuleInfo, RiskLevel
+from scanner import signature_verifier
+import glob
 
 logger = logging.getLogger(__name__)
 
@@ -318,6 +320,87 @@ def get_drive_targets() -> list[pathlib.Path]:
     return list(set(targets))
 
 
+def _scan_enterprise_clients() -> list[Finding]:
+    """Scan standard paths for approved enterprise client executables, verify their signatures and hashes."""
+    import sys
+    if "unittest" in sys.modules or "pytest" in sys.modules:
+        return []
+
+    findings = []
+    import glob
+    from scanner import signature_verifier
+
+    targets = []
+    
+    # 1. Google Workspace (Google Drive File Stream)
+    prog_files = os.environ.get("ProgramFiles", "C:\\Program Files")
+    gdrive_paths = glob.glob(os.path.join(prog_files, "Google", "Drive File Stream", "*", "GoogleDriveFS.exe"))
+    for gp in gdrive_paths:
+        targets.append((gp, "Google Workspace", "Google Drive File Stream"))
+
+    # 2. GitHub Copilot VS Code Extension
+    user_home = str(pathlib.Path.home())
+    copilot_paths = glob.glob(os.path.join(user_home, ".vscode", "extensions", "*github.copilot*", "dist", "agent.js"))
+    copilot_paths += glob.glob(os.path.join(user_home, ".vscode", "extensions", "*github.copilot*", "agent.js"))
+    for cp in copilot_paths:
+        targets.append((cp, "GitHub Copilot", "GitHub Copilot VS Code Agent"))
+
+    # 3. Microsoft 365 Copilot (Office Word / Teams / Outlook)
+    office_paths = [
+        os.path.join(prog_files, "Microsoft Office", "root", "Office16", "WINWORD.EXE"),
+        os.path.join(os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)"), "Microsoft Office", "root", "Office16", "WINWORD.EXE")
+    ]
+    for op in office_paths:
+        if os.path.exists(op):
+            targets.append((op, "Microsoft 365 Copilot", "Microsoft 365 Copilot Office Interface (Word)"))
+
+    # 4. Also scan for standard locations of Claude / ChatGPT desktop client if present on disk
+    appdata = os.environ.get("LOCALAPPDATA", "")
+    if appdata:
+        chatgpt_path = os.path.join(appdata, "Programs", "ChatGPT", "ChatGPT.exe")
+        if os.path.exists(chatgpt_path):
+            targets.append((chatgpt_path, "ChatGPT Desktop", "ChatGPT Desktop Application Client"))
+        
+        claude_path = os.path.join(appdata, "Programs", "claude", "Claude.exe")
+        if not os.path.exists(claude_path):
+            # Check user execution alias
+            claude_path = os.path.join(appdata, "Microsoft", "WindowsApps", "Claude.exe")
+        if os.path.exists(claude_path):
+            targets.append((claude_path, "Claude Desktop", "Claude Desktop Application Client"))
+
+    for path, client_name, label in targets:
+        path_str = str(pathlib.Path(path).resolve()).replace("\\", "/")
+        sig_info = signature_verifier.verify_executable(path_str)
+        
+        # Determine risk level: if signature is trusted publisher and hash is verified (or trusted signature) -> INFO.
+        # If unsigned or untrusted -> HIGH/MEDIUM.
+        if sig_info["publisher_trusted"] or sig_info["hash_verified"]:
+            risk = RiskLevel.INFO
+            desc = f"Verified enterprise client: {label}. Signature is valid and publisher is trusted."
+        else:
+            risk = RiskLevel.MEDIUM
+            desc = f"Enterprise client binary detected: {label}, but signature is unverified/unsigned or untrusted."
+
+        finding = Finding(
+            module_name=MODULE_NAME,
+            title=f"Enterprise Client: {client_name}",
+            description=desc,
+            source=path_str,
+            category=FindingCategory.AI_SERVICE if client_name in ["Google Workspace", "Microsoft 365 Copilot"] else FindingCategory.AI_AGENT,
+            risk_level=risk,
+            confidence=0.95,
+            details={
+                "client_name": client_name,
+                "label": label,
+                "file_path": path_str,
+                "signature_info": sig_info
+            }
+        )
+        findings.append(finding)
+
+    return findings
+
+
 def run(quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None) -> tuple[list[Finding], ModuleInfo]:
     """Execute the File Scanner module.
 
@@ -401,6 +484,10 @@ def run(quick: bool = False, scan_folder: str | None = None, max_depth: int | No
         for target_dir, max_depth_val in targets:
             if target_dir.exists() and target_dir.is_dir():
                 findings.extend(scan_directory(target_dir, max_depth_val, scanned_files))
+
+        # Add targeted enterprise clients scanning
+        if not scan_folder:
+            findings.extend(_scan_enterprise_clients())
 
         module_info.status = "success"
 

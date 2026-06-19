@@ -333,18 +333,6 @@ def main() -> None:
         setup_logging(verbose=args.verbose)
         logger = logging.getLogger("ai_scanner")
 
-<<<<<<< HEAD
-        if args.server:
-            from scanner.server import ScanServer
-            server = ScanServer(host=args.host, port=args.port)
-            if interactive:
-                import webbrowser
-                webbrowser.open(f"http://localhost:{args.port}/")
-            server.start()
-            if not interactive:
-                sys.exit(0)
-            continue
-
         # --history mode: show retention DB trend and exit
         if not interactive and hasattr(args, "history") and args.history:
             from scanner.reporter.log_retention import LogRetentionDB
@@ -364,9 +352,6 @@ def main() -> None:
             print(f"  Total findings:{trend['total_findings']}")
             db.close()
             sys.exit(0)
-
-=======
->>>>>>> 1174b05dbff5b05ba01590332f78a8ff7b71a104
         print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
         print(f"{DIM}============================================================{RESET}")
         logger.info("Scan initiated...")
