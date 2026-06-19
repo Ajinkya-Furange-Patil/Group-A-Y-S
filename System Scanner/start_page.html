@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Discovery Scanner</title>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700;800&display=swap');
+
+    /* ═══════════════ GLOBAL DESIGN TOKENS ═══════════════ */
+    :root {
+      /* File 1: Authorization Tokens */
+      --bg: #ffffff;
+      --bg-subtle: #fafafa;
+      --bg-panel: #ffffff;
+      --bg-hover: rgba(211, 13, 48, 0.03);
+      --bg-module: #f8f9fa;
+      --text-primary: #0f1419;
+      --text-secondary: #536471;
+      --text-muted: #8899a6;
+      --text-inverse: #ffffff;
+      --red: #d30d30;
+      --red-light: rgba(211, 13, 48, 0.08);
+      --red-lighter: rgba(211, 13, 48, 0.04);
+      --red-glow: rgba(211, 13, 48, 0.12);
+      --red-border: rgba(211, 13, 48, 0.18);
+      --border: #e1e8ed;
+      --border-strong: #cfd9de;
+      --border-red: rgba(211, 13, 48, 0.25);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+      
+      --font-sans-auth: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono-auth: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+      /* File 2: Dashboard Tokens */
+      --hud-bg: #ffffff;
+      --text-main: #1e293b;
+      --hud-bg-trans: rgba(255, 255, 255, 0.9);
+      --hud-panel-bg: #ffffff;
+      --hud-panel-bg-hover: rgba(255, 245, 246, 0.8);
+      --hud-red: #d30d30;
+      --hud-red-glow: rgba(211, 13, 48, 0.08);
+      --hud-red-dim: rgba(211, 13, 48, 0.03);
+      --hud-border-dim: rgba(211, 13, 48, 0.22);
+      --color-critical: #d30d30;
+      --color-high: #e65c00;
+      --color-medium: #a87900;
+      --color-low: #008f7a;
+      --color-info: #0076a3;
+      --color-secure: #008a34;
+
+      --font-mono-hud: 'Share Tech Mono', 'Courier New', monospace;
+      --font-sans-hud: 'Rajdhani', 'Inter', system-ui, sans-serif;
+    }
+
+    /* ═══════════════ DARK THEME OVERRIDE ═══════════════ */
+    body.dark-theme {
+      /* File 1 Dark Tokens */
+      --bg: #0a0a0b;
+      --bg-subtle: #111113;
+      --bg-panel: #151517;
+      --bg-hover: rgba(211, 13, 48, 0.06);
+      --bg-module: #1a1a1d;
+      --text-primary: #f0f0f0;
+      --text-secondary: #8a8f98;
+      --text-muted: #5a5f68;
+      --text-inverse: #0a0a0b;
+      --red-light: rgba(211, 13, 48, 0.12);
+      --red-lighter: rgba(211, 13, 48, 0.06);
+      --red-glow: rgba(211, 13, 48, 0.2);
+      --red-border: rgba(211, 13, 48, 0.35);
+      --border: #2a2a2d;
+      --border-strong: #3a3a3d;
+      --border-red: rgba(211, 13, 48, 0.4);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+
+      /* File 2 Dark Tokens */
+      --hud-bg: #0b0d10;
+      --text-main: #f8fafc;
+      --hud-bg-trans: rgba(11, 13, 16, 0.9);
+      --hud-panel-bg: #12161b;
+      --hud-panel-bg-hover: rgba(211, 13, 48, 0.08);
+      --hud-red-glow: rgba(211, 13, 48, 0.15);
+      --hud-red-dim: rgba(211, 13, 48, 0.05);
+      --hud-border-dim: rgba(211, 13, 48, 0.35);
+    }
+
+    /* ═══════════════ GLOBAL RESET ═══════════════ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.35s ease, color 0.35s ease;
+      background-color: var(--bg);
+    }
+
+    /* ═══════════════ VIEW WRAPPERS ═══════════════ */
+    #auth-view {
+      font-family: var(--font-sans-auth);
+      background-color: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      line-height: 1.5;
+      position: relative;
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    #dashboard-view {
+      font-family: var(--font-sans-hud);
+      background-color: var(--hud-bg);
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      line-height: 1.4;
+      overflow-x: hidden;
+      position: relative;
+      display: none; /* Hidden until scan completes */
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    #dashboard-view::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: none;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ═══════════════ COMPONENTS: AUTHORIZATION ═══════════════ */
+    .reg-marks {
+      position: absolute; /* Changed from fixed to absolute to stay within view */
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .reg-mark {
+      position: absolute;
+      font-family: var(--font-mono-auth);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .reg-mark::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid var(--border-strong);
+    }
+
+    .reg-n1 { top: 18px; left: 18px; }
+    .reg-n1::after { top: 14px; left: 0; border-right: none; border-bottom: none; }
+    .reg-n2 { top: 18px; left: 25%; }
+    .reg-n2::after { top: 14px; left: 50%; transform: translateX(-50%); border-right: none; border-bottom: none; border-left: none; border-top-width: 1.5px; }
+    .reg-n3 { top: 18px; left: 50%; transform: translateX(-50%); }
+    .reg-n3::after { top: 14px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; border: 1.5px solid var(--red); }
+    .reg-n4 { top: 18px; right: 25%; }
+    .reg-n4::after { top: 14px; right: 0; border-left: none; border-bottom: none; border-right: none; border-top-width: 1.5px; }
+    .reg-n5 { top: 18px; right: 18px; }
+    .reg-n5::after { top: 14px; right: 0; border-left: none; border-bottom: none; }
+    .reg-b1 { bottom: 18px; left: 18px; }
+    .reg-b1::after { bottom: 14px; left: 0; border-right: none; border-top: none; }
+    .reg-b5 { bottom: 18px; right: 18px; }
+    .reg-b5::after { bottom: 14px; right: 0; border-left: none; border-top: none; }
+
+    .reg-bar { position: absolute; background: var(--red); }
+    .reg-bar-top { top: 38px; right: 18px; width: 40px; height: 3px; }
+    .reg-bar-left { top: 50%; left: 18px; width: 3px; height: 30px; transform: translateY(-50%); }
+
+    .portal-container { width: 100%; max-width: 640px; position: relative; z-index: 1; }
+    
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .top-bar-left { font-family: var(--font-mono-auth); font-size: 8px; font-weight: 600; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase; }
+
+    .theme-toggle-btn {
+      font-family: var(--font-mono-auth);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--red);
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: all 0.25s ease;
+    }
+    .theme-toggle-btn:hover { border-color: var(--red); background: var(--red-lighter); }
+
+    .main-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      transition: all 0.35s ease;
+    }
+    .main-panel::before {
+      content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
+      border: 1px dashed var(--red-border); pointer-events: none; transition: border-color 0.35s ease;
+    }
+
+    .corner { position: absolute; width: 14px; height: 14px; border-color: var(--red); border-style: solid; pointer-events: none; z-index: 2; }
+    .c-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .c-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+    .c-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+    .c-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    .panel-content { padding: 40px; }
+    @media (max-width: 480px) { .panel-content { padding: 24px; } }
+
+    .mandate-hero { text-align: center; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--border); position: relative; }
+    .mandate-label { font-family: var(--font-mono-auth); font-size: 10px; font-weight: 600; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .mandate-title { font-size: 2.8rem; font-weight: 900; line-height: 1.0; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 4px; }
+    .mandate-title .accent { color: var(--red); }
+    .mandate-subtitle { font-family: var(--font-mono-auth); font-size: 11px; font-weight: 500; letter-spacing: 0.15em; color: var(--text-secondary); text-transform: uppercase; margin-top: 12px; }
+    .mandate-bar { width: 60px; height: 3px; background: var(--red); margin: 16px auto 0; }
+    @media (max-width: 480px) { .mandate-title { font-size: 2rem; } }
+
+    .system-stats { background: var(--bg-subtle); border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 28px; transition: all 0.35s ease; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+    .stat-row + .stat-row { border-top: 1px solid var(--border); }
+    .stat-label { font-family: var(--font-mono-auth); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; }
+    .stat-value { font-family: var(--font-mono-auth); font-size: 12px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em; }
+
+    .modules-section { margin-bottom: 28px; }
+    .section-label { font-family: var(--font-mono-auth); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; color: var(--red); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--red-border); }
+    .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .module-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-module); border: 1px solid var(--border); border-left: 3px solid var(--red); font-size: 13px; font-weight: 500; color: var(--text-primary); transition: all 0.2s ease; }
+    .module-item:hover { background: var(--bg-hover); border-color: var(--border-red); }
+    .module-icon { font-size: 16px; flex-shrink: 0; width: 22px; text-align: center; }
+    @media (max-width: 480px) { .modules-grid { grid-template-columns: 1fr; } }
+
+    .controls-section { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+    .checkbox-control { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; user-select: none; padding: 12px 16px; border: 1px solid var(--border); background: var(--bg-subtle); transition: all 0.2s ease; }
+    .checkbox-control:hover { border-color: var(--border-red); background: var(--bg-hover); }
+    .checkbox-control input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 2px solid var(--border-strong); background: var(--bg); cursor: pointer; flex-shrink: 0; margin-top: 2px; position: relative; transition: all 0.2s ease; }
+    .checkbox-control input[type="checkbox"]:checked { background: var(--red); border-color: var(--red); }
+    .checkbox-control input[type="checkbox"]:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 11px; font-weight: 700; }
+    .checkbox-text strong { display: block; font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .checkbox-help { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+
+    .btn-scan { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; font-family: var(--font-sans-auth); font-size: 14px; font-weight: 800; color: var(--text-inverse); background: var(--red); border: 2px solid var(--red); padding: 16px 24px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.3s ease; box-shadow: 0 4px 20px var(--red-glow); position: relative; overflow: hidden; }
+    .btn-scan::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transition: left 0.5s ease; }
+    .btn-scan:hover:not(:disabled)::before { left: 100%; }
+    .btn-scan:hover:not(:disabled) { background: #b80a28; border-color: #b80a28; box-shadow: 0 6px 28px rgba(211, 13, 48, 0.3); transform: translateY(-1px); }
+    .btn-scan:active:not(:disabled) { transform: translateY(0); }
+    .btn-scan:disabled { background: var(--border-strong); border-color: var(--border-strong); color: var(--text-muted); opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .btn-scan:disabled::before { display: none; }
+    .btn-icon { font-size: 16px; }
+
+    /* Loading UI */
+    .loading-state { display: none; text-align: center; padding: 30px 0; }
+    .spinner { display: inline-block; width: 52px; height: 52px; border: 3px solid var(--border); border-radius: 50%; border-top-color: var(--red); animation: spin 0.9s ease-in-out infinite; margin-bottom: 24px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-family: var(--font-mono-auth); font-size: 13px; font-weight: 600; color: var(--red); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .loading-sub { font-size: 12px; color: var(--text-secondary); max-width: 360px; margin: 0 auto; }
+    .progress-track { width: 100%; height: 3px; background: var(--border); margin: 24px 0; position: relative; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--red); width: 0%; transition: width 0.5s ease; box-shadow: 0 0 8px var(--red-glow); }
+
+    .panel-footer { padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .footer-brand { font-family: var(--font-mono-auth); font-size: 9px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; }
+    .footer-brand a { color: var(--red); text-decoration: none; }
+    .footer-brand a:hover { text-decoration: underline; }
+    .footer-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono-auth); font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--border); background: var(--bg); }
+    .footer-badge .dot { width: 5px; height: 5px; background: var(--red); border-radius: 50%; }
+
+    .bottom-note { margin-top: 12px; text-align: center; font-family: var(--font-mono-auth); font-size: 8px; color: var(--text-muted); letter-spacing: 0.06em; line-height: 1.6; text-transform: uppercase; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.5s ease forwards; }
+    .animate-in:nth-child(1) { animation-delay: 0s; }
+    .animate-in:nth-child(2) { animation-delay: 0.08s; }
+    .animate-in:nth-child(3) { animation-delay: 0.16s; }
+    .animate-in:nth-child(4) { animation-delay: 0.24s; }
+    .animate-in:nth-child(5) { animation-delay: 0.32s; }
+
+    /* ═══════════════ COMPONENTS: DASHBOARD ═══════════════ */
+    .scanline { display: none; }
+    @keyframes scanlineAnim {
+      0% { transform: translateY(-10vh); opacity: 0.3; }
+      50% { opacity: 0.6; }
+      100% { transform: translateY(110vh); opacity: 0.1; }
+    }
+
+    .container { max-width: 96%; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; position: relative; z-index: 10; }
+
+    .hud-panel { position: relative; background: var(--hud-panel-bg); border: 1px solid var(--hud-border-dim); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 0 5px rgba(0, 0, 0, 0.01); padding: 20px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .hud-panel::before { content: ''; position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px; border: 1px dashed rgba(255, 0, 60, 0.08); pointer-events: none; }
+    .hud-corner { position: absolute; width: 10px; height: 10px; border-color: var(--hud-red); border-style: solid; pointer-events: none; opacity: 0.85; filter: drop-shadow(0 0 3px var(--hud-red)); }
+
+    .hud-header-tab { position: absolute; top: -1px; left: 30px; background: var(--hud-red); color: #ffffff; font-family: var(--font-mono-hud); font-size: 0.72rem; font-weight: 800; padding: 2px 12px; text-transform: uppercase; letter-spacing: 0.12em; clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%); box-shadow: 0 0 8px var(--hud-red-glow); }
+
+    .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; padding: 24px; border-bottom: 2px solid var(--hud-red); background: linear-gradient(180deg, rgba(211, 13, 48, 0.02) 0%, transparent 100%); }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-logo { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--hud-red); background: rgba(211, 13, 48, 0.03); box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
+    .header-logo img { max-width: 90%; max-height: 90%; object-fit: contain; filter: drop-shadow(0 0 4px var(--hud-red)); }
+    .header-title h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: 0.05em; font-family: var(--font-sans-hud); color: var(--text-main); text-transform: uppercase; text-shadow: 0 0 8px rgba(255, 0, 60, 0.5); }
+    .header-title p { font-size: 0.8rem; color: var(--hud-red); font-family: var(--font-mono-hud); letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.9; }
+    .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-family: var(--font-mono-hud); font-size: 0.8rem; }
+    
+    .scan-status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid var(--hud-red); background: rgba(255, 0, 60, 0.1); color: var(--text-main); font-weight: bold; box-shadow: 0 0 8px rgba(255, 0, 60, 0.2); }
+    .pulse-dot { width: 8px; height: 8px; background-color: var(--color-critical); border-radius: 50%; box-shadow: 0 0 8px var(--hud-red); animation: pulseAnim 1.2s infinite; }
+    @keyframes pulseAnim { 0% { opacity: 0.3; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.3; transform: scale(0.9); } }
+
+    .summary-section { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+    @media (max-width: 992px) { .summary-section { grid-template-columns: 1fr; } }
+
+    .risk-meter-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+    .hud-dial-wrapper { position: relative; width: 180px; height: 180px; margin-bottom: 16px; }
+    .radial-gauge { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .gauge-track { fill: none; stroke: rgba(0, 0, 0, 0.05); stroke-width: 8; }
+    .gauge-progress { fill: none; stroke-width: 8; stroke-linecap: square; transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .gauge-bg-inner { fill: rgba(0, 0, 0, 0.01); }
+    .gauge-dashed-ring { fill: none; stroke: rgba(211, 13, 48, 0.15); stroke-width: 1; stroke-dasharray: 4 6; transform-origin: 80px 80px; animation: rotateGaugeRing 25s linear infinite; }
+    .gauge-dashed-outer { fill: none; stroke: #ffd200; stroke-width: 1.5; stroke-dasharray: 6 12; opacity: 0.45; transform-origin: 80px 80px; animation: rotateGaugeRingCCW 45s linear infinite; filter: drop-shadow(0 0 2px #ffd200); }
+    @keyframes rotateGaugeRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotateGaugeRingCCW { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+    
+    .hud-dial-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .hud-dial-number { font-size: 2.5rem; font-weight: 800; font-family: var(--font-mono-hud); color: var(--text-main); line-height: 1; }
+    .hud-dial-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-top: 4px; }
+    .risk-title-badge { font-family: var(--font-mono-hud); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a87900; margin-top: 8px; }
+    .risk-score-subtitle { font-size: 0.72rem; color: var(--text-secondary); font-family: var(--font-mono-hud); margin-top: 2px; text-transform: uppercase; }
+
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+    .metric-card { background: var(--hud-panel-bg); box-shadow: 0 4px 8px rgba(0,0,0,0.02); border: 1px solid var(--hud-border-dim); padding: 16px; position: relative; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+    .metric-card::before { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px; border: 1px dashed rgba(255, 0, 60, 0.05); pointer-events: none; }
+    .metric-card:hover { transform: translateY(-2px); background: var(--hud-panel-bg-hover); border-color: var(--hud-red); box-shadow: 0 0 15px rgba(211, 13, 48, 0.04); }
+    .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .metric-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); font-weight: 700; }
+    .metric-icon { font-size: 1.25rem; filter: drop-shadow(0 0 3px rgba(255, 0, 60, 0.3)); }
+    .metric-value { font-size: 2.2rem; font-weight: 800; font-family: var(--font-mono-hud); color: var(--text-main); line-height: 1; text-shadow: 0 0 6px rgba(255, 255, 255, 0.15); }
+    .metric-card.alert-metric .metric-value { color: var(--hud-red); }
+    .metric-card.alert-metric-green .metric-value { color: var(--color-secure); }
+    .metric-footer { font-size: 0.7rem; color: var(--text-secondary); margin-top: 8px; font-family: var(--font-mono-hud); text-transform: uppercase; }
+    
+    .classification-status { display: inline-block; font-weight: 800; font-family: var(--font-mono-hud); letter-spacing: 0.05em; }
+    .status-alert { color: var(--color-critical); }
+    .status-secure { color: var(--color-secure); }
+
+    .host-info-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; background: var(--hud-panel-bg); border: 1px solid rgba(255, 0, 60, 0.15); padding: 14px 20px; }
+    .info-item { display: flex; flex-direction: column; gap: 2px; }
+    .info-label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono-hud); letter-spacing: 0.1em; }
+    .info-value { font-size: 0.9rem; font-family: var(--font-mono-hud); color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+    @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .hud-input, .hud-select { background: var(--hud-panel-bg); border: 1px solid var(--hud-border-dim); color: var(--text-main); padding: 10px 16px; font-size: 0.85rem; outline: none; transition: all 0.25s; font-family: var(--font-sans-hud); }
+    .hud-input::placeholder { color: var(--text-secondary); }
+    .hud-input { flex: 1; min-width: 200px; }
+    .hud-select { font-family: var(--font-mono-hud); cursor: pointer; text-transform: uppercase; min-width: 180px; }
+    .hud-input:focus, .hud-select:focus { border-color: var(--hud-red); box-shadow: 0 0 10px rgba(255, 0, 60, 0.25); }
+    .hud-select option { background-color: var(--hud-panel-bg); color: var(--text-main); }
+
+    .findings-container { display: flex; flex-direction: column; gap: 28px; }
+    .module-section { position: relative; padding-top: 10px; }
+    .module-section-title { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 0, 60, 0.2); padding-bottom: 6px; }
+    .module-section-title span.title-txt { display: flex; align-items: center; gap: 8px; }
+    .module-badge { font-family: var(--font-mono-hud); font-size: 0.72rem; background: rgba(211, 13, 48, 0.04); color: var(--hud-red); border: 1px solid var(--hud-border-dim); padding: 2px 8px; box-shadow: 0 0 5px rgba(255, 0, 60, 0.1); }
+
+    .findings-list-wrapper { display: flex; flex-direction: column; gap: 12px; }
+    .finding-card { background: var(--hud-panel-bg); border: 1px solid var(--hud-border-dim); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+    .finding-card:hover { border-color: var(--hud-red); background: rgba(211, 13, 48, 0.02); box-shadow: 0 0 15px rgba(255, 0, 60, 0.08); }
+    
+    .finding-card::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; }
+    .finding-card.risk-level-critical::after { background-color: var(--color-critical); }
+    .finding-card.risk-level-high::after { background-color: var(--color-high); }
+    .finding-card.risk-level-medium::after { background-color: var(--color-medium); }
+    .finding-card.risk-level-low::after { background-color: var(--color-low); }
+    .finding-card.risk-level-info::after { background-color: var(--color-info); }
+
+    .finding-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; flex-wrap: wrap; gap: 12px; user-select: none; }
+    .finding-main-info { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 250px; }
+    .finding-icon-state { width: 8px; height: 8px; border-radius: 50%; }
+    .finding-card.risk-level-critical .finding-icon-state { background-color: var(--color-critical); box-shadow: 0 0 8px var(--color-critical); }
+    .finding-card.risk-level-high .finding-icon-state { background-color: var(--color-high); box-shadow: 0 0 8px var(--color-high); }
+    .finding-card.risk-level-medium .finding-icon-state { background-color: var(--color-medium); }
+    .finding-card.risk-level-low .finding-icon-state { background-color: var(--color-low); }
+    .finding-card.risk-level-info .finding-icon-state { background-color: var(--color-info); }
+
+    .finding-title { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.02em; color: var(--text-main); }
+    .finding-meta { display: flex; align-items: center; gap: 10px; }
+    
+    .badge { display: inline-block; font-family: var(--font-mono-hud); font-size: 0.68rem; font-weight: 700; padding: 3px 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-category { background: rgba(128, 128, 128, 0.05); color: var(--text-secondary); border: 1px solid rgba(128, 128, 128, 0.2); }
+    .badge-severity { border: 1px solid transparent; }
+    .badge-severity-critical { background: rgba(255, 0, 60, 0.18); color: var(--color-critical); border-color: var(--color-critical); box-shadow: 0 0 8px rgba(255, 0, 60, 0.25); animation: flashCritical 2s infinite alternate; }
+    @keyframes flashCritical { 0% { box-shadow: 0 0 2px rgba(255, 0, 60, 0.1); } 100% { box-shadow: 0 0 12px rgba(255, 0, 60, 0.45); } }
+    .badge-severity-high { background: rgba(255, 85, 0, 0.15); color: var(--color-high); border-color: var(--color-high); }
+    .badge-severity-medium { background: rgba(255, 210, 0, 0.12); color: var(--color-medium); border-color: var(--color-medium); }
+    .badge-severity-low { background: rgba(0, 255, 204, 0.1); color: var(--color-low); border-color: var(--color-low); }
+    .badge-severity-info { background: rgba(0, 229, 255, 0.08); color: var(--color-info); border-color: var(--color-info); }
+
+    .expand-chevron { font-size: 0.7rem; color: var(--text-secondary); transition: transform 0.25s; }
+    .finding-card.open .expand-chevron { transform: rotate(180deg); color: var(--hud-red); }
+
+    .finding-body { display: none; padding: 20px; background: rgba(128, 128, 128, 0.03); border-top: 1px dashed rgba(255, 0, 60, 0.15); }
+    .finding-card.open .finding-body { display: block; }
+    .details-grid { display: grid; grid-template-columns: 140px 1fr; gap: 12px; font-size: 0.85rem; }
+    .details-label { font-family: var(--font-mono-hud); color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+    .details-val { color: var(--text-main); }
+    .details-val-source { font-family: var(--font-mono-hud); background: rgba(211, 13, 48, 0.03); padding: 2px 6px; border: 1px solid rgba(255, 0, 60, 0.1); display: inline-block; word-break: break-all; color: #b91c1c; }
+
+    .confidence-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 320px; margin-top: 4px; }
+    .confidence-lbl { font-family: var(--font-mono-hud); font-size: 0.75rem; color: var(--text-secondary); min-width: 90px; }
+    .confidence-track { flex: 1; height: 6px; background: rgba(128, 128, 128, 0.1); border: 1px solid rgba(255, 0, 60, 0.1); position: relative; overflow: hidden; }
+    .confidence-bar { height: 100%; background: linear-gradient(90deg, rgba(255, 0, 60, 0.5) 0%, var(--hud-red) 100%); box-shadow: 0 0 6px var(--hud-red-glow); transition: width 1s ease-in-out; }
+
+    .details-code { grid-column: 1 / -1; background: rgba(5, 5, 8, 0.85); border: 1px solid rgba(255, 0, 60, 0.15); padding: 12px 16px; font-family: var(--font-mono-hud); font-size: 0.78rem; color: #39ffb9; white-space: pre-wrap; overflow-x: auto; margin-top: 8px; max-height: 300px; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8); }
+
+    .empty-state { padding: 36px 20px; text-align: center; border: 1px dashed rgba(255, 0, 60, 0.15); background: rgba(128, 128, 128, 0.02); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+    .empty-state-icon { font-size: 2rem; color: rgba(255, 0, 60, 0.4); filter: drop-shadow(0 0 5px rgba(255, 0, 60, 0.15)); }
+    .empty-state-title { font-family: var(--font-mono-hud); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-main); }
+    .empty-state-text { font-size: 0.75rem; color: var(--text-secondary); max-width: 320px; }
+
+    .sidebar-panel { display: flex; flex-direction: column; gap: 20px; }
+    .module-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--hud-panel-bg); border: 1px solid rgba(255, 0, 60, 0.15); transition: all 0.2s; }
+    .module-row:hover { border-color: var(--hud-red); background: rgba(211, 13, 48, 0.02); }
+    .module-title-box { display: flex; align-items: center; gap: 10px; }
+    .module-index { font-family: var(--font-mono-hud); font-size: 0.7rem; color: #ffffff; background: var(--hud-red); font-weight: bold; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 5px var(--hud-red-glow); }
+    .module-name-lbl { font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+    .module-telemetry { display: flex; align-items: center; gap: 12px; font-family: var(--font-mono-hud); font-size: 0.72rem; }
+    .module-time { color: var(--text-secondary); }
+    .module-status-indicator { text-transform: uppercase; font-weight: bold; font-size: 0.65rem; }
+    .status-ok { color: var(--color-secure); }
+    .status-fail { color: var(--color-critical); }
+    
+    .sidebar-findings-counter { background: rgba(255, 0, 60, 0.18); color: var(--text-main); border: 1px solid var(--hud-red); font-size: 0.68rem; font-weight: bold; padding: 1px 6px; box-shadow: 0 0 5px rgba(255, 0, 60, 0.2); }
+
+    .footer { text-align: center; padding: 30px 0 10px 0; font-family: var(--font-mono-hud); font-size: 0.72rem; color: var(--text-secondary); border-top: 1px solid rgba(255, 0, 60, 0.1); letter-spacing: 0.05em; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 0, 60, 0.2); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+
+    .hud-menu-bar { display: flex; gap: 8px; background: rgba(211, 13, 48, 0.02); border: 1px solid var(--hud-border-dim); padding: 8px 16px; margin-bottom: 24px; flex-wrap: wrap; position: relative; z-index: 20; }
+    .menu-item { font-family: var(--font-mono-hud); font-size: 0.78rem; font-weight: 700; color: var(--hud-red); text-decoration: none; padding: 6px 14px; border: 1px solid transparent; transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.06em; }
+    .menu-item:hover, .menu-item.active { color: var(--text-main); background: rgba(211, 13, 48, 0.04); border-color: var(--hud-red); }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ AUTHORIZATION PORTAL VIEW ═══════════════ -->
+  <div id="auth-view" class="auth-wrapper">
+    <div class="reg-marks">
+      <span class="reg-mark reg-n1">N1</span>
+      <span class="reg-mark reg-n2">N2</span>
+      <span class="reg-mark reg-n3">N3</span>
+      <span class="reg-mark reg-n4">N4</span>
+      <span class="reg-mark reg-n5">N5</span>
+      <span class="reg-mark reg-b1">N1</span>
+      <span class="reg-mark reg-b5">N5</span>
+      <div class="reg-bar reg-bar-top"></div>
+      <div class="reg-bar reg-bar-left"></div>
+    </div>
+
+    <div class="portal-container">
+      <div class="top-bar">
+        <span class="top-bar-left">Authorized: Talakunchi Standards</span>
+        <button class="theme-toggle-btn" onclick="toggleTheme()">// Theme: Light</button>
+      </div>
+
+      <div class="main-panel">
+        <div class="corner c-tl"></div>
+        <div class="corner c-tr"></div>
+        <div class="corner c-bl"></div>
+        <div class="corner c-br"></div>
+
+        <div id="consentContent" class="panel-content">
+          <div class="mandate-hero animate-in">
+            <div class="mandate-label">// Authorization Protocol</div>
+            <h1 class="mandate-title">
+              Security<br>
+              Compliance<br>
+              <span class="accent">Authorization</span>
+            </h1>
+            <div class="mandate-subtitle">AI Discovery Client Portal</div>
+            <div class="mandate-bar"></div>
+          </div>
+
+          <div class="system-stats animate-in">
+            <div class="stat-row">
+              <span class="stat-label">Target Device:</span>
+              <span class="stat-value">YADNESH</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Operating System:</span>
+              <span class="stat-value">Windows 11</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Local Network IP:</span>
+              <span class="stat-value">10.50.20.110</span>
+            </div>
+          </div>
+
+          <div class="modules-section animate-in">
+            <div class="section-label">Diagnostic Modules Scanned</div>
+            <div class="modules-grid">
+              <div class="module-item"><span class="module-icon">📊</span><span>System Hardware Info</span></div>
+              <div class="module-item"><span class="module-icon">📂</span><span>Local Directory Walks</span></div>
+              <div class="module-item"><span class="module-icon">⚙️</span><span>Running AI Processes</span></div>
+              <div class="module-item"><span class="module-icon">📦</span><span>Package Manager (pip)</span></div>
+              <div class="module-item"><span class="module-icon">🤖</span><span>AI Agent Code Snippets</span></div>
+              <div class="module-item"><span class="module-icon">🔌</span><span>Local Host Listeners</span></div>
+              <div class="module-item"><span class="module-icon">🔑</span><span>Hidden API Credentials</span></div>
+            </div>
+          </div>
+
+          <div class="controls-section animate-in">
+            <label class="checkbox-control">
+              <input type="checkbox" id="quickModeToggle" checked />
+              <div class="checkbox-text">
+                <strong>Quick Scan Mode</strong>
+                <div class="checkbox-help">Limits search path recursive depth to prevent network performance lags. Recommended.</div>
+              </div>
+            </label>
+
+            <label class="checkbox-control">
+              <input type="checkbox" id="consentCheckbox" onchange="validateConsent()" />
+              <div class="checkbox-text">
+                <strong>I authorize the execution of the AI Discovery Scanner</strong>
+                <div class="checkbox-help">This system will inspect environment logs, filesystems, and active connections.</div>
+              </div>
+            </label>
+          </div>
+
+          <button class="btn-scan animate-in" id="startScanBtn" disabled onclick="triggerScan()">
+            <span class="btn-icon">🔒</span>
+            Authorize & Run Scan
+          </button>
+        </div>
+
+        <div id="loadingContent" class="loading-state panel-content">
+          <div class="spinner"></div>
+          <div class="loading-title" id="loadingStatus">Initializing Telemetry Scan...</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+          </div>
+          <div class="loading-sub" id="loadingSubtext">Connecting to diagnostic controllers...</div>
+        </div>
+
+        <div class="panel-footer">
+          <span class="footer-brand">Powered by <a href="https://talakunchi.com" target="_blank" rel="noopener">Talakunchi Networks Pvt Ltd</a></span>
+          <span class="footer-badge"><span class="dot"></span> CERT-In Empanelled</span>
+        </div>
+      </div>
+
+      <div class="bottom-note">
+        Stay Alert. Stay Safe. Follow Protocol.<br>
+        Packaged: AI Discovery Scanner v1.0 · Batch: AD-0457
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════ DASHBOARD TELEMETRY VIEW ═══════════════ -->
+  <div id="dashboard-view" class="dashboard-wrapper">
+    <div class="scanline"></div>
+
+    <div class="container">
+      <header class="hud-panel header">
+        <div class="hud-corner c-tl"></div>
+        <div class="hud-corner c-tr"></div>
+        <div class="hud-corner c-bl"></div>
+        <div class="hud-corner c-br"></div>
+        <div class="hud-header-tab">SCANNER CORE v1.0</div>
+
+        <div class="header-left">
+          <div class="header-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--hud-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <div class="header-title">
+            <h1>AI Discovery Scanner</h1>
+            <p>// TELEMETRY & SECURITY DASHBOARD REPORT</p>
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+            <button class="theme-toggle-btn" onclick="toggleTheme()">// THEME: LIGHT</button>
+            <div class="scan-status-badge">
+              <div class="pulse-dot"></div>
+              STATUS: INTRUSION SCAN COMPLETE
+            </div>
+          </div>
+          <div style="opacity: 0.7; font-size: 0.75rem;">// SESSION_ID: fd185d12-cf0</div>
+        </div>
+      </header>
+
+      <nav class="hud-menu-bar">
+        <a href="#SystemScanner" class="menu-item active">OVERVIEW</a>
+        <a href="#FileScanner" class="menu-item">THREAT VECTORS</a>
+        <a href="#RuntimeScanner" class="menu-item">DIAGNOSTICS</a>
+      </nav>
+
+      <div class="summary-section">
+        <div class="hud-panel risk-meter-container">
+          <div class="hud-corner c-tl"></div>
+          <div class="hud-corner c-tr"></div>
+          <div class="hud-corner c-bl"></div>
+          <div class="hud-corner c-br"></div>
+          <div class="hud-header-tab" style="left: 20px;">RISK ANALYSIS</div>
+
+          <div class="hud-dial-wrapper">
+            <svg class="radial-gauge" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="76" class="gauge-bg-inner" fill="none"></circle>
+              <circle cx="80" cy="80" r="76" class="gauge-dashed-outer"></circle>
+              <circle cx="80" cy="80" r="70" class="gauge-dashed-ring"></circle>
+              <circle cx="80" cy="80" r="70" class="gauge-track"></circle>
+              <circle cx="80" cy="80" r="70" class="gauge-progress"
+                      style="stroke: #ffd200; filter: drop-shadow(0 0 8px rgba(255, 210, 0, 0.5));"
+                      stroke-dasharray="440" stroke-dashoffset="220"></circle>
+            </svg>
+            <div class="hud-dial-content">
+              <span class="hud-dial-number">50</span>
+              <span class="hud-dial-lbl">INDEX VALUE</span>
+            </div>
+          </div>
+
+          <div class="risk-title-badge">MEDIUM RISK LEVEL</div>
+          <div class="risk-score-subtitle">// METADATA ATTRIBUTION INDEX</div>
+        </div>
+
+        <div class="hud-panel" style="padding: 24px;">
+          <div class="hud-corner c-tl"></div>
+          <div class="hud-corner c-tr"></div>
+          <div class="hud-corner c-bl"></div>
+          <div class="hud-corner c-br"></div>
+          <div class="hud-header-tab" style="left: 20px;">EXECUTIVE METRIC ATTRIBUTION</div>
+
+          <div class="metrics-grid">
+            <div class="metric-card alert-metric">
+              <div class="metric-header"><span class="metric-title">Discovered Artifacts</span><span class="metric-icon">🛡️</span></div>
+              <div class="metric-value">19</div>
+              <div class="metric-footer">// Total detections</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span class="metric-title">AI Models</span><span class="metric-icon">🧠</span></div>
+              <div class="metric-value">0</div>
+              <div class="metric-footer">// GGUF, weights detected</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span class="metric-title">AI Frameworks</span><span class="metric-icon">📦</span></div>
+              <div class="metric-value">2</div>
+              <div class="metric-footer">// Torch, CrewAI libraries</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span class="metric-title">Active Runtimes</span><span class="metric-icon">⚡</span></div>
+              <div class="metric-value">0</div>
+              <div class="metric-footer">// Port bindings, nodes</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span class="metric-title">Agent Frameworks</span><span class="metric-icon">🤖</span></div>
+              <div class="metric-value">10</div>
+              <div class="metric-footer">// Langchain, CrewAI scripts</div>
+            </div>
+            <div class="metric-card alert-metric">
+              <div class="metric-header"><span class="metric-title">API Keys</span><span class="metric-icon">🔑</span></div>
+              <div class="metric-value">6</div>
+              <div class="metric-footer">// Exposed credentials</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span class="metric-title">Classification</span><span class="metric-icon">🔍</span></div>
+              <div class="metric-value" style="font-size: 1.45rem; padding-top: 8px;">
+                <span class="classification-status status-alert" style="color: #ffaa00;">ACTIVE</span>
+              </div>
+              <div class="metric-footer">// Overall assessment</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel host-info-bar">
+        <div class="hud-corner c-tl"></div>
+        <div class="hud-corner c-tr"></div>
+        <div class="hud-corner c-bl"></div>
+        <div class="hud-corner c-br"></div>
+        <div class="info-item"><span class="info-label">Target Hostname</span><span class="info-value">YADNESH</span></div>
+        <div class="info-item"><span class="info-label">Operating System</span><span class="info-value">Windows 11 (x64)</span></div>
+        <div class="info-item"><span class="info-label">Scan Timestamp</span><span class="info-value">2026-06-18T10:40:13</span></div>
+        <div class="info-item"><span class="info-label">Scan Exec Time</span><span class="info-value">15.243s</span></div>
+      </div>
+
+      <div class="main-grid">
+        <!-- Findings List -->
+        <div class="hud-panel" style="padding: 24px;">
+          <div class="hud-corner c-tl"></div>
+          <div class="hud-corner c-tr"></div>
+          <div class="hud-corner c-bl"></div>
+          <div class="hud-corner c-br"></div>
+          <div class="hud-header-tab" style="left: 20px;">SUSPECTED DETECTION VECTORS</div>
+
+          <div class="filter-bar">
+            <input type="text" id="search-box" class="hud-input" placeholder="Search telemetry findings (source, title)..." />
+            <select id="filter-category" class="hud-select">
+              <option value="all">All Categories</option>
+              <option value="System Info">System Info (1)</option>
+              <option value="ML Framework">ML Framework (2)</option>
+              <option value="AI Agent">AI Agent (10)</option>
+              <option value="Configuration">Configuration (6)</option>
+            </select>
+            <select id="filter-risk" class="hud-select">
+              <option value="all">All Risks</option>
+              <option value="info">INFO (3)</option>
+              <option value="medium">MEDIUM (10)</option>
+              <option value="high">HIGH (6)</option>
+            </select>
+          </div>
+
+          <div class="findings-container" id="findings-list">
+            <!-- Module 1 -->
+            <section class="module-section" id="SystemScanner">
+              <div class="module-section-title">
+                <span class="title-txt">🖥️ Module 01: System Information Scanner</span>
+                <span class="module-badge">1 findings</span>
+              </div>
+              <div class="findings-list-wrapper">
+                <div class="finding-card risk-level-info" data-category="System Info" data-risk="info">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Host Machine: YADNESH</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">System Info</span><span class="badge badge-severity badge-severity-info">info</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">System scan target identified: YADNESH running Windows 11 (x64)</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">hostname=YADNESH</span></span>
+                      <span class="details-label">Confidence</span>
+                      <span class="details-val">
+                        <div class="confidence-wrapper"><div class="confidence-track"><div class="confidence-bar" style="width: 100%;"></div></div><span class="confidence-lbl">100%</span></div>
+                      </span>
+                      <span class="details-label">Timestamp</span><span class="details-val">2026-06-18T10:40:14.296</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Module 4 -->
+            <section class="module-section" id="PackageScanner">
+              <div class="module-section-title">
+                <span class="title-txt">📦 Module 04: Machine Learning Frameworks</span>
+                <span class="module-badge">2 findings</span>
+              </div>
+              <div class="findings-list-wrapper">
+                <div class="finding-card risk-level-info" data-category="ML Framework" data-risk="info">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Package: torch (2.12.0)</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">ML Framework</span><span class="badge badge-severity badge-severity-info">info</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">Detected installed AI package: torch (version 2.12.0)</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">pip://torch</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="finding-card risk-level-info" data-category="ML Framework" data-risk="info">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Package: transformers (5.10.2)</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">ML Framework</span><span class="badge badge-severity badge-severity-info">info</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">Detected installed AI package: transformers (version 5.10.2)</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">pip://transformers</span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Module 5 -->
+            <section class="module-section" id="AgentScanner">
+              <div class="module-section-title">
+                <span class="title-txt">🤖 Module 05: AI Agent Frameworks</span>
+                <span class="module-badge">3 findings</span>
+              </div>
+              <div class="findings-list-wrapper">
+                <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Agent Usage: LangChain Import</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">AI Agent</span><span class="badge badge-severity badge-severity-medium">medium</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py'</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">C:/Users/ADMIN/.../test_agent_scanner.py:25</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Agent Usage: CrewAI Import</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">AI Agent</span><span class="badge badge-severity badge-severity-medium">medium</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">Potential AI Agent signature detected in script 'test_agent_scanner.py'</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">C:/Users/ADMIN/.../test_agent_scanner.py:26</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="finding-card risk-level-medium" data-category="AI Agent" data-risk="medium">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Agent Usage: Agent Instantiation</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">AI Agent</span><span class="badge badge-severity badge-severity-medium">medium</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">Potential AI Agent signature detected in script 'test_classifier.py'</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">C:/Users/ADMIN/.../test_classifier.py:103</span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Module 7 -->
+            <section class="module-section" id="APIScanner">
+              <div class="module-section-title">
+                <span class="title-txt">🔑 Module 07: API Keys & Credentials Scanner</span>
+                <span class="module-badge">2 findings</span>
+              </div>
+              <div class="findings-list-wrapper">
+                <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Exposed OpenAI API Key</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">Config</span><span class="badge badge-severity badge-severity-high">high</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">A matching pattern for an OpenAI API Key was discovered.</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">.../test_api_scanner.py:21</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="finding-card risk-level-high" data-category="Configuration" data-risk="high">
+                  <div class="finding-header" onclick="toggleFinding(this)">
+                    <div class="finding-main-info"><div class="finding-icon-state"></div><span class="finding-title">Exposed AWS Access Key ID</span></div>
+                    <div class="finding-meta"><span class="badge badge-category">Config</span><span class="badge badge-severity badge-severity-high">high</span><span class="expand-chevron">▼</span></div>
+                  </div>
+                  <div class="finding-body">
+                    <div class="details-grid">
+                      <span class="details-label">Description</span><span class="details-val">A matching pattern for an AWS Access Key ID was discovered.</span>
+                      <span class="details-label">Attribution</span><span class="details-val"><span class="details-val-source">.../test_api_scanner.py:48</span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar-panel">
+          <div class="hud-panel" style="padding: 20px;">
+            <div class="hud-corner c-tl"></div>
+            <div class="hud-corner c-tr"></div>
+            <div class="hud-corner c-bl"></div>
+            <div class="hud-corner c-br"></div>
+            <div class="hud-header-tab" style="left: 15px;">MODULE COMPLIANCE</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">// ENGINE DIAGNOSTICS & VERIFICATION STATS</p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">1</span><span class="module-name-lbl">SystemScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">0.582s</span><span class="module-status-indicator status-ok">OK</span><span class="sidebar-findings-counter">1</span></div>
+              </div>
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">2</span><span class="module-name-lbl">FileScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">0.060s</span><span class="module-status-indicator status-ok">OK</span></div>
+              </div>
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">3</span><span class="module-name-lbl">ProcessScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">0.051s</span><span class="module-status-indicator status-ok">OK</span></div>
+              </div>
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">4</span><span class="module-name-lbl">PackageScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">0.795s</span><span class="module-status-indicator status-ok">OK</span><span class="sidebar-findings-counter">2</span></div>
+              </div>
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">5</span><span class="module-name-lbl">AgentScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">14.922s</span><span class="module-status-indicator status-ok">OK</span><span class="sidebar-findings-counter">10</span></div>
+              </div>
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">6</span><span class="module-name-lbl">RuntimeScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">2.071s</span><span class="module-status-indicator status-ok">OK</span></div>
+              </div>
+              <div class="module-row">
+                <div class="module-title-box"><span class="module-index">7</span><span class="module-name-lbl">APIScanner</span></div>
+                <div class="module-telemetry"><span class="module-time">12.432s</span><span class="module-status-indicator status-ok">OK</span><span class="sidebar-findings-counter">6</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hud-panel" style="padding: 20px; font-family: var(--font-mono-hud); font-size: 0.8rem; line-height: 1.6;">
+            <div class="hud-corner c-tl"></div>
+            <div class="hud-corner c-tr"></div>
+            <div class="hud-corner c-bl"></div>
+            <div class="hud-corner c-br"></div>
+            <div class="hud-header-tab" style="left: 15px;">CONSOLE LOGS</div>
+            <div style="color: var(--text-secondary); text-transform: uppercase;">
+              &gt; INIT SYSTEM PROTOCOL...<br/>
+              &gt; PARALLEL MODULE DISPATCH ON<br/>
+              &gt; 7 WORKERS DETECTED.<br/>
+              &gt; SUCCESS: 7 MODULES OK.<br/>
+              &gt; RETRIEVED 19 SEGMENTS.<br/>
+              &gt; COMPUTE ATTRIBUTION VALUE...<br/>
+              &gt; RISK ATTRIBUTION VALUE: 50.0<br/>
+              &gt; SYSTEM STATE: NORMAL MONITORING
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        // SYSTEM SCANNED BY AI DISCOVERY AGENT — v1.0.0 — TELEMETRY ATTRIBUTION REPORT SECURE //
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════ GLOBAL THEME MANAGEMENT ═══════════════ */
+    const themeToggleBtns = document.querySelectorAll('.theme-toggle-btn');
+    const savedTheme = localStorage.getItem('hud-theme') || 'light';
+
+    function applyThemeState(theme) {
+      if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeToggleBtns.forEach(btn => btn.textContent = '// Theme: Dark');
+      } else {
+        document.body.classList.remove('dark-theme');
+        themeToggleBtns.forEach(btn => btn.textContent = '// Theme: Light');
+      }
+    }
+
+    applyThemeState(savedTheme);
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark-theme');
+      const newTheme = isDark ? 'light' : 'dark';
+      applyThemeState(newTheme);
+      localStorage.setItem('hud-theme', newTheme);
+    }
+
+    /* ═══════════════ AUTH PORTAL LOGIC ═══════════════ */
+    function validateConsent() {
+      const isChecked = document.getElementById('consentCheckbox').checked;
+      document.getElementById('startScanBtn').disabled = !isChecked;
+    }
+
+    function triggerScan() {
+      const quickScan = document.getElementById('quickModeToggle').checked;
+
+      // Hide consent, show loader
+      document.getElementById('consentContent').style.display = 'none';
+      document.getElementById('loadingContent').style.display = 'block';
+
+      // Progressive status updates
+      const statusUpdates = [
+        { progress: 10, text: "Launching Discovery Engines...", sub: "Instantiating scanner core processes." },
+        { progress: 25, text: "Reading Hardware Attributes...", sub: "Inspecting host system configuration & CPU/RAM details." },
+        { progress: 45, text: "Walking File Trees...", sub: quickScan ? "Quick-scanning top-level user directories." : "Recursively scanning user filesystems." },
+        { progress: 65, text: "Scanning Running Processes...", sub: "Inspecting port connections & host process list." },
+        { progress: 80, text: "Searching Credentials Cache...", sub: "Reviewing environment configuration files for credentials." },
+        { progress: 95, text: "Compiling Report Formats...", sub: "Structuring findings and outputting visual report layouts." }
+      ];
+
+      let updateIndex = 0;
+      const intervalTime = quickScan ? 600 : 1500; // Sped up for demo purposes
+      
+      const progressInterval = setInterval(() => {
+        if (updateIndex < statusUpdates.length) {
+          const item = statusUpdates[updateIndex];
+          document.getElementById('progressBar').style.width = item.progress + "%";
+          document.getElementById('loadingStatus').textContent = item.text;
+          document.getElementById('loadingSubtext').textContent = item.sub;
+          updateIndex++;
+        }
+      }, intervalTime);
+
+      // Simulate a network response and swap to Dashboard
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        document.getElementById('progressBar').style.width = "100%";
+        document.getElementById('loadingStatus').textContent = "Telemetry Scan Complete";
+        document.getElementById('loadingSubtext').textContent = "Rendering interactive dashboard...";
+
+        setTimeout(() => {
+          document.getElementById('auth-view').style.display = 'none';
+          document.getElementById('dashboard-view').style.display = 'block';
+          window.scrollTo(0, 0); // Reset scroll position for new view
+        }, 1200);
+
+      }, statusUpdates.length * intervalTime + 800);
+    }
+
+    /* ═══════════════ DASHBOARD INTERACTION LOGIC ═══════════════ */
+    function toggleFinding(header) {
+      const card = header.closest('.finding-card');
+      card.classList.toggle('open');
+    }
+
+    const searchBox = document.getElementById('search-box');
+    const categorySelect = document.getElementById('filter-category');
+    const riskSelect = document.getElementById('filter-risk');
+    const sections = document.querySelectorAll('.module-section');
+
+    function applyFilters() {
+      const query = searchBox.value.toLowerCase().trim();
+      const category = categorySelect.value;
+      const risk = riskSelect.value;
+
+      sections.forEach(section => {
+        const sectionCards = section.querySelectorAll('.finding-card');
+        const emptyState = section.querySelector('.empty-state');
+        let visibleInSectionCount = 0;
+
+        sectionCards.forEach(card => {
+          const cardCategory = card.getAttribute('data-category');
+          const cardRisk = card.getAttribute('data-risk');
+          
+          const titleText = card.querySelector('.finding-title').textContent.toLowerCase();
+          const bodyEl = card.querySelector('.finding-body');
+          const bodyText = bodyEl ? bodyEl.textContent.toLowerCase() : '';
+          
+          const matchesSearch = titleText.includes(query) || bodyText.includes(query);
+          const matchesCategory = (category === 'all' || cardCategory === category);
+          const matchesRisk = (risk === 'all' || cardRisk === risk);
+
+          if (matchesSearch && matchesCategory && matchesRisk) {
+            card.style.display = 'block';
+            visibleInSectionCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Toggle visibility of the section empty state dynamically
+        if (visibleInSectionCount === 0) {
+          if (!emptyState) {
+            // Render a temporary empty state if none exists statically
+            const wrapper = section.querySelector('.findings-list-wrapper');
+            let tempEmpty = wrapper.querySelector('.temp-empty-state');
+            if (!tempEmpty) {
+              tempEmpty = document.createElement('div');
+              tempEmpty.className = 'empty-state temp-empty-state';
+              tempEmpty.innerHTML = `
+                <div class="empty-state-icon">⚠️</div>
+                <div class="empty-state-title">FILTER MATCH EXCLUDED</div>
+                <div class="empty-state-text">All elements in this section were excluded by search or filter metrics.</div>
+              `;
+              wrapper.appendChild(tempEmpty);
+            }
+          } else {
+            emptyState.style.display = 'flex';
+          }
+        } else {
+          const tempEmpty = section.querySelector('.temp-empty-state');
+          if (tempEmpty) tempEmpty.remove();
+          if (emptyState) emptyState.style.display = 'none';
+        }
+      });
+    }
+
+    if(searchBox) searchBox.addEventListener('input', applyFilters);
+    if(categorySelect) categorySelect.addEventListener('change', applyFilters);
+    if(riskSelect) riskSelect.addEventListener('change', applyFilters);
+  </script>
+</body>
+</html>
