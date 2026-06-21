@@ -205,41 +205,36 @@ def run() -> tuple[list[Finding], ModuleInfo]:
             findings.append(gpu_finding)
 
         # ── Windows Copilot registry scan (non-blocking, Windows-only) ──
-        copilot_entries = _scan_copilot_registry()
-        if copilot_entries:
-            # Determine overall risk: if Copilot is actively installed/enabled → HIGH,
-            # if explicitly disabled by policy → INFO.
-            all_disabled = all(
-                "DISABLED" in e.get("interpretation", "").upper()
-                or "disabled" in e.get("interpretation", "")
-                for e in copilot_entries
-            )
-            copilot_risk = RiskLevel.INFO if all_disabled else RiskLevel.HIGH
+        agent_entries = _scan_agent_registry()
+        if agent_entries:
+            agents = {"Copilot": [], "Antigravity": [], "Codex": [], "Kiro": []}
+            for e in agent_entries:
+                val = str(e).lower()
+                if "antigravity" in val: agents["Antigravity"].append(e)
+                elif "codex" in val: agents["Codex"].append(e)
+                elif "kiro" in val: agents["Kiro"].append(e)
+                else: agents["Copilot"].append(e)
 
-            copilot_finding = Finding(
-                module_name=MODULE_NAME,
-                title="Microsoft Copilot — Registry Configuration Detected",
-                description=(
-                    "Microsoft Copilot registry entries were found on this system. "
-                    "This indicates Copilot is installed, registered as an AppX package, "
-                    "or its Group Policy configuration has been modified."
-                ),
-                source="registry:HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot",
-                category=FindingCategory.AI_SERVICE,
-                risk_level=copilot_risk,
-                confidence=0.95,
-                details={
-                    "registry_entries": copilot_entries,
-                    "entry_count": len(copilot_entries),
-                    "copilot_disabled_by_policy": all_disabled,
-                },
-            )
-            findings.append(copilot_finding)
-            logger.info(
-                "SystemScanner: Copilot finding added (risk=%s, entries=%d)",
-                copilot_risk,
-                len(copilot_entries),
-            )
+            for agent_name, entries in agents.items():
+                if not entries: continue
+                all_disabled = all("disabled" in e.get("interpretation", "").lower() for e in entries)
+                risk = RiskLevel.INFO if all_disabled else RiskLevel.HIGH
+                finding = Finding(
+                    module_name=MODULE_NAME,
+                    title=f"{agent_name} Agent — Registry Configuration Detected",
+                    description=f"{agent_name} registry entries were found on this system. This indicates it is installed or its AppX package is registered.",
+                    source="registry:AppXStore",
+                    category=FindingCategory.AI_AGENT,
+                    risk_level=risk,
+                    confidence=0.95,
+                    details={
+                        "registry_entries": entries,
+                        "entry_count": len(entries),
+                        f"{agent_name.lower()}_disabled_by_policy": all_disabled,
+                    },
+                )
+                findings.append(finding)
+                logger.info("SystemScanner: %s finding added (risk=%s, entries=%d)", agent_name, risk, len(entries))
 
         module_info.status = "success"
 
@@ -256,7 +251,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
     return findings, module_info
 
 
-def _scan_copilot_registry() -> list[dict[str, Any]]:
+def _scan_agent_registry() -> list[dict[str, Any]]:
     """Scan the Windows registry for Microsoft Copilot configuration entries.
 
     Checks two locations:
@@ -380,7 +375,7 @@ def _scan_copilot_registry() -> list[dict[str, Any]]:
         hive_name = "HKCU" if hive == HKCU else "HKLM"
         subkeys = _enumerate_subkeys(hive, appx_path)
         for subkey in subkeys:
-            if "microsoft.copilot" in subkey.lower() or "copilot" in subkey.lower():
+            if any(kw in subkey.lower() for kw in ("copilot", "antigravity", "codex", "kiro")):
                 full_path = f"{appx_path}\\{subkey}"
                 # Try to read the PackageFullName or InstallLocation for context
                 pkg_name_val = _read_value(hive, full_path, "PackageFullName")
@@ -394,7 +389,7 @@ def _scan_copilot_registry() -> list[dict[str, Any]]:
                         "Path": install_loc_val[0] if install_loc_val else "N/A",
                     },
                     "interpretation": (
-                        f"Microsoft Copilot AppX package is registered for "
+                        f"AI Agent AppX package is registered for "
                         f"{'current user' if hive == HKCU else 'all users'}: {subkey}"
                     ),
                 })
@@ -404,13 +399,13 @@ def _scan_copilot_registry() -> list[dict[str, Any]]:
     # Covers cases where the package is installed system-wide outside the above paths.
     hklm_appx_modern = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Staged"
     for subkey in _enumerate_subkeys(HKLM, hklm_appx_modern):
-        if "microsoft.copilot" in subkey.lower():
+        if any(kw in subkey.lower() for kw in ("copilot", "antigravity", "codex", "kiro")):
             results.append({
                 "hive": "HKLM",
                 "key_path": f"{hklm_appx_modern}\\{subkey}",
                 "value_name": "(staged package)",
                 "value_data": subkey,
-                "interpretation": f"Microsoft Copilot AppX package is STAGED (pending install): {subkey}",
+                "interpretation": f"AI Agent AppX package is STAGED (pending install): {subkey}",
             })
 
     logger.info(

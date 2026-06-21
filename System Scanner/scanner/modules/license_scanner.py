@@ -27,42 +27,49 @@ MODULE_NUMBER = 9
 # License taxonomy mapping (SEBI CSCRF compliant license governance)
 LICENSE_TAXONOMY = {
     "MIT": {
+        "provider": "Massachusetts Institute of Technology",
         "status": "Approved",
         "risk_level": RiskLevel.INFO,
         "description": "Permissive license. Allowed for enterprise usage.",
         "keywords": [r"\bmit\b"]
     },
     "Apache 2.0": {
+        "provider": "Apache Software Foundation",
         "status": "Approved",
         "risk_level": RiskLevel.INFO,
         "description": "Permissive license with patent grants. Allowed for enterprise usage.",
         "keywords": [r"\bapache\s*(2\.0|2)?\b"]
     },
     "LGPL": {
+        "provider": "Free Software Foundation",
         "status": "Moderate",
         "risk_level": RiskLevel.MEDIUM,
         "description": "Weak copyleft. Dynamic linking is acceptable, but review is recommended.",
         "keywords": [r"\blgpl\b", r"\blesser\s+gpl\b"]
     },
     "GPL": {
+        "provider": "Free Software Foundation",
         "status": "Review / Banned",
         "risk_level": RiskLevel.HIGH,
         "description": "Strong copyleft. Restricts distribution and proprietary links. Flagged for legal review.",
         "keywords": [r"\bgpl\b", r"\bgeneral\s+public\s+license\b"]
     },
     "AGPL": {
+        "provider": "Free Software Foundation",
         "status": "Review / Banned",
         "risk_level": RiskLevel.CRITICAL,
         "description": "Affero GPL. Restrictive network-triggered copyleft. Strictly flagged/banned in enterprise contexts.",
         "keywords": [r"\bagpl\b", r"\baffero\b"]
     },
     "Polyform Shield": {
+        "provider": "Polyform Project",
         "status": "Review / Banned",
         "risk_level": RiskLevel.HIGH,
         "description": "Non-commercial restrictive license. Excludes commercial SaaS usage.",
         "keywords": [r"\bpolyform\s+shield\b", r"\bpolyform\b"]
     },
     "Proprietary": {
+        "provider": "Commercial Entity",
         "status": "Review / Banned",
         "risk_level": RiskLevel.MEDIUM,
         "description": "Custom proprietary terms. Requires legal approval.",
@@ -141,6 +148,7 @@ def check_imports(tree: ast.AST, file_path: pathlib.Path) -> list[Finding]:
                             "line_number": node.lineno,
                             "imported_library": import_name,
                             "license_type": lic_type,
+                            "license_provider": LICENSE_TAXONOMY.get(lic_type, {}).get("provider", "Unknown"),
                             "detection_method": "AST Import Analyzer"
                         }
                     ))
@@ -187,6 +195,7 @@ def check_imports(tree: ast.AST, file_path: pathlib.Path) -> list[Finding]:
                             "line_number": node.lineno,
                             "imported_library": import_name,
                             "license_type": lic_type,
+                            "license_provider": LICENSE_TAXONOMY.get(lic_type, {}).get("provider", "Unknown"),
                             "detection_method": "AST Import Analyzer"
                         }
                     ))

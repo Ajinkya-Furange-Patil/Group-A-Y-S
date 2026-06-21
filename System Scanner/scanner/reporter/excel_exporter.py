@@ -560,7 +560,7 @@ def _content_types_xml(num_sheets: int) -> str:
 
 # ── Public API ────────────────────────────────────────────────────────────
 
-def export_excel(scan_result: ScanResult, output_path: str) -> None:
+def export_excel(scan_result: ScanResult | dict, output_path: str) -> None:
     """Write a multi-sheet .xlsx workbook for the given ScanResult.
 
     Produces 5 sheets:
@@ -573,12 +573,15 @@ def export_excel(scan_result: ScanResult, output_path: str) -> None:
     No third-party dependencies required (stdlib zipfile + xml only).
 
     Args:
-        scan_result:  Completed ScanResult from the controller.
+        scan_result:  Completed ScanResult from the controller, or a dictionary from JSON.
         output_path:  Destination .xlsx file path.
     """
     _reset_sst()
 
-    result_dict = scan_result.to_dict()
+    if isinstance(scan_result, dict):
+        result_dict = scan_result
+    else:
+        result_dict = scan_result.to_dict()
 
     sheet_defs = [
         ("Configuration BOM (CBOM)", _build_cbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
@@ -609,7 +612,7 @@ def export_excel(scan_result: ScanResult, output_path: str) -> None:
             zf.writestr("xl/sharedStrings.xml", _shared_strings_xml())
 
         logger.info("Excel report written to: %s  (%d findings, %d sheets)",
-                    output_path, result_dict["summary"].get("total_findings", 0),
+                    output_path, result_dict["summary"].get("total_findings", 0) if "summary" in result_dict else 0,
                     len(sheet_defs))
     except OSError as exc:
         logger.error("Failed to write Excel report to %s: %s", output_path, exc)

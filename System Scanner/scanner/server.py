@@ -125,6 +125,44 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"error": "No scan results found"}')
 
+        elif path == "/api/export/excel":
+            report_path = "report.json"
+            if os.path.exists(report_path):
+                try:
+                    import json
+                    import tempfile
+                    from scanner.reporter.excel_exporter import export_excel
+                    
+                    with open(report_path, "r", encoding="utf-8") as f:
+                        report_data = json.load(f)
+                        
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+                        tmp_name = tmp.name
+                        
+                    export_excel(report_data, tmp_name)
+                    
+                    with open(tmp_name, "rb") as f:
+                        excel_data = f.read()
+                        
+                    os.unlink(tmp_name)
+                    
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    self.send_header("Content-Disposition", 'attachment; filename="ai_scan_report.xlsx"')
+                    self.end_headers()
+                    self.wfile.write(excel_data)
+                except Exception as e:
+                    logger.error("Error generating Excel report: %s", e)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": f"Failed to generate Excel: {e}"}).encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "No scan results found to export"}')
+
         elif path == "/run-scan":
             query = urllib.parse.parse_qs(parsed_url.query)
             quick = query.get("quick", ["false"])[0].lower() == "true"
