@@ -435,6 +435,10 @@ def _detect_gpu() -> dict[str, Any] | None:
     # ── Attempt 1: nvidia-smi (works on any OS with NVIDIA drivers) ──
     try:
         logger.debug("SystemScanner: Trying nvidia-smi query...")
+        kwargs = {}
+        if platform.system() == "Windows":
+            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+            
         result = subprocess.run(
             [
                 "nvidia-smi",
@@ -444,6 +448,7 @@ def _detect_gpu() -> dict[str, Any] | None:
             capture_output=True,
             text=True,
             timeout=5,
+            **kwargs
         )
         if result.returncode == 0 and result.stdout.strip():
             parts = [p.strip() for p in result.stdout.strip().split(",")]
@@ -468,6 +473,7 @@ def _detect_gpu() -> dict[str, Any] | None:
                 capture_output=True,
                 text=True,
                 timeout=8,
+                creationflags=subprocess.CREATE_NO_WINDOW
             )
             if result.returncode == 0:
                 lines = [

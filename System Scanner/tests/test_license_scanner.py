@@ -109,10 +109,11 @@ def main():
             self.assertEqual(info.findings_count, len(findings))
             
             # Findings should be:
-            # 1. app.py (AGPL)
-            # 2. subdir/util.py (PyQt5)
+            # 1. app.py (AGPL from AST docstring parser)
+            # 2. app.py (AGPL from raw snippet scanner)
+            # 3. subdir/util.py (PyQt5 import)
             # And should NOT contain venv/lib.py
-            self.assertEqual(len(findings), 2)
+            self.assertEqual(len(findings), 3)
             
             files = [f.details["file_path"] for f in findings]
             self.assertTrue(any("app.py" in fl for fl in files))

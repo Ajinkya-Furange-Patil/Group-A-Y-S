@@ -23,10 +23,12 @@ logger = logging.getLogger(__name__)
 class DiscoveryEngine:
     """Dispatches scanner modules in parallel and collects results."""
 
-    def __init__(self) -> None:
+    def __init__(self, cpu_limit: float = 90.0, ram_limit: float = 25.0) -> None:
         """Initialize the Discovery Engine with an empty module registry."""
         self._modules: list[Any] = []
-        logger.info("Discovery Engine initialized")
+        self.cpu_limit = cpu_limit
+        self.ram_limit = ram_limit
+        logger.info("Discovery Engine initialized with limits CPU: %.1f%%, RAM: %.1f%%", cpu_limit, ram_limit)
 
     def register_module(self, module: Any) -> None:
         """Register a scanner module for execution.
@@ -202,6 +204,28 @@ class DiscoveryEngine:
                         except Exception:
                             pass
                     
+                    try:
+                        import psutil
+                        process = psutil.Process()
+                        
+                        # Calculate relative memory percentage (Process RSS / Total Hardware RAM)
+                        mem_info = process.memory_info().rss
+                        total_mem = psutil.virtual_memory().total
+                        mem_pct = (mem_info / total_mem) * 100.0
+                        
+                        # CPU percentage
+                        cpu_pct = process.cpu_percent(interval=None)
+
+                        if mem_pct > self.ram_limit or cpu_pct > self.cpu_limit:
+                            logger.error("Resource limits exceeded (RAM: %.1f%% / %.1f%%, CPU: %.1f%% / %.1f%%). Aborting remaining modules.", mem_pct, self.ram_limit, cpu_pct, self.cpu_limit)
+                            # Restore terminal and print abort message
+                            sys.stdout.write(f"\r\033[31m[!] ABORTING: Execution limit bounds exceeded (RAM: {mem_pct:.1f}%, CPU: {cpu_pct:.1f}%)\033[0m" + " " * 20 + "\n")
+                            sys.stdout.flush()
+                            executor.shutdown(wait=False, cancel_futures=True)
+                            break
+                    except Exception as e:
+                        logger.debug("Failed to profile process: %s", e)
+                        
                     time.sleep(0.1)
 
                 sys.stdout.write("\r" + " " * 85 + "\r")

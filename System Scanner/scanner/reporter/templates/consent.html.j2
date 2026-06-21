@@ -527,29 +527,35 @@
       loadingStatus.textContent = "Launching Discovery Engines...";
       loadingSubtext.textContent = "Instantiating scanner core processes.";
 
+      const scanStates = [
+        { progress: 25, title: "Reading Hardware Attributes...", sub: "Inspecting host system configuration & CPU/RAM details." },
+        { progress: 40, title: "Scanning Running Processes...", sub: "Inspecting active port connections & host process list." },
+        { progress: 55, title: "Analyzing Package Managers...", sub: "Extracting dependencies from local package environment." },
+        { progress: 70, title: "Performing System Filesystem Scan...", sub: folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...` },
+        { progress: 80, title: "Analyzing Licenses...", sub: "Verifying SBOM compliance against copyleft bounds." },
+        { progress: 85, title: "Validating API Keys...", sub: "Searching for exposed or hardcoded service credentials." },
+        { progress: 90, title: "Computing Risk Heuristics...", sub: "Calculating final risk tier and security scores." }
+      ];
+      
+      let stepIdx = 0;
+
       const progressInterval = setInterval(() => {
         if (progress < 90) {
-          if (progress < 25) {
-            progress += 5;
-            progressBar.style.width = progress + "%";
-            loadingStatus.textContent = "Reading Hardware Attributes...";
-            loadingSubtext.textContent = "Inspecting host system configuration & CPU/RAM details.";
-          } else if (progress < 45) {
-            progress += 5;
-            progressBar.style.width = progress + "%";
-            loadingStatus.textContent = "Scanning Running Processes...";
-            loadingSubtext.textContent = "Inspecting port connections & host process list.";
-          } else {
-            // We are scanning the filesystem, which takes the longest. Stay on this step and increment slowly.
-            progress += (progress < 85) ? 1 : 0;
-            progressBar.style.width = progress + "%";
-            loadingStatus.textContent = "Performing System Filesystem Scan...";
-            loadingSubtext.textContent = folderPath 
-              ? `Walking directory: ${folderPath}` 
-              : `Performing filesystem search (depth ${depthValue})...`;
+          progress += 2;
+          
+          if (stepIdx < scanStates.length && progress >= scanStates[stepIdx].progress) {
+            loadingStatus.textContent = scanStates[stepIdx].title;
+            loadingSubtext.textContent = scanStates[stepIdx].sub;
+            
+            // Add a brief pulse animation to the text to make it feel responsive
+            loadingStatus.style.opacity = '0.5';
+            setTimeout(() => { loadingStatus.style.opacity = '1'; }, 200);
+            
+            stepIdx++;
           }
+          progressBar.style.width = progress + "%";
         }
-      }, 1000);
+      }, 500);
 
       // Make network request to trigger the Python scan controller
       let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;

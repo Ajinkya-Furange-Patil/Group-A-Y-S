@@ -1,79 +1,9 @@
-{% if scan_result is defined %}
-  {% set result = scan_result %}
-{% endif %}
+
 
 <!-- ═══════════════ JINJA2 MACROS DEFINED AT TOP FOR SCOPING ═══════════════ -->
-{% macro render_finding_card(finding) %}
-  {% set category_str = finding.category.value if finding.category.value is defined else finding.category %}
-  {% set risk_str = finding.risk_level.value if finding.risk_level.value is defined else finding.risk_level %}
-  {% set confidence_pct = "%.0f"|format(finding.confidence * 100) %}
-  
-  <div class="finding-card risk-level-{{ risk_str }}" data-category="{{ category_str }}" data-risk="{{ risk_str }}">
-    <div class="finding-header" onclick="toggleFinding(this)">
-      <div class="finding-main-info">
-        <div class="finding-icon-state"></div>
-        <span class="finding-title">{{ finding.title }}</span>
-      </div>
-      <div class="finding-meta">
-        <span class="badge badge-category">{{ category_str }}</span>
-        <span class="badge badge-severity badge-severity-{{ risk_str }}">{{ risk_str }}</span>
-        <span class="expand-chevron">▼</span>
-      </div>
-    </div>
-    <div class="finding-body">
-      <div class="details-grid">
-        <span class="details-label">Description</span>
-        <span class="details-val">{{ finding.description }}</span>
-        
-        <span class="details-label">Attribution</span>
-        <span class="details-val"><span class="details-val-source">{{ finding.source }}</span></span>
-        
-        <span class="details-label">Confidence</span>
-        <span class="details-val">
-          <div class="confidence-wrapper">
-            <div class="confidence-track">
-              <div class="confidence-bar" style="width: {{ confidence_pct }}%;"></div>
-            </div>
-            <span class="confidence-lbl">{{ confidence_pct }}% CONFIRMATION</span>
-          </div>
-        </span>
 
-        <span class="details-label">Timestamp</span>
-        <span class="details-val">{{ finding.timestamp }}</span>
 
-        {% if finding.details %}
-          <span class="details-label">Metadata Trace</span>
-          <div class="metadata-table-wrapper">
-            <table class="metadata-table">
-              <tbody>
-                {% for key, value in finding.details.items() %}
-                  <tr>
-                    <td class="meta-key">{{ key | replace('_', ' ') | title }}</td>
-                    <td class="meta-val">
-                      {% if value is mapping or (value is iterable and value is not string) %}
-                        <pre class="meta-val-code">{{ value | tojson(indent=2) }}</pre>
-                      {% else %}
-                        {{ value }}
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-{% endmacro %}
 
-{% macro render_empty_state() %}
-  <div class="empty-state">
-    <div class="empty-state-icon">⚠️</div>
-    <div class="empty-state-title">NO FINDINGS RECORDED</div>
-    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
-  </div>
-{% endmacro %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -423,32 +353,14 @@
     }
 
     /* ═══════════════ RADIAL RISK SCORE METER ═══════════════ */
-    {% set risk_score = result.summary.overall_risk_score | float %}
-    {% if risk_score >= 76 %}
-      {% set overall_risk_level = 'CRITICAL' %}
-      {% set overall_risk_color = '#ff003c' %}
-      {% set overall_risk_glow = 'rgba(255, 0, 60, 0.5)' %}
-      {% set overall_risk_class = 'level-critical' %}
-      {% set overall_risk_text_color = '#d30d30' %}
-    {% elif risk_score >= 51 %}
-      {% set overall_risk_level = 'HIGH' %}
-      {% set overall_risk_color = '#ff5500' %}
-      {% set overall_risk_glow = 'rgba(255, 85, 0, 0.5)' %}
-      {% set overall_risk_class = 'level-high' %}
-      {% set overall_risk_text_color = '#e65c00' %}
-    {% elif risk_score >= 26 %}
-      {% set overall_risk_level = 'MEDIUM' %}
-      {% set overall_risk_color = '#ffd200' %}
-      {% set overall_risk_glow = 'rgba(255, 210, 0, 0.5)' %}
-      {% set overall_risk_class = 'level-medium' %}
-      {% set overall_risk_text_color = '#a87900' %}
-    {% else %}
-      {% set overall_risk_level = 'LOW' %}
-      {% set overall_risk_color = '#00ffcc' %}
-      {% set overall_risk_glow = 'rgba(0, 255, 204, 0.5)' %}
-      {% set overall_risk_class = 'level-low' %}
-      {% set overall_risk_text_color = '#008f7a' %}
-    {% endif %}
+    
+    
+      
+      
+      
+      
+      
+    
 
     .risk-meter-container {
       display: flex;
@@ -493,13 +405,13 @@
     }
     .gauge-dashed-outer {
       fill: none;
-      stroke: {{ overall_risk_color }};
+      stroke: #ff5500;
       stroke-width: 1.5;
       stroke-dasharray: 6 12;
       opacity: 0.45;
       transform-origin: 80px 80px;
       animation: rotateGaugeRingCCW 45s linear infinite;
-      filter: drop-shadow(0 0 2px {{ overall_risk_color }});
+      filter: drop-shadow(0 0 2px #ff5500);
     }
     @keyframes rotateGaugeRing {
       from { transform: rotate(0deg); }
@@ -539,7 +451,7 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: {{ overall_risk_text_color }};
+      color: #e65c00;
       
       margin-top: 8px;
     }
@@ -553,32 +465,27 @@
 
     /* ═══════════════ EXECUTIVE SUMMARY CARDS ═══════════════ */
     /* Dynamic counting namespace variables */
-    {% set model_count = namespace(value=0) %}
-    {% set package_count = namespace(value=0) %}
-    {% set agent_count = namespace(value=0) %}
-    {% set runtime_count = namespace(value=0) %}
-    {% set system_count = namespace(value=0) %}
-    {% set config_count = namespace(value=0) %}
-    {% set api_count = namespace(value=0) %}
+    
+    
+    
+    
+    
+    
+    
 
-    {% for finding in result.findings %}
-      {% set cat = finding.category.value if finding.category.value is defined else finding.category %}
-      {% set mod = finding.module_name %}
-      {% if mod == 'SystemScanner' or cat == 'System Info' %}
-        {% set system_count.value = system_count.value + 1 %}
-      {% elif mod in ['ModelScanner', 'FileScanner'] or cat == 'AI Model' %}
-        {% set model_count.value = model_count.value + 1 %}
-      {% elif mod == 'PackageScanner' or cat == 'ML Framework' %}
-        {% set package_count.value = package_count.value + 1 %}
-      {% elif mod == 'AgentScanner' or cat == 'AI Agent' %}
-        {% set agent_count.value = agent_count.value + 1 %}
-      {% elif mod == 'APIScanner' or cat == 'Configuration' %}
-        {% set api_count.value = api_count.value + 1 %}
-        {% set config_count.value = config_count.value + 1 %}
-      {% else %}
-        {% set runtime_count.value = runtime_count.value + 1 %}
-      {% endif %}
-    {% endfor %}
+    
+      
+      
+      
+        
+      
+    
+      
+      
+      
+        
+      
+    
 
     .metrics-grid {
       display: grid;
@@ -873,10 +780,9 @@
       position: relative;
     }
     .finding-card:hover {
-      transform: translateY(-2px);
       border-color: var(--hud-red);
       background: rgba(211, 13, 48, 0.02);
-      box-shadow: 0 4px 15px rgba(255, 0, 60, 0.08);
+      box-shadow: 0 0 15px rgba(255, 0, 60, 0.08);
     }
     
     /* Left status accent strip */
@@ -994,19 +900,13 @@
 
     /* Finding Body Details */
     .finding-body {
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      padding: 0 20px;
+      display: none;
+      padding: 20px;
       background: rgba(0, 0, 0, 0.02);
-      border-top: 1px dashed transparent;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      border-top: 1px dashed rgba(255, 0, 60, 0.15);
     }
     .finding-card.open .finding-body {
-      max-height: 2000px;
-      opacity: 1;
-      padding: 20px;
-      border-top-color: rgba(255, 0, 60, 0.15);
+      display: block;
     }
     .details-grid {
       display: grid;
@@ -1975,34 +1875,34 @@
       <div class="print-cover-grid">
         <div class="print-cover-item">
           <div class="print-cover-item-label">Scan ID</div>
-          <div class="print-cover-item-value">{{ result.scan_id }}</div>
+          <div class="print-cover-item-value">123</div>
         </div>
         <div class="print-cover-item">
           <div class="print-cover-item-label">Generated</div>
-          <div class="print-cover-item-value">{{ result.scan_timestamp }}</div>
+          <div class="print-cover-item-value">2026-06-21T20:24:07.835259</div>
         </div>
         <div class="print-cover-item">
           <div class="print-cover-item-label">Target Host</div>
-          <div class="print-cover-item-value">{{ result.hostname }}</div>
+          <div class="print-cover-item-value"></div>
         </div>
         <div class="print-cover-item">
           <div class="print-cover-item-label">Operating System</div>
-          <div class="print-cover-item-value">{{ result.os_info }}</div>
+          <div class="print-cover-item-value"></div>
         </div>
         <div class="print-cover-item">
           <div class="print-cover-item-label">Total Findings</div>
-          <div class="print-cover-item-value">{{ result.summary.total_findings }}</div>
+          <div class="print-cover-item-value">2</div>
         </div>
         <div class="print-cover-item">
           <div class="print-cover-item-label">Scan Duration</div>
-          <div class="print-cover-item-value">{{ "%.2f"|format(result.total_duration_sec) }}s</div>
+          <div class="print-cover-item-value">0.00s</div>
         </div>
       </div>
       <div class="print-cover-risk-badge" style="
-        color: {{ overall_risk_color }};
-        border-color: {{ overall_risk_color }};
+        color: #ff5500;
+        border-color: #ff5500;
       ">
-        RISK LEVEL: {{ overall_risk_level }} &nbsp;|&nbsp; SCORE: {{ "%.1f"|format(risk_score) }}/100
+        RISK LEVEL: HIGH &nbsp;|&nbsp; SCORE: 62.5/100
       </div>
     </div>
 
@@ -2054,7 +1954,7 @@
         <!-- Preview badge -->
         <div class="pdf-preview-badge" id="pdf-preview-badge">
           <span>📋</span>
-          <span id="pdf-preview-text">Estimated: {{ result.summary.total_findings }} findings across {{ result.summary.modules_run }} modules</span>
+          <span id="pdf-preview-text">Estimated: 2 findings across 0 modules</span>
         </div>
 
         <div class="pdf-modal-actions">
@@ -2093,7 +1993,7 @@
             STATUS: INTRUSION SCAN COMPLETE
           </div>
         </div>
-        <div style="opacity: 0.7; font-size: 0.75rem;">// SESSION_ID: {{ result.scan_id }}</div>
+        <div style="opacity: 0.7; font-size: 0.75rem;">// SESSION_ID: 123</div>
       </div>
     </header>
 
@@ -2133,17 +2033,17 @@
             
             <!-- Filled progress arc -->
             <circle cx="80" cy="80" r="70" class="gauge-progress"
-                    style="stroke: {{ overall_risk_color }}; filter: drop-shadow(0 0 8px {{ overall_risk_glow }});"
+                    style="stroke: #ff5500; filter: drop-shadow(0 0 8px rgba(255, 85, 0, 0.5));"
                     stroke-dasharray="440"
-                    stroke-dashoffset="{{ 440 - (risk_score * 4.4) }}"></circle>
+                    stroke-dashoffset="165.0"></circle>
           </svg>
           <div class="hud-dial-content">
-            <span class="hud-dial-number">{{ "%.0f"|format(risk_score) }}</span>
+            <span class="hud-dial-number">62</span>
             <span class="hud-dial-lbl">INDEX VALUE</span>
           </div>
         </div>
 
-        <div class="risk-title-badge">{{ overall_risk_level }} RISK LEVEL</div>
+        <div class="risk-title-badge">HIGH RISK LEVEL</div>
         <div class="risk-score-subtitle">// METADATA ATTRIBUTION INDEX</div>
       </div>
 
@@ -2162,7 +2062,7 @@
               <span class="metric-title">Discovered Artifacts</span>
               <span class="metric-icon">🛡️</span>
             </div>
-            <div class="metric-value">{{ result.summary.total_findings }}</div>
+            <div class="metric-value">2</div>
             <div class="metric-footer">// Total detections</div>
           </a>
 
@@ -2172,7 +2072,7 @@
               <span class="metric-title">AI Models</span>
               <span class="metric-icon">🧠</span>
             </div>
-            <div class="metric-value">{{ model_count.value }}</div>
+            <div class="metric-value">0</div>
             <div class="metric-footer">// GGUF, weights detected</div>
           </a>
 
@@ -2182,7 +2082,7 @@
               <span class="metric-title">AI Frameworks</span>
               <span class="metric-icon">📦</span>
             </div>
-            <div class="metric-value">{{ package_count.value }}</div>
+            <div class="metric-value">1</div>
             <div class="metric-footer">// Torch, CrewAI libraries</div>
           </a>
 
@@ -2192,7 +2092,7 @@
               <span class="metric-title">Active Runtimes</span>
               <span class="metric-icon">⚡</span>
             </div>
-            <div class="metric-value">{{ runtime_count.value }}</div>
+            <div class="metric-value">1</div>
             <div class="metric-footer">// Port bindings, nodes</div>
           </a>
 
@@ -2202,42 +2102,34 @@
               <span class="metric-title">Agent Frameworks</span>
               <span class="metric-icon">🤖</span>
             </div>
-            <div class="metric-value">{{ agent_count.value }}</div>
+            <div class="metric-value">0</div>
             <div class="metric-footer">// Langchain, CrewAI scripts</div>
           </a>
 
           <!-- API Keys -->
-          {% set api_alert = 'alert-metric' if api_count.value > 0 else '' %}
-          <a href="#APIScanner" class="metric-card {{ api_alert }}">
+          
+          <a href="#APIScanner" class="metric-card ">
             <div class="metric-header">
               <span class="metric-title">API Keys</span>
               <span class="metric-icon">🔑</span>
             </div>
-            <div class="metric-value">{{ api_count.value }}</div>
+            <div class="metric-value">0</div>
             <div class="metric-footer">// Exposed credentials</div>
           </a>
 
           <!-- Classification status -->
-          {% if risk_score >= 51 %}
-            {% set class_alert = 'alert-metric' %}
-          {% elif risk_score > 0 %}
-            {% set class_alert = '' %}
-          {% else %}
-            {% set class_alert = 'alert-metric-green' %}
-          {% endif %}
-          <div class="metric-card {{ class_alert }}">
+          
+            
+          
+          <div class="metric-card alert-metric">
             <div class="metric-header">
               <span class="metric-title">Classification</span>
               <span class="metric-icon">🔍</span>
             </div>
             <div class="metric-value" style="font-size: 1.45rem; padding-top: 8px;">
-              {% if risk_score >= 51 %}
+              
                 <span class="classification-status status-alert">EXPOSED</span>
-              {% elif risk_score > 0 %}
-                <span class="classification-status status-alert" style="color: #ffaa00; ">ACTIVE</span>
-              {% else %}
-                <span class="classification-status status-secure">SECURE</span>
-              {% endif %}
+              
             </div>
             <div class="metric-footer">// Overall assessment</div>
           </div>
@@ -2255,42 +2147,40 @@
       
       <div class="info-item">
         <span class="info-label">Target Hostname</span>
-        <span class="info-value">{{ result.hostname }}</span>
+        <span class="info-value"></span>
       </div>
       <div class="info-item">
         <span class="info-label">Operating System</span>
-        <span class="info-value" title="{{ result.os_info }}">{{ result.os_info }}</span>
+        <span class="info-value" title=""></span>
       </div>
       <div class="info-item">
         <span class="info-label">Scan Period Timestamp</span>
-        <span class="info-value">{{ result.scan_timestamp }}</span>
+        <span class="info-value">2026-06-21T20:24:07.835259</span>
       </div>
       <div class="info-item">
         <span class="info-label">Scan Exec Time</span>
-        <span class="info-value">{{ "%.3f"|format(result.total_duration_sec) }}s</span>
+        <span class="info-value">0.000s</span>
       </div>
     </div>
 
     <!-- ═══════════════ RISK DIMENSION BREAKDOWN (Day 4) ═══════════════ -->
-    {# Count findings by risk tier for dimension scores #}
-    {% set critical_count = result.summary.findings_by_risk.get('critical', 0) | int %}
-    {% set high_count     = result.summary.findings_by_risk.get('high', 0) | int %}
-    {% set medium_count   = result.summary.findings_by_risk.get('medium', 0) | int %}
-    {% set total_f        = result.summary.total_findings | int %}
-    {% set total_f_safe   = total_f if total_f > 0 else 1 %}
+    
+    
+    
+    
+    
+    
 
-    {# Derive 5-dimension proxy scores from existing finding risk data.
-       All scores are bounded 0-100. No division — avoids ZeroDivisionError
-       when total_findings == 0. #}
-    {% set sec_raw   = (critical_count * 100 + high_count * 75) %}
-    {% set sec_score = [[(sec_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
-    {% set priv_raw  = (api_count.value * 85 + agent_count.value * 55) %}
-    {% set priv_score = [[(priv_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
-    {% set comp_score = [[(risk_score * 0.8) | int, 0] | max, 100] | min %}
-    {% set sup_raw   = (model_count.value * 60 + package_count.value * 40) %}
-    {% set sup_score  = [[(sup_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
-    {% set ops_raw   = (runtime_count.value * 50 + medium_count * 25) %}
-    {% set ops_score  = [[(ops_raw // (total_f_safe if total_f_safe > 0 else 1)), 0] | max, 100] | min %}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <div class="hud-panel" style="padding: 20px 24px;">
       <div class="hud-corner c-tl"></div>
@@ -2303,56 +2193,47 @@
         <div class="dim-row">
           <span class="dim-label">Security (25%)</span>
           <div class="dim-bar-track">
-            <div class="dim-bar-fill dim-security" style="width: {{ sec_score }}%;"></div>
+            <div class="dim-bar-fill dim-security" style="width: 37%;"></div>
           </div>
-          <span class="dim-score-lbl">{{ sec_score }}</span>
-          {% if sec_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
-          {% elif sec_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
-          {% elif sec_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+          <span class="dim-score-lbl">37</span>
+          <span class="alert-badge alert-badge-medium">MEDIUM</span>
         </div>
 
         <div class="dim-row">
           <span class="dim-label">Privacy (25%)</span>
           <div class="dim-bar-track">
-            <div class="dim-bar-fill dim-privacy" style="width: {{ priv_score }}%;"></div>
+            <div class="dim-bar-fill dim-privacy" style="width: 0%;"></div>
           </div>
-          <span class="dim-score-lbl">{{ priv_score }}</span>
-          {% if priv_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
-          {% elif priv_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
-          {% elif priv_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+          <span class="dim-score-lbl">0</span>
+          
         </div>
 
         <div class="dim-row">
           <span class="dim-label">Compliance (25%)</span>
           <div class="dim-bar-track">
-            <div class="dim-bar-fill dim-compliance" style="width: {{ comp_score }}%;"></div>
+            <div class="dim-bar-fill dim-compliance" style="width: 50%;"></div>
           </div>
-          <span class="dim-score-lbl">{{ comp_score }}</span>
-          {% if comp_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
-          {% elif comp_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
-          {% elif comp_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+          <span class="dim-score-lbl">50</span>
+          <span class="alert-badge alert-badge-high">HIGH</span>
+          
         </div>
 
         <div class="dim-row">
           <span class="dim-label">Supply Chain (15%)</span>
           <div class="dim-bar-track">
-            <div class="dim-bar-fill dim-supply" style="width: {{ sup_score }}%;"></div>
+            <div class="dim-bar-fill dim-supply" style="width: 20%;"></div>
           </div>
-          <span class="dim-score-lbl">{{ sup_score }}</span>
-          {% if sup_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
-          {% elif sup_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
-          {% elif sup_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+          <span class="dim-score-lbl">20</span>
+          
         </div>
 
         <div class="dim-row">
           <span class="dim-label">Operational (10%)</span>
           <div class="dim-bar-track">
-            <div class="dim-bar-fill dim-ops" style="width: {{ ops_score }}%;"></div>
+            <div class="dim-bar-fill dim-ops" style="width: 37%;"></div>
           </div>
-          <span class="dim-score-lbl">{{ ops_score }}</span>
-          {% if ops_score >= 75 %}<span class="alert-badge alert-badge-critical">⚠ CRITICAL</span>
-          {% elif ops_score >= 50 %}<span class="alert-badge alert-badge-high">HIGH</span>
-          {% elif ops_score >= 25 %}<span class="alert-badge alert-badge-medium">MEDIUM</span>{% endif %}
+          <span class="dim-score-lbl">37</span>
+          <span class="alert-badge alert-badge-medium">MEDIUM</span>
         </div>
 
       </div>
@@ -2382,25 +2263,23 @@
             <!-- Sweep line -->
             <line x1="100" y1="100" x2="100" y2="10" class="dome-sweep-line"/>
             <!-- Risk nodes -->
-            {% if critical_count > 0 %}
-            <circle cx="58"  cy="52" r="5" class="dome-node critical"/>
-            {% endif %}
-            {% if high_count > 0 %}
+            
+            
             <circle cx="142" cy="48" r="4" class="dome-node high"/>
             <circle cx="120" cy="70" r="3" class="dome-node high"/>
-            {% endif %}
-            {% if medium_count > 0 %}
+            
+            
             <circle cx="75"  cy="75" r="3" class="dome-node medium"/>
-            {% endif %}
+            
             <!-- Baseline -->
             <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(211,13,48,0.4)" stroke-width="1.5"/>
           </svg>
           <div class="addon-meta">
             <div class="addon-title">Active Threat Nodes</div>
             <div class="addon-status">
-              CRITICAL: {{ critical_count }} &nbsp;|&nbsp;
-              HIGH: {{ high_count }} &nbsp;|&nbsp;
-              MEDIUM: {{ medium_count }}
+              CRITICAL: 0 &nbsp;|&nbsp;
+              HIGH: 1 &nbsp;|&nbsp;
+              MEDIUM: 1
             </div>
           </div>
         </div>
@@ -2434,8 +2313,8 @@
           <div class="addon-meta">
             <div class="addon-title">Scan Pipeline</div>
             <div class="addon-status">
-              {{ result.summary.modules_run }} MODULES &nbsp;|&nbsp;
-              {{ result.summary.total_findings }} SIGNALS
+              0 MODULES &nbsp;|&nbsp;
+              2 SIGNALS
             </div>
           </div>
         </div>
@@ -2453,33 +2332,34 @@
         <div class="hud-header-tab" style="left: 20px;">SUSPECTED DETECTION VECTORS</div>
 
         <!-- Filter Tabs (Day 3) -->
-        {# Count findings by tier for tab counters #}
-        {% set ns_tab = namespace(approved=0, review=0, banned=0) %}
-        {% for f in result.findings %}
-          {% set r = f.risk_level.value if f.risk_level.value is defined else f.risk_level %}
-          {% if r in ['info', 'low'] %}
-            {% set ns_tab.approved = ns_tab.approved + 1 %}
-          {% elif r == 'medium' %}
-            {% set ns_tab.review = ns_tab.review + 1 %}
-          {% else %}
-            {% set ns_tab.banned = ns_tab.banned + 1 %}
-          {% endif %}
-        {% endfor %}
+        
+        
+        
+          
+          
+            
+          
+        
+          
+          
+            
+          
+        
         <div class="filter-tabs" id="filter-tabs">
           <button class="filter-tab active" data-tab="all"
                   onclick="setTabFilter('all', this)">
             ALL
-            <span class="tab-count">({{ result.summary.total_findings }})</span>
+            <span class="tab-count">(2)</span>
           </button>
           <button class="filter-tab" data-tab="approved"
                   onclick="setTabFilter('approved', this)">
             ✅ APPROVED &amp; MODERATE
-            <span class="tab-count">({{ ns_tab.approved + ns_tab.review }})</span>
+            <span class="tab-count">(1)</span>
           </button>
           <button class="filter-tab" data-tab="banned"
                   onclick="setTabFilter('banned', this)">
             🚫 REVIEW &amp; BANNED
-            <span class="tab-count">({{ ns_tab.banned }})</span>
+            <span class="tab-count">(1)</span>
           </button>
         </div>
 
@@ -2506,56 +2386,55 @@
           
           <select id="filter-category" class="hud-select">
             <option value="all">All Categories</option>
-            {% for cat, count in result.summary.findings_by_category.items() %}
-            <option value="{{ cat }}">{{ cat }} ({{ count }})</option>
-            {% endfor %}
+            
+            <option value="ML Framework">ML Framework (1)</option>
+            
+            <option value="LLM Runtime">LLM Runtime (1)</option>
+            
           </select>
           
           <select id="filter-risk" class="hud-select">
             <option value="all">All Risks</option>
-            {% for risk, count in result.summary.findings_by_risk.items() %}
-            <option value="{{ risk }}">{{ risk|upper }} ({{ count }})</option>
-            {% endfor %}
+            
+            <option value="medium">MEDIUM (1)</option>
+            
+            <option value="high">HIGH (1)</option>
+            
           </select>
         </div>
 
         <!-- Findings List categorized by Modules -->
         <div class="findings-container" id="findings-list">
           
-          {% set ns = namespace(system=[], file=[], process=[], package=[], agent=[], runtime=[], api=[]) %}
-          {% for f in result.findings %}
-            {% set mod = f.module_name %}
-            {% if mod == 'SystemScanner' %}
-              {% set ns.system = ns.system + [f] %}
-            {% elif mod == 'FileScanner' %}
-              {% set ns.file = ns.file + [f] %}
-            {% elif mod == 'ProcessScanner' %}
-              {% set ns.process = ns.process + [f] %}
-            {% elif mod == 'PackageScanner' %}
-              {% set ns.package = ns.package + [f] %}
-            {% elif mod == 'AgentScanner' %}
-              {% set ns.agent = ns.agent + [f] %}
-            {% elif mod == 'RuntimeScanner' %}
-              {% set ns.runtime = ns.runtime + [f] %}
-            {% elif mod == 'APIScanner' %}
-              {% set ns.api = ns.api + [f] %}
-            {% endif %}
-          {% endfor %}
+          
+          
+            
+            
+              
+            
+          
+            
+            
+              
+            
+          
 
           <!-- SECTION 1: SYSTEM SCANNER -->
           <section class="module-section" id="SystemScanner" data-section-name="SystemScanner">
             <div class="module-section-title">
               <span class="title-txt">🖥️ Module 01: System Information Scanner</span>
-              <span class="module-badge">{{ ns.system | length }} findings</span>
+              <span class="module-badge">0 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.system %}
-                {% for finding in ns.system %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+  <div class="empty-state">
+    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-title">NO FINDINGS RECORDED</div>
+    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
+  </div>
+
+              
             </div>
           </section>
 
@@ -2563,16 +2442,18 @@
           <section class="module-section" id="FileScanner" data-section-name="FileScanner">
             <div class="module-section-title">
               <span class="title-txt">🧠 Module 02: AI Models & Weights Scanner</span>
-              <span class="module-badge">{{ ns.file | length }} findings</span>
+              <span class="module-badge">0 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.file %}
-                {% for finding in ns.file %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+  <div class="empty-state">
+    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-title">NO FINDINGS RECORDED</div>
+    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
+  </div>
+
+              
             </div>
           </section>
 
@@ -2580,16 +2461,18 @@
           <section class="module-section" id="ProcessScanner" data-section-name="ProcessScanner">
             <div class="module-section-title">
               <span class="title-txt">🔍 Module 03: Process Scanner</span>
-              <span class="module-badge">{{ ns.process | length }} findings</span>
+              <span class="module-badge">0 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.process %}
-                {% for finding in ns.process %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+  <div class="empty-state">
+    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-title">NO FINDINGS RECORDED</div>
+    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
+  </div>
+
+              
             </div>
           </section>
 
@@ -2597,16 +2480,85 @@
           <section class="module-section" id="PackageScanner" data-section-name="PackageScanner">
             <div class="module-section-title">
               <span class="title-txt">📦 Module 04: Machine Learning Frameworks</span>
-              <span class="module-badge">{{ ns.package | length }} findings</span>
+              <span class="module-badge">1 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.package %}
-                {% for finding in ns.package %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+                  
+  
+  
+  
+  
+  <div class="finding-card risk-level-medium" data-category="ML Framework" data-risk="medium">
+    <div class="finding-header" onclick="toggleFinding(this)">
+      <div class="finding-main-info">
+        <div class="finding-icon-state"></div>
+        <span class="finding-title">tf</span>
+      </div>
+      <div class="finding-meta">
+        <span class="badge badge-category">ML Framework</span>
+        <span class="badge badge-severity badge-severity-medium">medium</span>
+        <span class="expand-chevron">▼</span>
+      </div>
+    </div>
+    <div class="finding-body">
+      <div class="details-grid">
+        <span class="details-label">Description</span>
+        <span class="details-val">desc</span>
+        
+        <span class="details-label">Attribution</span>
+        <span class="details-val"><span class="details-val-source">src</span></span>
+        
+        <span class="details-label">Confidence</span>
+        <span class="details-val">
+          <div class="confidence-wrapper">
+            <div class="confidence-track">
+              <div class="confidence-bar" style="width: 0%;"></div>
+            </div>
+            <span class="confidence-lbl">0% CONFIRMATION</span>
+          </div>
+        </span>
+
+        <span class="details-label">Timestamp</span>
+        <span class="details-val">2026-06-21T20:24:07.835207</span>
+
+        
+          <span class="details-label">Metadata Trace</span>
+          <div class="metadata-table-wrapper">
+            <table class="metadata-table">
+              <tbody>
+                
+                  <tr>
+                    <td class="meta-key">Key</td>
+                    <td class="meta-val">
+                      
+                        value
+                      
+                    </td>
+                  </tr>
+                
+                  <tr>
+                    <td class="meta-key">Nested</td>
+                    <td class="meta-val">
+                      
+                        <pre class="meta-val-code">{
+  "inner": true
+}</pre>
+                      
+                    </td>
+                  </tr>
+                
+              </tbody>
+            </table>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+                
+              
             </div>
           </section>
 
@@ -2614,16 +2566,18 @@
           <section class="module-section" id="AgentScanner" data-section-name="AgentScanner">
             <div class="module-section-title">
               <span class="title-txt">🤖 Module 05: AI Agent Frameworks</span>
-              <span class="module-badge">{{ ns.agent | length }} findings</span>
+              <span class="module-badge">0 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.agent %}
-                {% for finding in ns.agent %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+  <div class="empty-state">
+    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-title">NO FINDINGS RECORDED</div>
+    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
+  </div>
+
+              
             </div>
           </section>
 
@@ -2631,16 +2585,74 @@
           <section class="module-section" id="RuntimeScanner" data-section-name="RuntimeScanner">
             <div class="module-section-title">
               <span class="title-txt">⚡ Module 06: LLM Runtimes & Active Services</span>
-              <span class="module-badge">{{ ns.runtime | length }} findings</span>
+              <span class="module-badge">1 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.runtime %}
-                {% for finding in ns.runtime %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+                  
+  
+  
+  
+  
+  <div class="finding-card risk-level-high" data-category="LLM Runtime" data-risk="high">
+    <div class="finding-header" onclick="toggleFinding(this)">
+      <div class="finding-main-info">
+        <div class="finding-icon-state"></div>
+        <span class="finding-title">llm</span>
+      </div>
+      <div class="finding-meta">
+        <span class="badge badge-category">LLM Runtime</span>
+        <span class="badge badge-severity badge-severity-high">high</span>
+        <span class="expand-chevron">▼</span>
+      </div>
+    </div>
+    <div class="finding-body">
+      <div class="details-grid">
+        <span class="details-label">Description</span>
+        <span class="details-val">desc</span>
+        
+        <span class="details-label">Attribution</span>
+        <span class="details-val"><span class="details-val-source">src</span></span>
+        
+        <span class="details-label">Confidence</span>
+        <span class="details-val">
+          <div class="confidence-wrapper">
+            <div class="confidence-track">
+              <div class="confidence-bar" style="width: 0%;"></div>
+            </div>
+            <span class="confidence-lbl">0% CONFIRMATION</span>
+          </div>
+        </span>
+
+        <span class="details-label">Timestamp</span>
+        <span class="details-val">2026-06-21T20:24:07.835253</span>
+
+        
+          <span class="details-label">Metadata Trace</span>
+          <div class="metadata-table-wrapper">
+            <table class="metadata-table">
+              <tbody>
+                
+                  <tr>
+                    <td class="meta-key">Path</td>
+                    <td class="meta-val">
+                      
+                        /opt/llm
+                      
+                    </td>
+                  </tr>
+                
+              </tbody>
+            </table>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+                
+              
             </div>
           </section>
 
@@ -2648,16 +2660,18 @@
           <section class="module-section" id="APIScanner" data-section-name="APIScanner">
             <div class="module-section-title">
               <span class="title-txt">🔑 Module 07: API Keys & Credentials Scanner</span>
-              <span class="module-badge">{{ ns.api | length }} findings</span>
+              <span class="module-badge">0 findings</span>
             </div>
             <div class="findings-list-wrapper">
-              {% if ns.api %}
-                {% for finding in ns.api %}
-                  {{ render_finding_card(finding) }}
-                {% endfor %}
-              {% else %}
-                {{ render_empty_state() }}
-              {% endif %}
+              
+                
+  <div class="empty-state">
+    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-title">NO FINDINGS RECORDED</div>
+    <div class="empty-state-text">Telemetry scan did not isolate any matching indicators or library hooks in this region.</div>
+  </div>
+
+              
             </div>
           </section>
 
@@ -2678,25 +2692,26 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% set sbom_cats = ['ML Framework', 'AI Service'] %}
-                  {% set sbom_count = namespace(count=0) %}
-                  {% for f in result.findings %}
-                    {% set cat_str = f.category.value if f.category.value is defined else f.category %}
-                    {% if cat_str in sbom_cats %}
-                      {% set sbom_count.count = sbom_count.count + 1 %}
-                      {% set risk_str = f.risk_level.value if f.risk_level.value is defined else f.risk_level %}
+                  
+                  
+                  
+                    
+                    
+                      
+                      
                       <tr>
-                        <td class="meta-val">{{ f.finding_id }}</td>
-                        <td class="meta-val">{{ f.module_name }}</td>
-                        <td class="meta-val">{{ f.title }}</td>
-                        <td class="meta-val"><span class="badge badge-severity badge-severity-{{ risk_str }}">{{ risk_str }}</span></td>
-                        <td class="meta-val">{{ f.source }}</td>
+                        <td class="meta-val">47a38d4a</td>
+                        <td class="meta-val">PackageScanner</td>
+                        <td class="meta-val">tf</td>
+                        <td class="meta-val"><span class="badge badge-severity badge-severity-medium">medium</span></td>
+                        <td class="meta-val">src</td>
                       </tr>
-                    {% endif %}
-                  {% endfor %}
-                  {% if sbom_count.count == 0 %}
-                    <tr><td colspan="5" style="text-align: center; padding: 12px; color: var(--text-muted);">No SBOM items detected.</td></tr>
-                  {% endif %}
+                    
+                  
+                    
+                    
+                  
+                  
                 </tbody>
               </table>
             </div>
@@ -2719,25 +2734,26 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% set aibom_cats = ['AI Model', 'AI Agent', 'LLM Runtime'] %}
-                  {% set aibom_count = namespace(count=0) %}
-                  {% for f in result.findings %}
-                    {% set cat_str = f.category.value if f.category.value is defined else f.category %}
-                    {% if cat_str in aibom_cats %}
-                      {% set aibom_count.count = aibom_count.count + 1 %}
-                      {% set risk_str = f.risk_level.value if f.risk_level.value is defined else f.risk_level %}
+                  
+                  
+                  
+                    
+                    
+                  
+                    
+                    
+                      
+                      
                       <tr>
-                        <td class="meta-val">{{ f.finding_id }}</td>
-                        <td class="meta-val">{{ f.module_name }}</td>
-                        <td class="meta-val">{{ f.title }}</td>
-                        <td class="meta-val"><span class="badge badge-severity badge-severity-{{ risk_str }}">{{ risk_str }}</span></td>
-                        <td class="meta-val">{{ f.source }}</td>
+                        <td class="meta-val">888a94d6</td>
+                        <td class="meta-val">RuntimeScanner</td>
+                        <td class="meta-val">llm</td>
+                        <td class="meta-val"><span class="badge badge-severity badge-severity-high">high</span></td>
+                        <td class="meta-val">src</td>
                       </tr>
-                    {% endif %}
-                  {% endfor %}
-                  {% if aibom_count.count == 0 %}
-                    <tr><td colspan="5" style="text-align: center; padding: 12px; color: var(--text-muted);">No AI BOM items detected.</td></tr>
-                  {% endif %}
+                    
+                  
+                  
                 </tbody>
               </table>
             </div>
@@ -2759,27 +2775,7 @@
           <p style="font-size: 0.8rem; color: #475569; margin-bottom: 12px;">// ENGINE DIAGNOSTICS & VERIFICATION STATS</p>
 
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            {% for module in result.modules %}
-            <div class="module-row">
-              <div class="module-title-box">
-                <span class="module-index">{{ module.module_number }}</span>
-                <span class="module-name-lbl" title="{{ module.name }}">{{ module.name }}</span>
-              </div>
-              <div class="module-telemetry">
-                <span class="module-time">{{ "%.3f"|format(module.duration_sec) }}s</span>
-                {% if module.status == 'success' %}
-                  <span class="module-status-indicator status-ok">OK</span>
-                {% elif module.status == 'skipped' %}
-                  <span class="module-status-indicator status-skip">SKIP</span>
-                {% else %}
-                  <span class="module-status-indicator status-fail">ERR</span>
-                {% endif %}
-                {% if module.findings_count > 0 %}
-                <span class="sidebar-findings-counter">{{ module.findings_count }}</span>
-                {% endif %}
-              </div>
-            </div>
-            {% endfor %}
+            
           </div>
         </div>
 
@@ -2792,12 +2788,12 @@
           <div style="color: #475569; text-transform: uppercase;">
             &gt; INIT SYSTEM PROTOCOL...<br/>
             &gt; PARALLEL MODULE DISPATCH ON<br/>
-            &gt; {{ result.summary.modules_run }} WORKERS DETECTED.<br/>
-            &gt; SUCCESS: {{ result.summary.modules_succeeded }} MODULES OK.<br/>
-            &gt; RETRIEVED {{ result.summary.total_findings }} SEGMENTS.<br/>
+            &gt; 0 WORKERS DETECTED.<br/>
+            &gt; SUCCESS: 0 MODULES OK.<br/>
+            &gt; RETRIEVED 2 SEGMENTS.<br/>
             &gt; COMPUTE ATTRIBUTION VALUE...<br/>
-            &gt; RISK ATTRIBUTION VALUE: {{ result.summary.overall_risk_score }}<br/>
-            &gt; SYSTEM STATE: {% if risk_score >= 51 %}UNSECURE - INVESTIGATE{% else %}NORMAL MONITORING{% endif %}
+            &gt; RISK ATTRIBUTION VALUE: 62.5<br/>
+            &gt; SYSTEM STATE: UNSECURE - INVESTIGATE
           </div>
         </div>
 
@@ -2816,39 +2812,43 @@
   <script>
     // ─── Embedded report data for client-side export ───────────────────────
     const SCAN_DATA = {
-      scan_id:             "{{ result.scan_id }}",
-      scan_timestamp:      "{{ result.scan_timestamp }}",
-      hostname:            "{{ result.hostname }}",
-      os_info:             "{{ result.os_info }}",
-      risk_score:          {{ "%.1f"|format(risk_score) }},
-      total_findings:      {{ result.summary.total_findings }},
-      total_duration_sec:  {{ result.total_duration_sec | default(0.0) | float }},
-      modules_run:         {{ result.summary.modules_run | default(0) | int }},
-      modules_succeeded:   {{ result.summary.modules_succeeded | default(0) | int }},
-      modules_failed:      {{ result.summary.modules_failed | default(0) | int }},
+      scan_id:             "123",
+      scan_timestamp:      "2026-06-21T20:24:07.835259",
+      hostname:            "",
+      os_info:             "",
+      risk_score:          62.5,
+      total_findings:      2,
+      total_duration_sec:  0.0,
+      modules_run:         0,
+      modules_succeeded:   0,
+      modules_failed:      0,
       modules: [
-        {% for m in result.modules %}
-        {
-          name:           "{{ m.name }}",
-          status:         "{{ m.status }}",
-          duration_sec:   {{ m.duration_sec | default(0.0) | float }},
-          findings_count: {{ m.findings_count | default(0) | int }}
-        }{% if not loop.last %},{% endif %}
-        {% endfor %}
+        
       ],
       findings: [
-        {% for f in result.findings %}
+        
         {
-          finding_id:  "{{ f.finding_id }}",
-          module:      "{{ f.module_name }}",
-          title:       {{ f.title | tojson }},
-          category:    "{{ f.category.value if f.category.value is defined else f.category }}",
-          risk_level:  "{{ f.risk_level.value if f.risk_level.value is defined else f.risk_level }}",
-          source:      {{ f.source | tojson }},
-          confidence:  {{ "%.2f"|format(f.confidence) }},
-          timestamp:   "{{ f.timestamp }}"
-        }{% if not loop.last %},{% endif %}
-        {% endfor %}
+          finding_id:  "47a38d4a",
+          module:      "PackageScanner",
+          title:       "tf",
+          category:    "ML Framework",
+          risk_level:  "medium",
+          source:      "src",
+          confidence:  0.00,
+          timestamp:   "2026-06-21T20:24:07.835207"
+        },
+        
+        {
+          finding_id:  "888a94d6",
+          module:      "RuntimeScanner",
+          title:       "llm",
+          category:    "LLM Runtime",
+          risk_level:  "high",
+          source:      "src",
+          confidence:  0.00,
+          timestamp:   "2026-06-21T20:24:07.835253"
+        }
+        
       ]
     };
 
@@ -2900,15 +2900,6 @@
       // Update button active states
       document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
-
-      // Trigger fading transition
-      const container = document.querySelector('.findings-container');
-      if (container) {
-        container.style.animation = 'none';
-        container.offsetHeight; // trigger reflow
-        container.style.animation = 'fadeTabIn 0.3s ease-in';
-      }
-
       // Re-apply all filters
       applyFilters();
     }
@@ -3028,7 +3019,6 @@
     // Pure JS XLSX writer — no external libraries.
     // Produces a valid multi-sheet .xlsx (Office Open XML / ZIP) workbook.
     function exportDashboardExcel() {
-      const S = SCAN_DATA;
       // ── helpers ──────────────────────────────────────────────────────────
       function escXml(s) {
         return String(s)

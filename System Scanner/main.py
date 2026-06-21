@@ -113,6 +113,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Enable verbose/debug logging",
     )
     parser.add_argument(
+        "--cpu-limit",
+        type=float,
+        default=90.0,
+        help="Percentage-based CPU consumption limit (e.g. 90 for 90%%)",
+    )
+    parser.add_argument(
+        "--ram-limit",
+        type=float,
+        default=25.0,
+        help="Percentage-based RAM consumption limit (e.g. 15 for 15%% of total system memory)",
+    )
+    parser.add_argument(
         "--export-siem",
         type=str,
         default=None,
@@ -144,6 +156,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show scan history trend from the 180-day retention database and exit",
     )
     parser.add_argument(
+        "--export-dashboard",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Export the 180-day ICT log retention history to an HTML dashboard (e.g. --export-dashboard dashboard.html)",
+    )
+    parser.add_argument(
         "--export-sbom",
         type=str,
         default=None,
@@ -155,6 +174,25 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["spdx", "cyclonedx"],
         default="cyclonedx",
         help="Format for the exported SBOM JSON (default: cyclonedx)",
+    )
+    parser.add_argument(
+        "--enforce",
+        action="store_true",
+        help="Actively terminate banned agents and disable consumer-grade Windows Copilot",
+    )
+    parser.add_argument(
+        "--export-syslog",
+        type=str,
+        default=None,
+        metavar="HOST:PORT",
+        help="Export telemetry to SIEM via syslog (e.g. 192.168.1.10:514)",
+    )
+    parser.add_argument(
+        "--export-http",
+        type=str,
+        default=None,
+        metavar="URL",
+        help="Export telemetry to SIEM via HTTP webhook",
     )
     return parser
 
@@ -347,7 +385,7 @@ def main() -> None:
         else:
             args = parser.parse_args()
             # If command-line args were provided but scan was not set
-            if not args.scan:
+            if not args.scan and not getattr(args, "history", False):
                 parser.print_help()
                 sys.exit(0)
 
@@ -373,14 +411,36 @@ def main() -> None:
             print(f"  Min risk:      {trend['min_risk']}")
             print(f"  Total findings:{trend['total_findings']}")
             db.close()
+            
+            if getattr(args, "export_dashboard", None):
+                try:
+                    from scanner.reporter.dashboard_exporter import DashboardExporter
+                    DashboardExporter().export(args.export_dashboard)
+                    print(f"\n{BOLD}{GREEN}Exported history dashboard to {args.export_dashboard}{RESET}")
+                except Exception as e:
+                    print(f"\n{RED}Failed to export dashboard: {e}{RESET}")
             sys.exit(0)
+            
         print(f"\n{BOLD}{GOLD}🔍 AI DISCOVERY SCANNER{RESET} {DIM}v1.0.0{RESET}")
         print(f"{DIM}============================================================{RESET}")
         logger.info("Scan initiated...")
 
         # Run the scan
-        controller = ScanController(quick=args.quick, scan_folder=args.folder, max_depth=args.depth)
+        cpu_limit = getattr(args, "cpu_limit", 90.0)
+        ram_limit = getattr(args, "ram_limit", 25.0)
+        controller = ScanController(quick=args.quick, scan_folder=args.folder, max_depth=args.depth, cpu_limit=cpu_limit, ram_limit=ram_limit)
         result = controller.run_scan()
+
+        # ── Developer A: Endpoint Enforcement Engine ──
+        if getattr(args, "enforce", False):
+            from scanner.enforcement import EnforcementEngine
+            enforcer = EnforcementEngine()
+            print(f"\n{BOLD}{RED}⚠️  ACTIVE ENFORCEMENT TRIGGERED ⚠️{RESET}")
+            terminated = enforcer.terminate_banned_agents(result)
+            print(f"  {RED}Terminated agents:{RESET} {terminated} processes")
+            copilot_disabled = enforcer.disable_windows_copilot()
+            if copilot_disabled:
+                print(f"  {RED}Windows Copilot:{RESET}  Disabled")
 
         # Output results
         result_dict = result.to_dict()
@@ -433,6 +493,38 @@ def main() -> None:
                 print(f"  {GREEN}SIEM export:{RESET}      {siem_file}")
             except Exception as siem_err:
                 logger.warning("SIEM export failed: %s", siem_err)
+
+        # SIEM Syslog Export
+        syslog_target = getattr(args, "export_syslog", None)
+        if syslog_target:
+            try:
+                host, port_str = syslog_target.split(":", 1)
+                exporter = SIEMExporter()
+                exporter.export_to_syslog(result, host=host, port=int(port_str))
+                print(f"  {GREEN}SIEM Syslog:{RESET}      {syslog_target}")
+            except Exception as e:
+                logger.warning("SIEM Syslog export failed: %s", e)
+
+        # SIEM HTTP Export
+        http_url = getattr(args, "export_http", None)
+        if http_url:
+            try:
+                exporter = SIEMExporter()
+                exporter.export_to_http(result, url=http_url)
+                print(f"  {GREEN}SIEM HTTP:{RESET}        {http_url}")
+            except Exception as e:
+                logger.warning("SIEM HTTP export failed: %s", e)
+
+        # Dashboard Export
+        dashboard_target = getattr(args, "export_dashboard", None)
+        if dashboard_target:
+            try:
+                from scanner.reporter.dashboard_exporter import DashboardExporter
+                exporter = DashboardExporter()
+                if exporter.export(dashboard_target):
+                    print(f"  {GREEN}Dashboard:{RESET}        {dashboard_target}")
+            except Exception as e:
+                logger.warning("Dashboard export failed: %s", e)
 
         # Optional: CSV SBOM export
         csv_file = getattr(args, "export_csv", None)

@@ -242,6 +242,53 @@ def scan_py_file_ast(file_path: pathlib.Path) -> list[Finding]:
     return findings
 
 
+def scan_file_for_snippets(file_path: pathlib.Path) -> list[Finding]:
+    """Scan raw text for inline copyleft comments/signatures in code snippets."""
+    findings: list[Finding] = []
+    try:
+        content = file_path.read_text(encoding="utf-8", errors="ignore")
+        # Split into lines for snippet extraction
+        lines = content.splitlines()
+        
+        for i, line in enumerate(lines):
+            for lic_name, tax in LICENSE_TAXONOMY.items():
+                if tax["status"] not in ("Review / Banned", "Moderate"):
+                    continue
+                for kw in tax["keywords"]:
+                    if re.search(kw, line, re.IGNORECASE):
+                        # Construct a multi-line snippet for context
+                        start_idx = max(0, i - 1)
+                        end_idx = min(len(lines), i + 2)
+                        snippet = "\n".join(lines[start_idx:end_idx]).strip()
+                        if len(snippet) > 200:
+                            snippet = snippet[:197] + "..."
+                            
+                        findings.append(Finding(
+                            module_name=MODULE_NAME,
+                            title=f"Code Snippet: {lic_name} Mention",
+                            description=(
+                                f"Possible copyleft / restrictive license signature '{lic_name}' detected inline in "
+                                f"'{file_path.name}' at line {i+1}. This may indicate an inadvertently copied AI snippet."
+                            ),
+                            source=f"{str(file_path.resolve()).replace('\\', '/')}:{i+1}",
+                            category=FindingCategory.CONFIGURATION,
+                            risk_level=tax["risk_level"],
+                            confidence=0.85,
+                            details={
+                                "file_path": str(file_path.resolve()).replace("\\", "/"),
+                                "line_number": i + 1,
+                                "license_detected": lic_name,
+                                "status": tax["status"],
+                                "detection_method": "Inline Regex Scanner",
+                                "snippet": snippet
+                            }
+                        ))
+                        break
+    except Exception as e:
+        logger.debug("LicenseScanner: snippet scan failed for %s: %s", file_path, e)
+    return findings
+
+
 def scan_workspace_license_files(scan_dir: pathlib.Path) -> list[Finding]:
     """Scan root directories for license text files."""
     findings: list[Finding] = []
@@ -309,8 +356,12 @@ def run(scan_folder: str | None = None, max_depth: int | None = None) -> tuple[l
             curr_depth = len(curr_path.parts) - root_depth
 
             for f in files:
+                file_path = curr_path / f
                 if f.endswith(".py"):
-                    findings.extend(scan_py_file_ast(curr_path / f))
+                    findings.extend(scan_py_file_ast(file_path))
+                    findings.extend(scan_file_for_snippets(file_path))
+                elif f.endswith((".js", ".ts", ".jsx", ".tsx", ".cpp", ".c", ".h", ".hpp", ".java", ".go", ".rs")):
+                    findings.extend(scan_file_for_snippets(file_path))
 
             if curr_depth >= depth_val:
                 dirs.clear()

@@ -81,7 +81,8 @@ class LogRetentionDB:
         self._conn.execute("PRAGMA foreign_keys=ON;")
 
     def _create_schema(self) -> None:
-        assert self._conn is not None
+        if not self._conn:
+            raise RuntimeError("Database connection is not initialized.")
         self._conn.executescript("""
             CREATE TABLE IF NOT EXISTS schema_meta (
                 key   TEXT PRIMARY KEY,

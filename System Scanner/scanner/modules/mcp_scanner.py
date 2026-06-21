@@ -109,6 +109,16 @@ _SERVER_SERVICE_MAP: dict[str, str] = {
     "exa":          "Exa web search",
 }
 
+# Whitelist of approved remote MCP servers
+_APPROVED_MCP_DOMAINS: frozenset[str] = frozenset({
+    "api.anthropic.com",
+    "api.openai.com",
+    "api.github.com",
+    "mcp.codeium.com",
+    "localhost",
+    "127.0.0.1",
+})
+
 
 # ── Config file location resolution ──────────────────────────────────────────
 
@@ -312,8 +322,19 @@ def _classify_server_risk(server_name: str, server_cfg: dict[str, Any]) -> RiskL
     if has_secret_env or command in shell_commands:
         return RiskLevel.HIGH
 
-    # HIGH: remote URL transport (SSE/HTTP MCP)
+    # Remote URL transport (SSE/HTTP MCP)
     if server_cfg.get("url") or server_cfg.get("transport") == "sse":
+        url = str(server_cfg.get("url", ""))
+        if url:
+            from urllib.parse import urlparse
+            try:
+                hostname = urlparse(url).hostname
+                if hostname and hostname.lower() not in _APPROVED_MCP_DOMAINS:
+                    # CRITICAL: unauthorized remote server
+                    return RiskLevel.CRITICAL
+            except Exception:
+                return RiskLevel.CRITICAL
+        # If it's a remote transport but approved or no URL, treat as HIGH
         return RiskLevel.HIGH
 
     # MEDIUM: known AI/API-access services
@@ -408,8 +429,23 @@ def _parse_config_file(
             title += f" ({service_desc})"
 
         description_parts = [
-            f"MCP server '{server_name}' registered in {source_label}.",
+            f"MCP server '{server_name}' registered in {source_label}."
         ]
+        
+        # Check if it was flagged for unauthorized domain
+        is_unauthorized = False
+        if url:
+            from urllib.parse import urlparse
+            try:
+                hostname = urlparse(url).hostname
+                if hostname and hostname.lower() not in _APPROVED_MCP_DOMAINS:
+                    is_unauthorized = True
+            except Exception:
+                is_unauthorized = True
+
+        if is_unauthorized:
+            description_parts.append(f"UNAUTHORIZED REMOTE SERVER (Poisoning Risk) — domain not in whitelist.")
+
         if command:
             description_parts.append(f"Command: {command} {' '.join(str(a) for a in args[:3])}")
         if url:

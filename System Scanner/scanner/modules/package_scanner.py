@@ -149,11 +149,16 @@ PIPX_AI_PACKAGES: dict[str, str] = {
 def _run_cmd(cmd: list[str], timeout: int = 10) -> str | None:
     """Run a subprocess command and return stdout as a string, or None on failure."""
     try:
+        kwargs = {}
+        if platform.system() == "Windows":
+            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             timeout=timeout,
+            **kwargs
         )
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout.strip()

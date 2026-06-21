@@ -146,7 +146,8 @@ class TestClassifyServerRisk(unittest.TestCase):
             "remote-server",
             {"url": "https://example.com/mcp", "transport": "sse"}
         )
-        self.assertEqual(risk, RiskLevel.HIGH)
+        # Because example.com is not in the whitelist, this is CRITICAL now.
+        self.assertEqual(risk, RiskLevel.CRITICAL)
 
     def test_github_server_is_medium(self):
         risk = _classify_server_risk(
@@ -264,7 +265,8 @@ class TestParseConfigFile(unittest.TestCase):
 
         self.assertEqual(len(findings), 1)
         f = findings[0]
-        self.assertEqual(f.risk_level, RiskLevel.HIGH)
+        # example.com is not whitelisted, so it should be CRITICAL
+        self.assertEqual(f.risk_level, RiskLevel.CRITICAL)
         self.assertEqual(f.details["url"], "https://mcp.example.com/agent")
         self.assertEqual(f.details["transport"], "sse")
 

@@ -41,8 +41,8 @@ def safe_print(msg: str) -> None:
         try:
             # Fallback to ascii representation or strip emojis
             print(msg.encode("ascii", errors="replace").decode("ascii"))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Failed to fallback print message: %s", e)
 
 
 class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
@@ -67,7 +67,11 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 scanner_dir = os.path.dirname(os.path.abspath(__file__))
                 templates_dir = os.path.join(scanner_dir, "reporter", "templates")
                 
-                env = Environment(loader=FileSystemLoader(templates_dir))
+                from jinja2 import select_autoescape
+                env = Environment(
+                    loader=FileSystemLoader(templates_dir),
+                    autoescape=select_autoescape(['html', 'xml', 'j2'])
+                )
                 template = env.get_template("consent.html.j2")
 
                 hostname = socket.gethostname()
@@ -167,7 +171,7 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 class ScanServer:
     """Orchestrator for the Threading Scan HTTPServer."""
 
-    def __init__(self, host: str = "0.0.0.0", port: int = 8000) -> None:
+    def __init__(self, host: str = "127.0.0.1", port: int = 8000) -> None:
         self.host = host
         self.port = port
         self.server: http.server.ThreadingHTTPServer | None = None

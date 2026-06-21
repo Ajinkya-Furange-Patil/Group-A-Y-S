@@ -194,12 +194,16 @@ def verify_windows_signature(file_path: str) -> dict[str, Any]:
         "ConvertTo-Json"
     )
 
+    import shutil
+    powershell_path = shutil.which("powershell") or "powershell.exe"
+    
     try:
         res = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps_cmd],
+            [powershell_path, "-NoProfile", "-Command", ps_cmd],
             capture_output=True,
             text=True,
-            timeout=8
+            timeout=8,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
         if res.returncode == 0 and res.stdout.strip():
             raw_data = json.loads(res.stdout)

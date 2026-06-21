@@ -44,7 +44,11 @@ def generate_html_report(scan_result: ScanResult, output_path: str) -> None:
         templates_dir = os.path.join(os.path.dirname(__file__), "templates")
         
         # Set up Jinja2 environment
-        env = Environment(loader=FileSystemLoader(templates_dir))
+        from jinja2 import select_autoescape
+        env = Environment(
+            loader=FileSystemLoader(templates_dir),
+            autoescape=select_autoescape(['html', 'xml', 'j2'])
+        )
         template = env.get_template("dashboard.html.j2")
         
         # Render the template

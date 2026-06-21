@@ -43,14 +43,14 @@ class ScanController:
         result = controller.run_scan()
     """
 
-    def __init__(self, quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None) -> None:
+    def __init__(self, quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None, cpu_limit: float = 90.0, ram_limit: float = 25.0) -> None:
         """Initialize the Scan Controller with engine and classifier instances."""
-        self._engine = DiscoveryEngine()
+        self._engine = DiscoveryEngine(cpu_limit=cpu_limit, ram_limit=ram_limit)
         self._classifier = ClassificationEngine()
         self._quick = quick
         self._scan_folder = scan_folder
         self._max_depth = max_depth
-        logger.info("Scan Controller initialized (quick=%s, folder=%s, depth=%s)", quick, scan_folder, max_depth)
+        logger.info("Scan Controller initialized (quick=%s, folder=%s, depth=%s, cpu_limit=%.1f, ram_limit=%.1f)", quick, scan_folder, max_depth, cpu_limit, ram_limit)
 
     def _register_modules(self) -> None:
         """Register all available scanner modules with the Discovery Engine.
@@ -146,6 +146,16 @@ class ScanController:
             logger.debug("MODULE 09: LicenseScanner not available (ImportError)")
         except Exception as e:
             logger.warning("Failed to initialize MODULE 09: LicenseScanner: %s", e, exc_info=True)
+
+        # ── MODULE 10: Compliance Scanner ────────────────────────────────
+        try:
+            from scanner.modules.compliance_scanner import ComplianceScanner
+            self._engine.register_module(ComplianceScanner(scan_folder=self._scan_folder, max_depth=self._max_depth))
+            logger.info("Successfully registered MODULE 10: ComplianceScanner")
+        except ImportError:
+            logger.debug("MODULE 10: ComplianceScanner not available (ImportError)")
+        except Exception as e:
+            logger.warning("Failed to initialize MODULE 10: ComplianceScanner: %s", e, exc_info=True)
 
         logger.info("Module registration complete. Registered %d active modules.", len(self._engine._modules))
 
