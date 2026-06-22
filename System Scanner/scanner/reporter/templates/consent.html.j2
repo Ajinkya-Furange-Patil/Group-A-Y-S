@@ -506,15 +506,15 @@
           <div class="system-stats animate-in">
             <div class="stat-row">
               <span class="stat-label">Target Device:</span>
-              <span class="stat-value">YADNESH</span>
+              <span class="stat-value">{{ hostname }}</span>
             </div>
             <div class="stat-row">
               <span class="stat-label">Operating System:</span>
-              <span class="stat-value">Windows 11</span>
+              <span class="stat-value">{{ os_info }}</span>
             </div>
             <div class="stat-row">
               <span class="stat-label">Local Network IP:</span>
-              <span class="stat-value">10.50.20.110</span>
+              <span class="stat-value">{{ ip_address }}</span>
             </div>
           </div>
 
@@ -528,19 +528,74 @@
               <div class="module-item"><span class="module-icon">🤖</span><span>AI Agent Code Snippets</span></div>
               <div class="module-item"><span class="module-icon">🔌</span><span>Local Host Listeners</span></div>
               <div class="module-item"><span class="module-icon">🔑</span><span>Hidden API Credentials</span></div>
+              <div class="module-item"><span class="module-icon">📜</span><span>Open Source Licenses</span></div>
+              <div class="module-item"><span class="module-icon">🌐</span><span>Remote Github Repositories</span></div>
+              <div class="module-item"><span class="module-icon">☁️</span><span>Google Drive & Cloud</span></div>
             </div>
           </div>
 
-          <div class="controls-section animate-in">
-            <label class="checkbox-control">
-              <input type="checkbox" id="quickModeToggle" checked />
-              <div class="checkbox-text">
-                <strong>Quick Scan Mode</strong>
-                <div class="checkbox-help">Limits search path recursive depth to prevent network performance lags. Recommended.</div>
-              </div>
-            </label>
+          <style>
+          .form-group {
+              margin-bottom: 15px;
+              display: flex;
+              flex-direction: column;
+          }
+          .form-group label {
+              font-size: 11px;
+              font-weight: 600;
+              color: var(--text-secondary);
+              margin-bottom: 5px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+          }
+          .form-select, .form-input {
+              background-color: var(--bg-primary);
+              border: 1px solid var(--border-color);
+              color: var(--text-primary);
+              padding: 10px 15px;
+              border-radius: 4px;
+              font-family: inherit;
+              font-size: 14px;
+              width: 100%;
+              outline: none;
+              transition: border-color 0.2s;
+          }
+          .form-select:focus, .form-input:focus {
+              border-color: var(--hud-blue);
+          }
+          </style>
 
-            <label class="checkbox-control">
+          <div class="controls-section animate-in">
+            <div class="form-group">
+              <label for="targetRegionSelect">Target Region</label>
+              <select id="targetRegionSelect" class="form-select" onchange="toggleFolderInput(); validateConsent();">
+                <option value="all">Full System Scan</option>
+                <option value="folder">Custom Folder</option>
+                <option value="github" disabled>Remote Github Repositories (Future Scope)</option>
+                <option value="gdrive" disabled>Google Drive & Cloud (Future Scope)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="folderInputContainer" style="display: none;">
+              <label for="folderPathInput">Folder Path</label>
+              <input type="text" id="folderPathInput" class="form-input" placeholder="C:\Projects\" oninput="validateConsent()" />
+            </div>
+
+            <div class="form-group">
+              <label for="depthLevelSelect">Scan Depth Level</label>
+              <select id="depthLevelSelect" class="form-select" onchange="toggleDepthInput(); validateConsent();">
+                <option value="normal">Normal (10 Levels)</option>
+                <option value="faster">Quick Mode (2 Levels)</option>
+                <option value="custom">Custom Depth</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="depthInputContainer" style="display: none;">
+              <label for="customDepthInput">Max Depth</label>
+              <input type="number" id="customDepthInput" class="form-input" value="5" min="0" oninput="validateConsent()" />
+            </div>
+
+            <label class="checkbox-control" style="margin-top: 20px;">
               <input type="checkbox" id="consentCheckbox" onchange="validateConsent()" />
               <div class="checkbox-text">
                 <strong>I authorize the execution of the AI Discovery Scanner</strong>
