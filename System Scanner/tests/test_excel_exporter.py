@@ -91,15 +91,16 @@ class TestExportExcel(unittest.TestCase):
             "xl/worksheets/sheet6.xml",
             "xl/worksheets/sheet7.xml",
             "xl/worksheets/sheet8.xml",
+            "xl/worksheets/sheet9.xml",
         }
         for member in required:
             self.assertIn(member, names, f"Missing: {member}")
 
-    def test_eight_sheets(self):
+    def test_nine_sheets(self):
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
             sheets = [n for n in zf.namelist() if n.startswith("xl/worksheets/sheet")]
-        self.assertEqual(len(sheets), 8)
+        self.assertEqual(len(sheets), 9)
 
     # ── Content checks ────────────────────────────────────────────────────
 
@@ -112,6 +113,7 @@ class TestExportExcel(unittest.TestCase):
             "Software BOM (SBOM)",
             "AI BOM (AIBOM)",
             "Summary",
+            "Diagnostics",
             "All Findings",
             "Risk Breakdown",
             "By Category",
@@ -134,24 +136,24 @@ class TestExportExcel(unittest.TestCase):
         self.assertIn("test-host", sst)
 
     def test_findings_sheet_has_all_rows(self):
-        """Sheet5 (All Findings) should have header + n_findings rows."""
+        """Sheet6 (All Findings) should have header + n_findings rows."""
         n = 6
         export_excel(_make_result(n_findings=n), self.path)
         with zipfile.ZipFile(self.path) as zf:
-            sheet5 = zf.read("xl/worksheets/sheet5.xml").decode("utf-8")
+            sheet6 = zf.read("xl/worksheets/sheet6.xml").decode("utf-8")
         # Count <row> elements — header + n data rows = n+1
-        row_count = sheet5.count('<row r=')
+        row_count = sheet6.count('<row r=')
         self.assertEqual(row_count, n + 1)
 
     def test_xml_escaping_in_description(self):
         """Special XML chars in description must be escaped, not break XML."""
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
-            sheet5 = zf.read("xl/worksheets/sheet5.xml").decode("utf-8")
+            sheet6 = zf.read("xl/worksheets/sheet6.xml").decode("utf-8")
         # If escaping works the file is valid XML — just verify no raw < inside cell values
         # (our inline strings should use &lt;)
         import xml.etree.ElementTree as ET
-        ET.fromstring(sheet5)   # raises if malformed
+        ET.fromstring(sheet6)   # raises if malformed
 
     def test_zero_findings(self):
         """Should produce a valid file even with no findings."""

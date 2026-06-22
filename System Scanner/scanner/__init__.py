@@ -5,5 +5,7 @@ A modular AI detection system that scans host machines to identify
 AI frameworks, models, processes, runtimes, agents, and API integrations.
 """
 
-__version__ = "1.0.0"
+from scanner.version_manager import get_version
+
+__version__ = get_version()
 __author__ = "Group A-Y-S"

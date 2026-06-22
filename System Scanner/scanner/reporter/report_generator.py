@@ -45,14 +45,19 @@ def generate_html_report(scan_result: ScanResult, output_path: str) -> None:
         
         # Set up Jinja2 environment
         from jinja2 import select_autoescape
+        from scanner.version_manager import get_version
+        
         env = Environment(
             loader=FileSystemLoader(templates_dir),
             autoescape=select_autoescape(['html', 'xml', 'j2'])
         )
         template = env.get_template("dashboard.html.j2")
         
-        # Render the template
-        rendered_html = template.render(result=scan_result)
+        # Render the template with version
+        rendered_html = template.render(
+            result=scan_result,
+            version=get_version()
+        )
         
         # Write to file
         with open(output_path, "w", encoding="utf-8") as f:

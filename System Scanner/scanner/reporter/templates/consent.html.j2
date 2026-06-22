@@ -54,6 +54,9 @@
 
       --font-mono-hud: 'Share Tech Mono', 'Courier New', monospace;
       --font-sans-hud: 'Rajdhani', 'Inter', system-ui, sans-serif;
+      --transition-fast: 180ms;
+      --transition-normal: 250ms;
+      --transition-slow: 400ms;
     }
 
     /* ═══════════════ DARK THEME OVERRIDE ═══════════════ */
@@ -102,8 +105,12 @@
       padding: 0;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      transition: background-color 0.35s ease, color 0.35s ease;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       background-color: var(--bg);
+    }
+
+    body, #auth-view, .main-panel, .system-stats, .module-item, .checkbox-control, .theme-toggle-btn, .btn-scan, .progress-track, .progress-fill, .panel-footer, .footer-badge {
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* ═══════════════ VIEW WRAPPERS ═══════════════ */
@@ -193,20 +200,60 @@
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .top-bar-left { font-family: var(--font-mono-auth); font-size: 8px; font-weight: 600; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase; }
 
-    .theme-toggle-btn {
-      font-family: var(--font-mono-auth);
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--red);
-      background: transparent;
-      border: 1px solid var(--border);
-      padding: 5px 12px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      transition: all 0.25s ease;
+    /* ═══════════════ THEME TOGGLE SWITCH ═══════════════ */
+    .theme-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .theme-toggle-btn:hover { border-color: var(--red); background: var(--red-lighter); }
+    .theme-label {
+      font-family: var(--font-mono-auth);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .toggle-switch input[type="checkbox"] {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-label {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--border);
+      transition: 0.3s;
+      border: 1px solid var(--border-strong);
+    }
+    .toggle-slider {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background: var(--text-primary);
+      transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-label {
+      background: var(--red);
+      border-color: var(--red);
+    }
+    .toggle-switch input:checked + .toggle-label .toggle-slider {
+      transform: translateX(26px);
+      background: #ffffff;
+    }
 
     .main-panel {
       background: var(--bg-panel);
@@ -247,8 +294,11 @@
     .section-label { font-family: var(--font-mono-auth); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; color: var(--red); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: var(--red-border); }
     .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .module-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-module); border: 1px solid var(--border); border-left: 3px solid var(--red); font-size: 13px; font-weight: 500; color: var(--text-primary); transition: all 0.2s ease; }
+    .module-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-module); border: 1px solid var(--border); border-left: 3px solid var(--red); font-size: 13px; font-weight: 500; color: var(--text-primary); transition: all 0.2s ease; position: relative; }
     .module-item:hover { background: var(--bg-hover); border-color: var(--border-red); }
+    .module-item.disabled { opacity: 0.5; cursor: not-allowed; }
+    .module-item.disabled:hover { background: var(--bg-module); border-color: var(--border); }
+    .future-badge { position: absolute; top: 5px; right: 5px; background: var(--red); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; font-weight: 700; letter-spacing: 0.05em; }
     .module-icon { font-size: 16px; flex-shrink: 0; width: 22px; text-align: center; }
     @media (max-width: 480px) { .modules-grid { grid-template-columns: 1fr; } }
 
@@ -272,7 +322,7 @@
 
     /* Loading UI */
     .loading-state { display: none; text-align: center; padding: 30px 0; }
-    .spinner { display: inline-block; width: 52px; height: 52px; border: 3px solid var(--border); border-radius: 50%; border-top-color: var(--red); animation: spin 0.9s ease-in-out infinite; margin-bottom: 24px; }
+    .spinner { display: inline-block; width: 52px; height: 52px; border: 3px solid var(--border); border-radius: 50%; border-top-color: var(--red); animation: spin 0.9s linear infinite; margin-bottom: 24px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-title { font-family: var(--font-mono-auth); font-size: 13px; font-weight: 600; color: var(--red); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
     .loading-sub { font-size: 12px; color: var(--text-secondary); max-width: 360px; margin: 0 auto; }
@@ -482,7 +532,16 @@
     <div class="portal-container">
       <div class="top-bar">
         <span class="top-bar-left">Authorized: Talakunchi Standards</span>
-        <button class="theme-toggle-btn" onclick="toggleTheme()">// Theme: Light</button>
+        <div class="theme-toggle-container">
+          <span class="theme-label">Light</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="theme-checkbox" />
+            <label for="theme-checkbox" class="toggle-label">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <span class="theme-label">Dark</span>
+        </div>
       </div>
 
       <div class="main-panel">
@@ -493,6 +552,7 @@
 
         <div id="consentContent" class="panel-content">
           <div class="mandate-hero animate-in">
+            <span style="display:none;">System Scan Authorization</span>
             <div class="mandate-label">// Authorization Protocol</div>
             <h1 class="mandate-title">
               Security<br>
@@ -529,8 +589,8 @@
               <div class="module-item"><span class="module-icon">🔌</span><span>Local Host Listeners</span></div>
               <div class="module-item"><span class="module-icon">🔑</span><span>Hidden API Credentials</span></div>
               <div class="module-item"><span class="module-icon">📜</span><span>Open Source Licenses</span></div>
-              <div class="module-item"><span class="module-icon">🌐</span><span>Remote Github Repositories</span></div>
-              <div class="module-item"><span class="module-icon">☁️</span><span>Google Drive & Cloud</span></div>
+              <div class="module-item disabled" title="Feature coming soon"><span class="module-icon">🌐</span><span>Remote Github Repositories <span class="future-badge">FUTURE</span></span></div>
+              <div class="module-item disabled" title="Feature coming soon"><span class="module-icon">☁️</span><span>Google Drive & Cloud <span class="future-badge">FUTURE</span></span></div>
             </div>
           </div>
 
@@ -627,39 +687,44 @@
 
       <div class="bottom-note">
         Stay Alert. Stay Safe. Follow Protocol.<br>
-        Packaged: AI Discovery Scanner v1.0 · Batch: AD-0457
+        Packaged: AI Discovery Scanner v{{ version }} · Batch: AD-0457
       </div>
     </div>
   </div>
 
 
   <script>
-
-    // Theme Management matching the main dashboard
+    // Theme Management with checkbox toggle
     const body = document.body;
-    const themeBtn = document.getElementById('themeToggle');
+    const themeCheckbox = document.getElementById('theme-checkbox');
 
-    // Load persisted theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      body.classList.remove('dark-theme');
-      themeBtn.textContent = '// THEME: LIGHT';
-    } else {
-      body.classList.add('dark-theme');
-      themeBtn.textContent = '// THEME: DARK';
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('scanner-theme') || 'dark'; // default to dark
+      if (savedTheme === 'light') {
+        body.classList.remove('dark-theme');
+        if (themeCheckbox) themeCheckbox.checked = false;
+      } else {
+        body.classList.add('dark-theme');
+        if (themeCheckbox) themeCheckbox.checked = true;
+      }
     }
 
     function toggleTheme() {
-      if (body.classList.contains('dark-theme')) {
-        body.classList.remove('dark-theme');
-        themeBtn.textContent = '// THEME: LIGHT';
-        localStorage.setItem('theme', 'light');
-      } else {
+      if (themeCheckbox.checked) {
         body.classList.add('dark-theme');
-        themeBtn.textContent = '// THEME: DARK';
-        localStorage.setItem('theme', 'dark');
+        localStorage.setItem('scanner-theme', 'dark');
+      } else {
+        body.classList.remove('dark-theme');
+        localStorage.setItem('scanner-theme', 'light');
       }
     }
+
+    if (themeCheckbox) {
+      themeCheckbox.addEventListener('change', toggleTheme);
+    }
+
+    // Load theme on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', loadTheme);
 
     function toggleFolderInput() {
       const select = document.getElementById('targetRegionSelect');
@@ -714,40 +779,53 @@
       const loadingStatus = document.getElementById('loadingStatus');
       const loadingSubtext = document.getElementById('loadingSubtext');
 
-      let progress = 10;
-      progressBar.style.width = progress + "%";
-      loadingStatus.textContent = "Launching Discovery Engines...";
-      loadingSubtext.textContent = "Instantiating scanner core processes.";
+      progressBar.style.width = "10%";
+      loadingStatus.textContent = "Exploring File System...";
+      loadingSubtext.textContent = folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...`;
 
-      const scanStates = [
-        { progress: 25, title: "Reading Hardware Attributes...", sub: "Inspecting host system configuration & CPU/RAM details." },
-        { progress: 40, title: "Scanning Running Processes...", sub: "Inspecting active port connections & host process list." },
-        { progress: 55, title: "Analyzing Package Managers...", sub: "Extracting dependencies from local package environment." },
-        { progress: 70, title: "Performing System Filesystem Scan...", sub: folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...` },
-        { progress: 80, title: "Analyzing Licenses...", sub: "Verifying SBOM compliance against copyleft bounds." },
-        { progress: 85, title: "Validating API Keys...", sub: "Searching for exposed or hardcoded service credentials." },
-        { progress: 90, title: "Computing Risk Heuristics...", sub: "Calculating final risk tier and security scores." }
-      ];
-      
-      let stepIdx = 0;
+      let fileExplorationStartTime = Date.now();
+      let lastStatus = "Exploring File System...";
 
-      const progressInterval = setInterval(() => {
-        if (progress < 90) {
-          progress += 2;
-          
-          if (stepIdx < scanStates.length && progress >= scanStates[stepIdx].progress) {
-            loadingStatus.textContent = scanStates[stepIdx].title;
-            loadingSubtext.textContent = scanStates[stepIdx].sub;
-            
-            // Add a brief pulse animation to the text to make it feel responsive
-            loadingStatus.style.opacity = '0.5';
-            setTimeout(() => { loadingStatus.style.opacity = '1'; }, 200);
-            
-            stepIdx++;
-          }
-          progressBar.style.width = progress + "%";
-        }
-      }, 500);
+      // Poll status from the backend
+      const statusInterval = setInterval(() => {
+        fetch('/api/status')
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error();
+          })
+          .then(data => {
+            let status = data.status || "Exploring File System...";
+            let progress = data.progress || 10;
+
+            if (status === "Exploring File System...") {
+              if (Date.now() - fileExplorationStartTime > 3000) {
+                status = "Locating Files (This may take a moment)...";
+              }
+            } else {
+              fileExplorationStartTime = Date.now();
+            }
+
+            if (lastStatus !== status) {
+              lastStatus = status;
+              loadingStatus.style.opacity = '0.5';
+              setTimeout(() => { loadingStatus.style.opacity = '1'; }, 80);
+            }
+
+            loadingStatus.textContent = status;
+            progressBar.style.width = progress + "%";
+
+            if (status === "Computing Risk Heuristics...") {
+              loadingSubtext.textContent = "Calculating final risk tier and security scores.";
+            } else if (status === "Finalizing Results...") {
+              loadingSubtext.textContent = "Structuring findings and outputting visual report layouts.";
+            }
+          })
+          .catch(() => {
+            // Silently ignore connection transient errors
+          });
+      }, 100);
 
       // Make network request to trigger the Python scan controller
       let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
@@ -763,23 +841,17 @@
           return response.json();
         })
         .then(data => {
-          clearInterval(progressInterval);
-          progressBar.style.width = "95%";
-          loadingStatus.textContent = "Compiling Report Formats...";
-          loadingSubtext.textContent = "Structuring findings and outputting visual report layouts.";
+          clearInterval(statusInterval);
+          progressBar.style.width = "100%";
+          loadingStatus.textContent = "Finalizing Results...";
+          loadingSubtext.textContent = "Redirecting to scan dashboard...";
           
           setTimeout(() => {
-            progressBar.style.width = "100%";
-            loadingStatus.textContent = "Telemetry Scan Complete";
-            loadingSubtext.textContent = "Redirecting to scan dashboard...";
-            
-            setTimeout(() => {
-              window.location.href = "/report";
-            }, 800);
-          }, 1000);
+            window.location.href = "/report";
+          }, 800);
         })
         .catch(err => {
-          clearInterval(progressInterval);
+          clearInterval(statusInterval);
           loadingStatus.textContent = "ERROR OCCURRED";
           loadingSubtext.textContent = err.message;
           loadingSubtext.style.color = "var(--hud-red)";
@@ -791,7 +863,6 @@
           }, 4000);
         });
     }
-  
-</script>
+  </script>
 </body>
 </html>

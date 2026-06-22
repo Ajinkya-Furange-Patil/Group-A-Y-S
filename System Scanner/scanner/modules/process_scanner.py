@@ -63,6 +63,25 @@ AI_DAEMON_NAMES: dict[str, str] = {
     # GitHub Copilot agent
     "copilot-language-server.exe": "GitHub Copilot Language Server",
     "gh-copilot.exe":           "GitHub Copilot CLI",
+    "copilot.exe":              "GitHub Copilot Desktop",
+    # Kiro AI Assistant
+    "kiro.exe":                 "Kiro AI Assistant",
+    "kiro-server.exe":          "Kiro Language Server",
+    "kiro-lsp.exe":             "Kiro LSP",
+    "kiro":                     "Kiro AI Assistant",
+    "kiro.app":                 "Kiro AI Assistant",
+    # OpenAI Codex
+    "codex.exe":                "OpenAI Codex",
+    "codex-server.exe":         "Codex Backend Server",
+    "codex-backend.exe":        "Codex Backend",
+    "codex":                    "OpenAI Codex",
+    "codex.app":                "OpenAI Codex",
+    # Antigravity AI
+    "antigravity.exe":          "Antigravity AI",
+    "antigravity-daemon.exe":   "Antigravity Service",
+    "antigravity-server.exe":   "Antigravity Server",
+    "antigravity":              "Antigravity AI",
+    "antigravity.app":          "Antigravity AI",
     # Cursor / Windsurf / similar AI-first editors
     "cursor.exe":               "Cursor AI Editor",
     "windsurf.exe":             "Windsurf AI Editor",
@@ -75,9 +94,12 @@ AI_DAEMON_PREFIXES: tuple[str, ...] = (
     "chatgpthelper",
     "claude",
     "claudehelper",
-    "copilotruntime",
+    "copilot",              # Broadened from "copilotruntime" to catch all copilot variants
     "microsoftcopilot",
     "geminihelper",
+    "kiro",                 # Catches kiro.exe, kiro-server.exe, kiro-lsp.exe, kiro_v2.exe
+    "codex",                # Catches codex.exe, codex-server.exe, codex-backend.exe
+    "antigravity",          # Catches antigravity.exe, antigravity-daemon.exe, antigravity-server.exe
 )
 
 # Command-line keywords indicating AI-related Python runs
@@ -219,9 +241,18 @@ def _match_ai_daemon(name: str, exe: str) -> tuple[bool, str, str]:
     name_lower = name.lower()
     exe_basename = os.path.basename(exe).lower() if exe else ""
 
+    logger.debug(
+        "ProcessScanner: Checking process '%s' (exe: '%s') against AI daemon patterns",
+        name, exe
+    )
+
     # Exact match against known daemon dict
     for key, label in AI_DAEMON_NAMES.items():
         if name_lower == key or exe_basename == key:
+            logger.debug(
+                "ProcessScanner: Matched AI daemon via exact match: %s -> %s",
+                key, label
+            )
             return True, key, label
 
     # Prefix match for versioned / variant executables
@@ -229,6 +260,10 @@ def _match_ai_daemon(name: str, exe: str) -> tuple[bool, str, str]:
         if name_lower.startswith(prefix) or exe_basename.startswith(prefix):
             # Derive a human-readable label from the prefix
             label = prefix.replace("helper", " Helper").replace("runtime", " Runtime").title()
+            logger.debug(
+                "ProcessScanner: Matched AI daemon via prefix '%s' -> %s",
+                prefix, label
+            )
             return True, prefix, label
 
     return False, "", ""
@@ -283,7 +318,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                     is_ai_process = True
                     is_daemon = True
                     matched_keyword = daemon_key
-                    title = daemon_label
+                    title = f"{daemon_label} (PID: {pid})"  # Include PID to differentiate duplicates
                     description = (
                         f"AI daemon detected: {daemon_label} (PID {pid}) is running "
                         f"as a background process."

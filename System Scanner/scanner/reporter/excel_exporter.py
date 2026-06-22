@@ -143,7 +143,7 @@ def _sheet_xml(rows_data: list[list[tuple]], col_widths: list[int] = None) -> by
 def _build_summary_sheet(result_dict: dict) -> list[list[tuple]]:
     summary = result_dict.get("summary", {})
     rows = [
-        [("s", "AI Discovery Scanner — Scan Summary Report", 2)],
+        [("s", f"AI Discovery Scanner — Scan Summary Report (v{result_dict.get('version', '1.1.0')})", 2)],
         [],
         [("h", "Field", 1), ("h", "Value", 1)],
         [("s", "Scan ID", 9),          ("s", result_dict.get("scan_id", ""), 0)],
@@ -168,6 +168,32 @@ def _build_summary_sheet(result_dict: dict) -> list[list[tuple]]:
             ("s", mod.get("status", ""), 10 if is_even else 11),
             ("n", round(mod.get("duration_sec", 0), 3), 10 if is_even else 11),
             ("n", mod.get("findings_count", 0), 10 if is_even else 11),
+        ])
+    return rows
+
+
+def _build_diagnostics_sheet(result_dict: dict) -> list[list[tuple]]:
+    header = [("h", h, 1) for h in [
+        "Diagnostic Check", "Value / Output", "Status", "Timestamp"
+    ]]
+    rows = [header]
+    for idx, diag in enumerate(result_dict.get("diagnostics", [])):
+        is_even = idx % 2 == 0
+        status = diag.get("status", "PASS").upper()
+        
+        status_style = 10 if is_even else 11
+        if status == "FAIL":
+            status_style = 5
+        elif status == "WARNING":
+            status_style = 6
+        elif status == "PASS":
+            status_style = 8
+            
+        rows.append([
+            ("s", diag.get("name", ""), 0 if is_even else 4),
+            ("s", diag.get("value", ""), 0 if is_even else 4),
+            ("s", status, status_style),
+            ("s", diag.get("timestamp", ""), 10 if is_even else 11),
         ])
     return rows
 
@@ -588,6 +614,7 @@ def export_excel(scan_result: ScanResult | dict, output_path: str) -> None:
         ("Software BOM (SBOM)",      _build_sbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
         ("AI BOM (AIBOM)",          _build_aibom_sheet(result_dict), [15, 18, 28, 45, 18, 40, 15, 15, 25]),
         ("Summary",                 _build_summary_sheet(result_dict), [30, 30, 15, 15]),
+        ("Diagnostics",             _build_diagnostics_sheet(result_dict), [30, 45, 15, 25]),
         ("All Findings",            _build_findings_sheet(result_dict), [15, 18, 28, 45, 18, 15, 40, 15, 25]),
         ("Risk Breakdown",          _build_risk_breakdown_sheet(result_dict), [22, 12, 15, 15]),
         ("By Category",             _build_by_category_sheet(result_dict), [25, 15]),

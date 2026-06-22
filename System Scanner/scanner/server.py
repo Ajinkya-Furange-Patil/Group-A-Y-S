@@ -15,6 +15,8 @@ import platform
 import socket
 import urllib.parse
 from jinja2 import Environment, FileSystemLoader
+from scanner.status_tracker import update_scan_status
+from scanner.version_manager import get_version, get_version_info
 
 logger = logging.getLogger(__name__)
 
@@ -79,11 +81,15 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 release = platform.release()
                 os_info = f"{system} {release}" if system else "Unknown OS"
                 ip_address = get_local_ip()
+                version_info = get_version_info()
 
                 rendered_html = template.render(
                     hostname=hostname,
                     os_info=os_info,
-                    ip_address=ip_address
+                    ip_address=ip_address,
+                    version=version_info["version"],
+                    version_string=version_info["version_string"],
+                    display_name=version_info["display_name"]
                 )
                 self.wfile.write(rendered_html.encode("utf-8"))
             except Exception as e:
@@ -106,6 +112,58 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_response(302)
                 self.send_header("Location", "/")
                 self.end_headers()
+        elif path == "/api/status":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            status_path = "scan_status.json"
+            if os.path.exists(status_path):
+                try:
+                    with open(status_path, "r", encoding="utf-8") as f:
+                        self.wfile.write(f.read().encode("utf-8"))
+                except Exception as e:
+                    logger.error("Error reading scan_status.json: %s", e)
+                    self.wfile.write(b'{"status": "Exploring File System...", "progress": 10}')
+            else:
+                self.wfile.write(b'{"status": "Exploring File System...", "progress": 10}')
+        
+        elif path == "/api/version":
+            """Get version information"""
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            version_info = get_version_info()
+            self.wfile.write(json.dumps(version_info).encode("utf-8"))
+        
+        elif path == "/api/modules":
+            """Get module execution status from last scan"""
+            report_path = "report.json"
+            if os.path.exists(report_path):
+                try:
+                    with open(report_path, "r", encoding="utf-8") as f:
+                        report_data = json.load(f)
+                    
+                    modules = report_data.get("modules", [])
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "modules": modules,
+                        "total_count": len(modules),
+                        "success_count": sum(1 for m in modules if m.get("status") == "success"),
+                        "failure_count": sum(1 for m in modules if m.get("status") != "success")
+                    }).encode("utf-8"))
+                except Exception as e:
+                    logger.error("Error reading modules from report: %s", e)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Failed to read module data"}).encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "No scan results found"}')
 
         elif path == "/api/results":
             report_path = "report.json"
@@ -146,17 +204,102 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                         
                     os.unlink(tmp_name)
                     
+                    # Include version in filename
+                    version = get_version().replace(".", "_")
+                    filename = f"ai_scan_report_v{version}.xlsx"
+                    
                     self.send_response(200)
                     self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    self.send_header("Content-Disposition", 'attachment; filename="ai_scan_report.xlsx"')
+                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
                     self.end_headers()
                     self.wfile.write(excel_data)
+                except PermissionError as e:
+                    logger.error("Excel export permission error: %s", e, exc_info=True)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Cannot write to destination folder. Check permissions."}).encode("utf-8"))
+                except OSError as e:
+                    import errno
+                    logger.error("Excel export OS error: %s", e, exc_info=True)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    if e.errno == errno.ENOSPC:
+                        err_msg = "Insufficient disk space for export."
+                    else:
+                        err_msg = f"Export failed: {e.strerror or str(e)}"
+                    self.wfile.write(json.dumps({"error": err_msg}).encode("utf-8"))
+                except (ImportError, ModuleNotFoundError) as e:
+                    logger.error("Excel export missing dependencies error: %s", e, exc_info=True)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Excel export requires additional libraries. Please install dependencies."}).encode("utf-8"))
                 except Exception as e:
-                    logger.error("Error generating Excel report: %s", e)
+                    logger.error("Error generating Excel report: %s", e, exc_info=True)
                     self.send_response(500)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
                     self.wfile.write(json.dumps({"error": f"Failed to generate Excel: {e}"}).encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "No scan results found to export"}')
+        
+        elif path == "/api/export/json":
+            """Download JSON report with versioned filename"""
+            report_path = "report.json"
+            if os.path.exists(report_path):
+                try:
+                    with open(report_path, "rb") as f:
+                        json_data = f.read()
+                    
+                    # Include version in filename
+                    version = get_version().replace(".", "_")
+                    filename = f"ai_scan_report_v{version}.json"
+                    
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                    self.end_headers()
+                    self.wfile.write(json_data)
+                except Exception as e:
+                    logger.error("Error downloading JSON report: %s", e)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": f"Failed to download JSON: {e}"}).encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "No scan results found to export"}')
+        
+        elif path == "/api/export/html":
+            """Download HTML report with versioned filename"""
+            html_path = "rendered_dashboard.html"
+            if os.path.exists(html_path):
+                try:
+                    with open(html_path, "rb") as f:
+                        html_data = f.read()
+                    
+                    # Include version in filename
+                    version = get_version().replace(".", "_")
+                    filename = f"ai_scan_dashboard_v{version}.html"
+                    
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html")
+                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                    self.end_headers()
+                    self.wfile.write(html_data)
+                except Exception as e:
+                    logger.error("Error downloading HTML report: %s", e)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": f"Failed to download HTML: {e}"}).encode("utf-8"))
             else:
                 self.send_response(404)
                 self.send_header("Content-Type", "application/json")
@@ -181,6 +324,7 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 from scanner.reporter import generate_json_report, generate_html_report
 
                 # Perform scan directly inside the handler thread
+                update_scan_status("Exploring File System...", 10)
                 controller = ScanController(quick=quick, scan_folder=folder, max_depth=depth)
                 result = controller.run_scan()
 

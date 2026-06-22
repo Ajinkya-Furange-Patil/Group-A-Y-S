@@ -25,6 +25,7 @@ import time
 from scanner.classifier import ClassificationEngine
 from scanner.engine import DiscoveryEngine
 from scanner.models import ScanResult
+from scanner.status_tracker import update_scan_status
 
 logger = logging.getLogger(__name__)
 
@@ -217,9 +218,12 @@ class ScanController:
 
             # Step 3: Classify findings
             logger.info("[3/3] Running Classification Engine...")
+            update_scan_status("Computing Risk Heuristics...", 60)
             classified_findings = self._classifier.classify(all_findings)
             result.findings = classified_findings
             logger.info("Classification Engine complete. Processed %d findings.", len(classified_findings))
+
+            update_scan_status("Finalizing Results...", 90)
 
         except Exception as e:
             logger.error("Scan pipeline encountered a top-level error: %s", e, exc_info=True)
@@ -227,6 +231,7 @@ class ScanController:
         finally:
             result.total_duration_sec = time.time() - scan_start
             result.compute_summary()
+            update_scan_status("Complete", 100)
 
         logger.info("=" * 60)
         logger.info(

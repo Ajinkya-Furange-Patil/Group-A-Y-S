@@ -69,7 +69,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Map readline to GPL with RiskLevel.HIGH
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
   
-  - [-] 4.2 Create `check_imports` function with AST walker
+  - [ ] 4.2 Create `check_imports` function with AST walker
     - Use ast.walk() to traverse AST nodes
     - Detect ast.Import nodes (direct imports like "import PyQt5")
     - Detect ast.ImportFrom nodes (from-imports like "from PyQt5 import QtCore")
@@ -92,7 +92,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - _Requirements: 4.9_
 
 - [ ] 5. Integrate file scanning and Finding creation in License Scanner
-  - [~] 5.1 Implement directory traversal in `scan()` method
+  - [ ] 5.1 Implement directory traversal in `scan()` method
     - Use pathlib.Path to walk scan_folder or current directory
     - Respect max_depth parameter for recursion limit
     - Filter for .py files only
@@ -115,11 +115,11 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Verify Finding.to_dict() serialization preserves all fields
     - _Requirements: 1.5, 1.6_
 
-- [~] 6. Checkpoint - Ensure License Scanner tests pass
+- [ ] 6. Checkpoint - Ensure License Scanner tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Enhance Runtime Scanner with process metadata retrieval
-  - [~] 7.1 Replace `_find_process_for_port` function implementation
+  - [ ] 7.1 Replace `_find_process_for_port` function implementation
     - Import psutil at function level with ImportError handling
     - Implement fast path using psutil.net_connections(kind="inet")
     - Check for conn.laddr.port match and conn.status == "LISTEN"
@@ -146,7 +146,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Verify module_status = "success"
 
 - [ ] 8. Update Runtime Scanner port findings to include process metadata
-  - [~] 8.1 Modify port Finding creation in `run()` method
+  - [ ] 8.1 Modify port Finding creation in `run()` method
     - For each detected open port in PORT_MAP, call _find_process_for_port(port)
     - Add process_id, process_name, process_cmdline to details dictionary when available
     - Ensure findings are created even when process_info is None
@@ -167,11 +167,11 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Stop test server and verify cleanup
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [~] 9. Checkpoint - Ensure Runtime Scanner tests pass
+- [ ] 9. Checkpoint - Ensure Runtime Scanner tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Synchronize theme storage key in consent portal template
-  - [~] 10.1 Update consent.html.j2 localStorage key from "hud-theme" to "theme"
+  - [ ] 10.1 Update consent.html.j2 localStorage key from "hud-theme" to "theme"
     - Find all occurrences of localStorage.getItem('hud-theme') and replace with localStorage.getItem('theme')
     - Find all occurrences of localStorage.setItem('hud-theme', ...) and replace with localStorage.setItem('theme', ...)
     - Verify theme toggle button updates localStorage with correct key
@@ -185,7 +185,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
 - [ ] 11. Verify dashboard template uses consistent theme key
-  - [~] 11.1 Review dashboard.html.j2 theme implementation
+  - [ ] 11.1 Review dashboard.html.j2 theme implementation
     - Search for all localStorage theme-related calls
     - Verify localStorage.getItem('theme') is used consistently
     - Verify localStorage.setItem('theme', ...) is used consistently
@@ -201,7 +201,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Verify no "hud-theme" references remain
 
 - [ ] 12. Verify dashboard filter compatibility with license findings
-  - [~] 12.1 Test license findings in dashboard filter system
+  - [ ] 12.1 Test license findings in dashboard filter system
     - Start the scanner application
     - Run a scan that produces license findings
     - Open the dashboard and locate license findings
@@ -212,7 +212,7 @@ Each task builds incrementally to ensure early validation of core functionality.
     - Verify severity badges display correct colors (Critical/High/Medium/Info)
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [~] 13. Final checkpoint - Integration verification
+- [ ] 13. Final checkpoint - Integration verification
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
