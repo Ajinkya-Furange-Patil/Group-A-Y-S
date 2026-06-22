@@ -18,7 +18,35 @@ from jinja2 import Environment, FileSystemLoader
 from scanner.status_tracker import update_scan_status
 from scanner.version_manager import get_version, get_version_info
 
+import threading
+
 logger = logging.getLogger(__name__)
+
+_scan_thread = None
+_scan_lock = threading.Lock()
+
+
+def _run_scan_background(quick: bool, folder: str | None, depth: int | None) -> None:
+    global _scan_thread
+    with _scan_lock:
+        try:
+            from scanner.controller import ScanController
+            from scanner.reporter import generate_json_report, generate_html_report
+
+            # Ensure we start progress tracking
+            update_scan_status("Exploring File System...", 10)
+            controller = ScanController(quick=quick, scan_folder=folder, max_depth=depth)
+            result = controller.run_scan()
+
+            # Generate reports on filesystem
+            generate_json_report(result, "report.json")
+            generate_html_report(result, "rendered_dashboard.html")
+
+            # Update status to complete
+            update_scan_status("Complete", 100)
+        except Exception as e:
+            logger.error("Background scan failed: %s", e, exc_info=True)
+            update_scan_status(f"Error: {e}", 100)
 
 
 def get_local_ip() -> str:
@@ -56,6 +84,7 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         """Handle incoming HTTP GET requests."""
+        global _scan_thread
         parsed_url = urllib.parse.urlparse(self.path)
         path = parsed_url.path
 
@@ -117,15 +146,19 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             status_path = "scan_status.json"
+            
+            is_running = _scan_thread is not None and _scan_thread.is_alive()
+            
+            status_data = {"status": "Complete", "progress": 100}
             if os.path.exists(status_path):
                 try:
                     with open(status_path, "r", encoding="utf-8") as f:
-                        self.wfile.write(f.read().encode("utf-8"))
+                        status_data = json.load(f)
                 except Exception as e:
                     logger.error("Error reading scan_status.json: %s", e)
-                    self.wfile.write(b'{"status": "Exploring File System...", "progress": 10}')
-            else:
-                self.wfile.write(b'{"status": "Exploring File System...", "progress": 10}')
+            
+            status_data["running"] = is_running
+            self.wfile.write(json.dumps(status_data).encode("utf-8"))
         
         elif path == "/api/version":
             """Get version information"""
@@ -187,7 +220,6 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             report_path = "report.json"
             if os.path.exists(report_path):
                 try:
-                    import json
                     import tempfile
                     from scanner.reporter.excel_exporter import export_excel
                     
@@ -319,25 +351,32 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 except ValueError:
                     pass
 
+            # Check if there is a previous scan report
+            has_previous = os.path.exists("rendered_dashboard.html") and os.path.exists("report.json")
+
+            status_msg = "started"
+
             try:
-                from scanner.controller import ScanController
-                from scanner.reporter import generate_json_report, generate_html_report
-
-                # Perform scan directly inside the handler thread
-                update_scan_status("Exploring File System...", 10)
-                controller = ScanController(quick=quick, scan_folder=folder, max_depth=depth)
-                result = controller.run_scan()
-
-                # Generate reports on filesystem
-                generate_json_report(result, "report.json")
-                generate_html_report(result, "rendered_dashboard.html")
+                if _scan_thread is None or not _scan_thread.is_alive():
+                    _scan_thread = threading.Thread(
+                        target=_run_scan_background,
+                        args=(quick, folder, depth),
+                        daemon=True
+                    )
+                    _scan_thread.start()
+                else:
+                    status_msg = "already_running"
 
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(b'{"status": "success"}')
+                response = {
+                    "status": status_msg,
+                    "has_previous": has_previous
+                }
+                self.wfile.write(json.dumps(response).encode("utf-8"))
             except Exception as e:
-                logger.error("Server-initiated scan failed: %s", e, exc_info=True)
+                logger.error("Server-initiated background scan start failed: %s", e, exc_info=True)
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()

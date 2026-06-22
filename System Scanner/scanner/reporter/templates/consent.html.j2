@@ -779,53 +779,10 @@
       const loadingStatus = document.getElementById('loadingStatus');
       const loadingSubtext = document.getElementById('loadingSubtext');
 
+      progressBar.style.transition = "width 0.5s ease";
       progressBar.style.width = "10%";
-      loadingStatus.textContent = "Exploring File System...";
-      loadingSubtext.textContent = folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...`;
-
-      let fileExplorationStartTime = Date.now();
-      let lastStatus = "Exploring File System...";
-
-      // Poll status from the backend
-      const statusInterval = setInterval(() => {
-        fetch('/api/status')
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            }
-            throw new Error();
-          })
-          .then(data => {
-            let status = data.status || "Exploring File System...";
-            let progress = data.progress || 10;
-
-            if (status === "Exploring File System...") {
-              if (Date.now() - fileExplorationStartTime > 3000) {
-                status = "Locating Files (This may take a moment)...";
-              }
-            } else {
-              fileExplorationStartTime = Date.now();
-            }
-
-            if (lastStatus !== status) {
-              lastStatus = status;
-              loadingStatus.style.opacity = '0.5';
-              setTimeout(() => { loadingStatus.style.opacity = '1'; }, 80);
-            }
-
-            loadingStatus.textContent = status;
-            progressBar.style.width = progress + "%";
-
-            if (status === "Computing Risk Heuristics...") {
-              loadingSubtext.textContent = "Calculating final risk tier and security scores.";
-            } else if (status === "Finalizing Results...") {
-              loadingSubtext.textContent = "Structuring findings and outputting visual report layouts.";
-            }
-          })
-          .catch(() => {
-            // Silently ignore connection transient errors
-          });
-      }, 100);
+      loadingStatus.textContent = "Initializing scan request...";
+      loadingSubtext.textContent = "Connecting to background host...";
 
       // Make network request to trigger the Python scan controller
       let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
@@ -841,17 +798,91 @@
           return response.json();
         })
         .then(data => {
-          clearInterval(statusInterval);
-          progressBar.style.width = "100%";
-          loadingStatus.textContent = "Finalizing Results...";
-          loadingSubtext.textContent = "Redirecting to scan dashboard...";
-          
-          setTimeout(() => {
-            window.location.href = "/report";
-          }, 800);
+          if (data.has_previous) {
+            // Animate progress bar to 100% over 6 seconds
+            progressBar.style.transition = "width 6s cubic-bezier(0.2, 0.8, 0.2, 1)";
+            progressBar.style.width = "100%";
+            loadingStatus.textContent = "Loading previous scan data...";
+            loadingSubtext.textContent = "A newer scan is executing in the background. Loading cached dashboard...";
+            
+            // Subtext updates during the 6 seconds loading to make it look alive!
+            let step = 0;
+            const subtexts = [
+              "Parsing cached network nodes...",
+              "Loading stored system diagnostics...",
+              "Restoring prior risk classification profiles...",
+              "Launching dashboard graphical interface..."
+            ];
+            const subtextInterval = setInterval(() => {
+              if (step < subtexts.length) {
+                loadingSubtext.textContent = subtexts[step];
+                step++;
+              } else {
+                clearInterval(subtextInterval);
+              }
+            }, 1400);
+
+            setTimeout(() => {
+              window.location.href = "/report";
+            }, 6000);
+          } else {
+            // Poll status from the backend until complete
+            loadingStatus.textContent = "Exploring File System...";
+            loadingSubtext.textContent = folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...`;
+
+            let fileExplorationStartTime = Date.now();
+            let lastStatus = "Exploring File System...";
+
+            const statusInterval = setInterval(() => {
+              fetch('/api/status')
+                .then(response => {
+                  if (response.ok) {
+                    return response.json();
+                  }
+                  throw new Error();
+                })
+                .then(data => {
+                  let status = data.status || "Exploring File System...";
+                  let progress = data.progress || 10;
+
+                  if (status === "Exploring File System...") {
+                    if (Date.now() - fileExplorationStartTime > 3000) {
+                      status = "Locating Files (This may take a moment)...";
+                    }
+                  } else {
+                    fileExplorationStartTime = Date.now();
+                  }
+
+                  if (lastStatus !== status) {
+                    lastStatus = status;
+                    loadingStatus.style.opacity = '0.5';
+                    setTimeout(() => { loadingStatus.style.opacity = '1'; }, 80);
+                  }
+
+                  loadingStatus.textContent = status;
+                  progressBar.style.width = progress + "%";
+
+                  if (status === "Computing Risk Heuristics...") {
+                    loadingSubtext.textContent = "Calculating final risk tier and security scores.";
+                  } else if (status === "Finalizing Results...") {
+                    loadingSubtext.textContent = "Structuring findings and outputting visual report layouts.";
+                  } else if (status === "Complete" || progress >= 100) {
+                    clearInterval(statusInterval);
+                    progressBar.style.width = "100%";
+                    loadingStatus.textContent = "Finalizing Results...";
+                    loadingSubtext.textContent = "Redirecting to scan dashboard...";
+                    setTimeout(() => {
+                      window.location.href = "/report";
+                    }, 800);
+                  }
+                })
+                .catch(() => {
+                  // Silently ignore connection transient errors
+                });
+            }, 500);
+          }
         })
         .catch(err => {
-          clearInterval(statusInterval);
           loadingStatus.textContent = "ERROR OCCURRED";
           loadingSubtext.textContent = err.message;
           loadingSubtext.style.color = "var(--hud-red)";

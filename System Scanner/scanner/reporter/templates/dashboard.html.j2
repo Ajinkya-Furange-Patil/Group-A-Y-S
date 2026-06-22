@@ -1741,6 +1741,33 @@
       </div>
     </header>
 
+    <!-- ═══════════════ BACKGROUND SCAN PROGRESS BANNER ═══════════════ -->
+    <div id="scan-progress-banner" class="hud-panel" style="display: none; margin-bottom: 24px; padding: 12px 20px;">
+      <div class="hud-corner c-tl"></div>
+      <div class="hud-corner c-tr"></div>
+      <div class="hud-corner c-bl"></div>
+      <div class="hud-corner c-br"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 250px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="banner-pulse-dot" class="pulse-dot" style="background-color: var(--color-high); box-shadow: 0 0 8px var(--color-high);"></div>
+            <span id="banner-status-text" style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-main);">
+              DISPLAYING PREVIOUS SCAN RESULTS — NEW SCAN IN PROGRESS (10%)
+            </span>
+          </div>
+          <!-- Mini loading progress bar inside banner -->
+          <div id="banner-progress-track" style="width: 100%; height: 4px; background: rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; margin-top: 4px;">
+            <div id="banner-progress-fill" style="height: 100%; width: 10%; background: var(--color-high); transition: width 0.5s ease; box-shadow: 0 0 6px var(--color-high);"></div>
+          </div>
+        </div>
+        <div id="banner-action-container" style="display: none;">
+          <button id="update-report-btn" class="export-btn" style="background: var(--color-secure); border: 1px solid var(--color-secure); color: #ffffff; padding: 8px 16px; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s;" onclick="location.reload();">
+            Update Report
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══════════════ PREMIUM HUD MENU BAR ═══════════════ -->
     <nav class="hud-menu-bar">
       <a href="#SystemScanner" class="menu-item active">OVERVIEW</a>
@@ -2389,6 +2416,97 @@
         });
       }
     }
+
+    function checkBackgroundScanStatus() {
+      const banner = document.getElementById('scan-progress-banner');
+      const dot = document.getElementById('banner-pulse-dot');
+      const statusText = document.getElementById('banner-status-text');
+      const progressFill = document.getElementById('banner-progress-fill');
+      const actionContainer = document.getElementById('banner-action-container');
+
+      let wasRunning = false;
+      let intervalMs = 1500;
+      let timerId = null;
+
+      function poll() {
+        fetch('/api/status')
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error();
+          })
+          .then(data => {
+            const status = data.status || "Exploring File System...";
+            const progress = data.progress || 10;
+            const running = data.running;
+
+            if (running) {
+              wasRunning = true;
+              banner.style.display = 'block';
+              banner.style.borderColor = 'rgba(230, 92, 0, 0.4)';
+              dot.style.backgroundColor = 'var(--color-high)';
+              dot.style.boxShadow = '0 0 8px var(--color-high)';
+              statusText.textContent = `DISPLAYING PREVIOUS SCAN RESULTS — NEW SCAN IN PROGRESS (${progress}%) - ${status}`;
+              progressFill.style.width = `${progress}%`;
+              progressFill.style.backgroundColor = 'var(--color-high)';
+              progressFill.style.boxShadow = '0 0 6px var(--color-high)';
+              actionContainer.style.display = 'none';
+            } else {
+              // Not running
+              if (wasRunning || status === "Complete" || progress >= 100) {
+                // If it was running in this session, or completed
+                if (wasRunning) {
+                  // Only display completion alert if it was active during this session
+                  banner.style.display = 'block';
+                  banner.style.borderColor = 'rgba(0, 138, 52, 0.4)';
+                  dot.style.backgroundColor = 'var(--color-secure)';
+                  dot.style.boxShadow = '0 0 8px var(--color-secure)';
+                  statusText.textContent = "BACKGROUND SCAN COMPLETE — NEW REPORT IS READY";
+                  progressFill.style.width = '100%';
+                  progressFill.style.backgroundColor = 'var(--color-secure)';
+                  progressFill.style.boxShadow = '0 0 6px var(--color-secure)';
+                  actionContainer.style.display = 'block';
+                  clearInterval(timerId);
+                } else {
+                  // Never ran in this session, hide banner
+                  banner.style.display = 'none';
+                  clearInterval(timerId);
+                }
+              } else if (status.startsWith("Error")) {
+                if (wasRunning) {
+                  banner.style.display = 'block';
+                  banner.style.borderColor = 'rgba(211, 13, 48, 0.4)';
+                  dot.style.backgroundColor = 'var(--color-critical)';
+                  dot.style.boxShadow = '0 0 8px var(--color-critical)';
+                  statusText.textContent = "BACKGROUND SCAN FAILED: " + status;
+                  progressFill.style.width = '100%';
+                  progressFill.style.backgroundColor = 'var(--color-critical)';
+                  progressFill.style.boxShadow = '0 0 6px var(--color-critical)';
+                  clearInterval(timerId);
+                } else {
+                  banner.style.display = 'none';
+                  clearInterval(timerId);
+                }
+              } else {
+                banner.style.display = 'none';
+                clearInterval(timerId);
+              }
+            }
+          })
+          .catch(() => {
+            // connection error
+          });
+      }
+
+      // Initial check immediately
+      poll();
+      // Setup interval polling
+      timerId = setInterval(poll, intervalMs);
+    }
+
+    // Call status checker on DOM Content Loaded
+    document.addEventListener('DOMContentLoaded', checkBackgroundScanStatus);
   </script>
 
   <!-- PDF GENERATION MODAL (CORPORATE LIGHT THEME) -->
