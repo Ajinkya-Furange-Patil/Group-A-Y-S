@@ -44,14 +44,15 @@ class ScanController:
         result = controller.run_scan()
     """
 
-    def __init__(self, quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None, cpu_limit: float = 90.0, ram_limit: float = 25.0) -> None:
+    def __init__(self, quick: bool = False, scan_folder: str | None = None, max_depth: int | None = None, cpu_limit: float = 90.0, ram_limit: float = 25.0, repo_mode: bool = False) -> None:
         """Initialize the Scan Controller with engine and classifier instances."""
         self._engine = DiscoveryEngine(cpu_limit=cpu_limit, ram_limit=ram_limit)
         self._classifier = ClassificationEngine()
         self._quick = quick
         self._scan_folder = scan_folder
         self._max_depth = max_depth
-        logger.info("Scan Controller initialized (quick=%s, folder=%s, depth=%s, cpu_limit=%.1f, ram_limit=%.1f)", quick, scan_folder, max_depth, cpu_limit, ram_limit)
+        self._repo_mode = repo_mode
+        logger.info("Scan Controller initialized (quick=%s, folder=%s, depth=%s, repo_mode=%s, cpu_limit=%.1f, ram_limit=%.1f)", quick, scan_folder, max_depth, repo_mode, cpu_limit, ram_limit)
 
     def _register_modules(self) -> None:
         """Register all available scanner modules with the Discovery Engine.
@@ -61,12 +62,15 @@ class ScanController:
         logger.info("Starting module registration...")
 
         # ── MODULE 01: System Scanner ────────────────────────────────────
-        try:
-            from scanner.modules import system_scanner
-            self._engine.register_module(system_scanner)
-            logger.info("Successfully registered MODULE 01: SystemScanner")
-        except ImportError as e:
-            logger.error("Failed to import MODULE 01: SystemScanner: %s", e)
+        if not self._repo_mode:
+            try:
+                from scanner.modules import system_scanner
+                self._engine.register_module(system_scanner)
+                logger.info("Successfully registered MODULE 01: SystemScanner")
+            except ImportError as e:
+                logger.error("Failed to import MODULE 01: SystemScanner: %s", e)
+        else:
+            logger.info("Skipping MODULE 01: SystemScanner in repository scan mode")
 
         # ── MODULE 02: File Scanner ──────────────────────────────────────
         try:
@@ -79,19 +83,23 @@ class ScanController:
             logger.warning("Failed to initialize MODULE 02: FileScanner: %s", e, exc_info=True)
 
         # ── MODULE 03: Process Scanner ───────────────────────────────────
-        try:
-            from scanner.modules.process_scanner import ProcessScanner
-            self._engine.register_module(ProcessScanner())
-            logger.info("Successfully registered MODULE 03: ProcessScanner")
-        except ImportError:
-            logger.debug("MODULE 03: ProcessScanner not available (ImportError)")
-        except Exception as e:
-            logger.warning("Failed to initialize MODULE 03: ProcessScanner: %s", e, exc_info=True)
+        if not self._repo_mode:
+            try:
+                from scanner.modules.process_scanner import ProcessScanner
+                self._engine.register_module(ProcessScanner())
+                logger.info("Successfully registered MODULE 03: ProcessScanner")
+            except ImportError:
+                logger.debug("MODULE 03: ProcessScanner not available (ImportError)")
+            except Exception as e:
+                logger.warning("Failed to initialize MODULE 03: ProcessScanner: %s", e, exc_info=True)
+        else:
+            logger.info("Skipping MODULE 03: ProcessScanner in repository scan mode")
 
         # ── MODULE 04: Package Scanner ───────────────────────────────────
         try:
             from scanner.modules.package_scanner import PackageScanner
-            self._engine.register_module(PackageScanner())
+            scan_folder_val = self._scan_folder if self._repo_mode else None
+            self._engine.register_module(PackageScanner(scan_folder=scan_folder_val))
             logger.info("Successfully registered MODULE 04: PackageScanner")
         except ImportError:
             logger.debug("MODULE 04: PackageScanner not available (ImportError)")
@@ -111,7 +119,8 @@ class ScanController:
         # ── MODULE 06: Runtime Scanner ───────────────────────────────────
         try:
             from scanner.modules.runtime_scanner import RuntimeScanner
-            self._engine.register_module(RuntimeScanner())
+            scan_folder_val = self._scan_folder if self._repo_mode else None
+            self._engine.register_module(RuntimeScanner(scan_folder=scan_folder_val))
             logger.info("Successfully registered MODULE 06: RuntimeScanner")
         except ImportError:
             logger.debug("MODULE 06: RuntimeScanner not available (ImportError)")
@@ -131,7 +140,8 @@ class ScanController:
         # ── MODULE 08: MCP Scanner ───────────────────────────────────────
         try:
             from scanner.modules.mcp_scanner import MCPScanner
-            self._engine.register_module(MCPScanner())
+            scan_folder_val = self._scan_folder if self._repo_mode else None
+            self._engine.register_module(MCPScanner(scan_folder=scan_folder_val))
             logger.info("Successfully registered MODULE 08: MCPScanner")
         except ImportError:
             logger.debug("MODULE 08: MCPScanner not available (ImportError)")
@@ -178,24 +188,30 @@ class ScanController:
 
         scan_start = time.time()
 
-        # Initialize result with host metadata
-        hostname = socket.gethostname()
-        system = platform.system()
-        release = platform.release()
-        machine = platform.machine()
-        if machine == "AMD64":
-            machine = "x64"
+        # Initialize result with host metadata or repo details
+        if self._repo_mode and self._scan_folder:
+            import os
+            repo_name = os.path.basename(self._scan_folder)
+            hostname = f"GitHub Repo: {repo_name}"
+            os_info = "Remote Repository Scan"
+        else:
+            hostname = socket.gethostname()
+            system = platform.system()
+            release = platform.release()
+            machine = platform.machine()
+            if machine == "AMD64":
+                machine = "x64"
 
-        os_parts = []
-        if system:
-            os_parts.append(system)
-        if release:
-            os_parts.append(release)
-        os_info = " ".join(os_parts)
-        if machine:
-            os_info += f" ({machine})"
-        if not os_info:
-            os_info = "Unknown OS"
+            os_parts = []
+            if system:
+                os_parts.append(system)
+            if release:
+                os_parts.append(release)
+            os_info = " ".join(os_parts)
+            if machine:
+                os_info += f" ({machine})"
+            if not os_info:
+                os_info = "Unknown OS"
 
         logger.info("Target Machine: %s", hostname)
         logger.info("Operating System: %s", os_info)
