@@ -100,6 +100,12 @@ class TestServer(unittest.TestCase):
         self.assertEqual(data["status"], "success")
         response.close()
         
+        # Wait up to 2.5s for the background thread to invoke the mock
+        for _ in range(50):
+            if mock_run.call_count > 0:
+                break
+            time.sleep(0.05)
+            
         mock_run.assert_called_once()
         mock_json.assert_called_once_with(mock_result, "report.json")
         mock_html.assert_called_once_with(mock_result, "rendered_dashboard.html")

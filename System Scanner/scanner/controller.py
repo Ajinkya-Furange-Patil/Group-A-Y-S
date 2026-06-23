@@ -91,7 +91,7 @@ class ScanController:
         # ── MODULE 04: Package Scanner ───────────────────────────────────
         try:
             from scanner.modules.package_scanner import PackageScanner
-            self._engine.register_module(PackageScanner())
+            self._engine.register_module(PackageScanner(scan_folder=self._scan_folder))
             logger.info("Successfully registered MODULE 04: PackageScanner")
         except ImportError:
             logger.debug("MODULE 04: PackageScanner not available (ImportError)")
@@ -131,7 +131,7 @@ class ScanController:
         # ── MODULE 08: MCP Scanner ───────────────────────────────────────
         try:
             from scanner.modules.mcp_scanner import MCPScanner
-            self._engine.register_module(MCPScanner())
+            self._engine.register_module(MCPScanner(scan_folder=self._scan_folder))
             logger.info("Successfully registered MODULE 08: MCPScanner")
         except ImportError:
             logger.debug("MODULE 08: MCPScanner not available (ImportError)")

@@ -10,7 +10,7 @@ Handles report generation in multiple formats:
   - Log Archive : 180-day SQLite retention database
 """
 
-from scanner.reporter.report_generator import generate_json_report, generate_html_report
+from scanner.reporter.report_generator import generate_json_report, generate_html_report, generate_repo_html_report
 from scanner.reporter.exporter import SIEMExporter, export_sbom_csv, export_sbom_json
 from scanner.reporter.log_retention import LogRetentionDB
 from scanner.reporter.excel_exporter import export_excel
@@ -18,6 +18,7 @@ from scanner.reporter.excel_exporter import export_excel
 __all__ = [
     "generate_json_report",
     "generate_html_report",
+    "generate_repo_html_report",
     "SIEMExporter",
     "export_sbom_csv",
     "export_sbom_json",

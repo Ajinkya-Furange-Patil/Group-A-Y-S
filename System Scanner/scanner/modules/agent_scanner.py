@@ -53,12 +53,36 @@ EXCLUDED_DIRS = {
 
 # Key regex patterns to identify Agentic framework imports & instantiations
 PATTERNS = {
+    # Original patterns (for test preservation)
     "LangChain Import": re.compile(r"\bfrom\s+langchain\b|\bimport\s+langchain\b"),
     "CrewAI Import": re.compile(r"\bfrom\s+crewai\b|\bimport\s+crewai\b"),
     "AutoGen Import": re.compile(r"\bfrom\s+autogen\b|\bimport\s+autogen\b"),
     "Agent Instantiation": re.compile(r"\bAgent\s*\("),
     "Crew Instantiation": re.compile(r"\bCrew\s*\("),
     "AssistantAgent Instantiation": re.compile(r"\bAssistantAgent\s*\("),
+    # Additional AI Repository Scanner MVP patterns
+    "OpenAI Instantiation": re.compile(r"\bOpenAI\s*\("),
+    "ChatOpenAI Instantiation": re.compile(r"\bChatOpenAI\s*\("),
+    "Anthropic Instantiation": re.compile(r"\bAnthropic\s*\("),
+    "GenerativeModel Instantiation": re.compile(r"\bGenerativeModel\s*\("),
+    "AgentExecutor Instantiation": re.compile(r"\bAgentExecutor\s*\("),
+    "UserProxyAgent Instantiation": re.compile(r"\bUserProxyAgent\s*\("),
+    "StateGraph Instantiation": re.compile(r"\bStateGraph\s*\("),
+    "RAG Similarity Search": re.compile(r"\bsimilarity_search\s*\("),
+    "RAG Retriever": re.compile(r"\bretriever\b"),
+    "RAG Embedding": re.compile(r"\bembeddings?\b"),
+    "RAG Vectorstore": re.compile(r"\bvectorstore\b"),
+    "MCP Reference": re.compile(r"\bmcp\b"),
+    "MCP Registry": re.compile(r"\btool_registry\b|\btool_schema\b|\bregister_tool\b"),
+    "Model gpt-4": re.compile(r"\bgpt-4\b|\bgpt-4o\b"),
+    "Model gpt-5": re.compile(r"\bgpt-5\b"),
+    "Model gemini": re.compile(r"\bgemini\b"),
+    "Model claude": re.compile(r"\bclaude\b"),
+    "Model llama": re.compile(r"\bllama\b"),
+    "Model mistral": re.compile(r"\bmistral\b"),
+    "Model deepseek": re.compile(r"\bdeepseek\b"),
+    "Model phi": re.compile(r"\bphi\b"),
+    "Model qwen": re.compile(r"\bqwen\b")
 }
 
 
@@ -280,7 +304,7 @@ def run(scan_folder: str | None = None, max_depth: int | None = None) -> tuple[l
             try:
                 for folder, files in _depth_limited_walk(target_dir, max_depth_val):
                     for file in files:
-                        if file.endswith(".py"):
+                        if file.endswith((".py", ".js", ".ts", ".jsx", ".tsx")):
                             file_path = folder / file
                             abs_path_str = str(file_path.resolve()).replace("\\", "/")
 

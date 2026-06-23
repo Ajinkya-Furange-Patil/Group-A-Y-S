@@ -798,14 +798,14 @@
           <div class="logo-container">🌐</div>
           <div class="title-area">
             <h1>AI Repository <span>Scanner MVP</span></h1>
-            <a class="repo-link" href="https://github.com/octocat/Spoon-Knife" target="_blank" rel="noopener">
-              📂 https://github.com/octocat/Spoon-Knife ↗
+            <a class="repo-link" href="{{ result.repository }}" target="_blank" rel="noopener">
+              📂 {{ result.repository }} ↗
             </a>
           </div>
         </div>
         <div class="header-right">
           <button class="theme-toggle-btn" onclick="toggleTheme()">Toggle Theme</button>
-          <span class="timestamp">SCAN RUN: </span>
+          <span class="timestamp">SCAN RUN: {{ result.scan_timestamp }}</span>
         </div>
       </div>
     </header>
@@ -825,21 +825,25 @@
             <circle class="dial-track" cx="50" cy="50" r="40" />
             <circle class="dial-progress" cx="50" cy="50" r="40" 
                     stroke-dasharray="251.2" 
-                    stroke-dashoffset="251.2"
-                    stroke="#d30d30" />
+                    stroke-dashoffset="{{ 251.2 - (result.confidence_score / 100) * 251.2 }}"
+                    stroke="{% if result.confidence_score >= 90 %}#00ffcc{% elif result.confidence_score >= 70 %}#ffd200{% else %}#d30d30{% endif %}" />
           </svg>
           <div class="dial-text">
-            <div class="dial-number" style="color: #d30d30;">
-              0%
+            <div class="dial-number" style="color: {% if result.confidence_score >= 90 %}#00ffcc{% elif result.confidence_score >= 70 %}#ffd200{% else %}#d30d30{% endif %};">
+              {{ result.confidence_score }}%
             </div>
             <div class="dial-label">Confidence</div>
           </div>
         </div>
         
-        <span class="confidence-badge conf-low">
-          
+        <span class="confidence-badge {% if result.confidence_score >= 90 %}conf-high{% elif result.confidence_score >= 70 %}conf-med{% else %}conf-low{% endif %}">
+          {% if result.confidence_score >= 90 %}
+            Full Match
+          {% elif result.confidence_score >= 70 %}
+            Partial Match
+          {% else %}
             Loose Footprint
-          
+          {% endif %}
         </span>
       </div>
 
@@ -852,25 +856,25 @@
 
         <div class="hud-card">
           <span class="card-label">Total Findings</span>
-          <span class="card-value" style="color: var(--color-info);">4</span>
+          <span class="card-value" style="color: var(--color-info);">{{ result.findings|length }}</span>
           <span class="card-desc">AI Code Signatures</span>
         </div>
 
         <div class="hud-card">
           <span class="card-label">Languages</span>
-          <span class="card-value" style="color: var(--color-secure);">3</span>
+          <span class="card-value" style="color: var(--color-secure);">{{ result.languages|length }}</span>
           <span class="card-desc">Source Dialects</span>
         </div>
 
         <div class="hud-card">
           <span class="card-label">Frameworks</span>
-          <span class="card-value" style="color: var(--color-warning);">0</span>
+          <span class="card-value" style="color: var(--color-warning);">{{ result.frameworks|length }}</span>
           <span class="card-desc">AI Orchestrations</span>
         </div>
 
         <div class="hud-card">
           <span class="card-label">Models Detected</span>
-          <span class="card-value" style="color: #ff6b8b;">1</span>
+          <span class="card-value" style="color: #ff6b8b;">{{ result.models|length }}</span>
           <span class="card-desc">Target LLMs/SLMs</span>
         </div>
       </div>
@@ -879,7 +883,7 @@
     <!-- NAVIGATION TABS -->
     <nav class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('overview')">Ecosystem Overview</button>
-      <button class="tab-btn" onclick="switchTab('findings')">Code Findings (4)</button>
+      <button class="tab-btn" onclick="switchTab('findings')">Code Findings ({{ result.findings|length }})</button>
       <button class="tab-btn" onclick="switchTab('compliance')">Confidence & Compliance</button>
     </nav>
 
@@ -897,41 +901,41 @@
           <!-- LANGUAGES -->
           <h2 class="overview-section-title">Languages Detected</h2>
           <div class="chips-container">
-            
-              <span class="chip"><span class="bullet"></span> CSS</span>
-            
-              <span class="chip"><span class="bullet"></span> HTML</span>
-            
-              <span class="chip"><span class="bullet"></span> Markdown</span>
-            
+            {% for lang in result.languages %}
+              <span class="chip"><span class="bullet"></span> {{ lang }}</span>
+            {% else %}
+              <span class="chip" style="color: var(--text-muted);">None Detected</span>
+            {% endfor %}
           </div>
 
           <!-- FRAMEWORKS -->
           <h2 class="overview-section-title">AI Frameworks & Libraries</h2>
           <div class="chips-container">
-            
+            {% for fw in result.frameworks %}
+              <span class="chip" style="border-color: var(--color-warning);"><span class="bullet" style="background: var(--color-warning);"></span> {{ fw }}</span>
+            {% else %}
               <span class="chip" style="color: var(--text-muted);">None Declared</span>
-            
+            {% endfor %}
           </div>
 
           <!-- MODELS -->
           <h2 class="overview-section-title">Target Models</h2>
           <div class="chips-container">
-            
-              <span class="chip" style="border-color: #ff6b8b;"><span class="bullet" style="background: #ff6b8b;"></span> gemini</span>
-            
+            {% for m in result.models %}
+              <span class="chip" style="border-color: #ff6b8b;"><span class="bullet" style="background: #ff6b8b;"></span> {{ m }}</span>
+            {% else %}
+              <span class="chip" style="color: var(--text-muted);">No Named Models</span>
+            {% endfor %}
           </div>
 
           <!-- ARCHITECTURES -->
           <h2 class="overview-section-title">AI System Architectures</h2>
           <div class="chips-container">
-            
-              <span class="chip" style="border-color: var(--color-secure);"><span class="bullet" style="background: var(--color-secure);"></span> AI SDK</span>
-            
-              <span class="chip" style="border-color: var(--color-secure);"><span class="bullet" style="background: var(--color-secure);"></span> Agent</span>
-            
-              <span class="chip" style="border-color: var(--color-secure);"><span class="bullet" style="background: var(--color-secure);"></span> Configuration</span>
-            
+            {% for c in result.components %}
+              <span class="chip" style="border-color: var(--color-secure);"><span class="bullet" style="background: var(--color-secure);"></span> {{ c }}</span>
+            {% else %}
+              <span class="chip" style="color: var(--text-muted);">No AI Architecture Identified</span>
+            {% endfor %}
           </div>
         </div>
 
@@ -993,115 +997,45 @@
           <input type="text" id="searchInput" class="search-input" placeholder="Search findings by file, pattern, snippet..." oninput="filterFindings()" />
           <select id="categoryFilter" class="filter-select" onchange="filterFindings()">
             <option value="ALL">All Categories</option>
-            
-              <option value="AI SDK">AI SDK</option>
-            
-              <option value="Agent">Agent</option>
-            
-              <option value="Configuration">Configuration</option>
-            
+            {% for c in result.components %}
+              <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
           </select>
         </div>
 
         <!-- Accordion list -->
         <div class="findings-container" id="findingsContainer">
-          
-            <div class="finding-card risk-info" data-category="AI SDK" data-text="env ai sdk environment variable: antigravity_csrf_token active environment variable &#39;antigravity_csrf_token&#39; contains a potential unknown credential.">
+          {% for f in result.findings %}
+            <div class="finding-card risk-info" data-category="{{ f.category }}" data-text="{{ f.file.lower() }} {{ f.category.lower() }} {{ f.matched_pattern.lower() }} {{ f.snippet.lower() }}">
               <div class="finding-header" onclick="toggleCard(this)">
                 <div class="finding-title-box">
                   <div class="indicator-dot"></div>
-                  <div class="finding-title-text">env (Line 1)</div>
+                  <div class="finding-title-text">{{ f.file }} (Line {{ f.line }})</div>
                 </div>
                 <div class="finding-badge-box">
-                  <span class="tag-badge badge-cat">AI SDK</span>
+                  <span class="tag-badge badge-cat">{{ f.category }}</span>
                   <span class="expand-arrow">▼</span>
                 </div>
               </div>
               <div class="finding-body">
                 <div class="details-row">
                   <span class="details-lbl">File Reference</span>
-                  <span class="details-val"><span class="details-val-source">env:1</span></span>
+                  <span class="details-val"><span class="details-val-source">{{ f.file }}:{{ f.line }}</span></span>
                 </div>
                 <div class="details-row">
                   <span class="details-lbl">Matched Pattern</span>
-                  <span class="details-val"><span class="details-val-code">Environment Variable: ANTIGRAVITY_CSRF_TOKEN</span></span>
+                  <span class="details-val"><span class="details-val-code">{{ f.matched_pattern }}</span></span>
                 </div>
-                <div class="code-snippet-box">Active environment variable &#39;ANTIGRAVITY_CSRF_TOKEN&#39; contains a potential Unknown credential.</div>
+                <div class="code-snippet-box">{{ f.snippet }}</div>
               </div>
             </div>
-          
-            <div class="finding-card risk-info" data-category="AI SDK" data-text="env ai sdk environment variable: gemini_api_key active environment variable &#39;gemini_api_key&#39; contains a potential google/gemini credential.">
-              <div class="finding-header" onclick="toggleCard(this)">
-                <div class="finding-title-box">
-                  <div class="indicator-dot"></div>
-                  <div class="finding-title-text">env (Line 1)</div>
-                </div>
-                <div class="finding-badge-box">
-                  <span class="tag-badge badge-cat">AI SDK</span>
-                  <span class="expand-arrow">▼</span>
-                </div>
-              </div>
-              <div class="finding-body">
-                <div class="details-row">
-                  <span class="details-lbl">File Reference</span>
-                  <span class="details-val"><span class="details-val-source">env:1</span></span>
-                </div>
-                <div class="details-row">
-                  <span class="details-lbl">Matched Pattern</span>
-                  <span class="details-val"><span class="details-val-code">Environment Variable: GEMINI_API_KEY</span></span>
-                </div>
-                <div class="code-snippet-box">Active environment variable &#39;GEMINI_API_KEY&#39; contains a potential Google/Gemini credential.</div>
-              </div>
+          {% else %}
+            <div class="empty-state">
+              <div class="empty-icon">🛡️</div>
+              <div class="empty-state-title">No Code Signatures Found</div>
+              <div class="empty-state-text">No AI frameworks, models, or components were detected in this repository's source code files.</div>
             </div>
-          
-            <div class="finding-card risk-info" data-category="Agent" data-text="ai_scanner_history.db agent sebi cscrf risk: telemetry logging inactive the scan telemetry database (ai_scanner_history.db) is not found. sebi cscrf requires agent telemetry to be logged.">
-              <div class="finding-header" onclick="toggleCard(this)">
-                <div class="finding-title-box">
-                  <div class="indicator-dot"></div>
-                  <div class="finding-title-text">ai_scanner_history.db (Line 1)</div>
-                </div>
-                <div class="finding-badge-box">
-                  <span class="tag-badge badge-cat">Agent</span>
-                  <span class="expand-arrow">▼</span>
-                </div>
-              </div>
-              <div class="finding-body">
-                <div class="details-row">
-                  <span class="details-lbl">File Reference</span>
-                  <span class="details-val"><span class="details-val-source">ai_scanner_history.db:1</span></span>
-                </div>
-                <div class="details-row">
-                  <span class="details-lbl">Matched Pattern</span>
-                  <span class="details-val"><span class="details-val-code">SEBI CSCRF Risk: Telemetry Logging Inactive</span></span>
-                </div>
-                <div class="code-snippet-box">The scan telemetry database (ai_scanner_history.db) is not found. SEBI CSCRF requires agent telemetry to be logged.</div>
-              </div>
-            </div>
-          
-            <div class="finding-card risk-info" data-category="AI SDK" data-text="ai_scanner.log ai sdk cert-in risk: missing audit logging the primary audit log (ai_scanner.log) is missing. cert-in mandates active logging for incident readiness and forensic t">
-              <div class="finding-header" onclick="toggleCard(this)">
-                <div class="finding-title-box">
-                  <div class="indicator-dot"></div>
-                  <div class="finding-title-text">ai_scanner.log (Line 1)</div>
-                </div>
-                <div class="finding-badge-box">
-                  <span class="tag-badge badge-cat">AI SDK</span>
-                  <span class="expand-arrow">▼</span>
-                </div>
-              </div>
-              <div class="finding-body">
-                <div class="details-row">
-                  <span class="details-lbl">File Reference</span>
-                  <span class="details-val"><span class="details-val-source">ai_scanner.log:1</span></span>
-                </div>
-                <div class="details-row">
-                  <span class="details-lbl">Matched Pattern</span>
-                  <span class="details-val"><span class="details-val-code">CERT-In Risk: Missing Audit Logging</span></span>
-                </div>
-                <div class="code-snippet-box">The primary audit log (ai_scanner.log) is missing. CERT-In mandates active logging for incident readiness and forensic t</div>
-              </div>
-            </div>
-          
+          {% endfor %}
         </div>
 
       </div>
@@ -1159,7 +1093,7 @@
 
     <!-- FOOTER -->
     <footer class="footer">
-      Powered by <a href="https://talakunchi.com" target="_blank" rel="noopener">Talakunchi Networks Pvt Ltd</a> · AI Discovery Scanner v1.4.0
+      Powered by <a href="https://talakunchi.com" target="_blank" rel="noopener">Talakunchi Networks Pvt Ltd</a> · AI Discovery Scanner v{{ version }}
     </footer>
 
   </div>

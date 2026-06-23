@@ -485,7 +485,7 @@ def _parse_config_file(
 
 # ── Module entry point ────────────────────────────────────────────────────────
 
-def run() -> tuple[list[Finding], ModuleInfo]:
+def run(scan_folder: str | None = None) -> tuple[list[Finding], ModuleInfo]:
     """Execute the MCP Config Scanner module.
 
     Steps:
@@ -502,16 +502,48 @@ def run() -> tuple[list[Finding], ModuleInfo]:
     start_time = time.monotonic()
 
     try:
-        # ── Step 1: Well-known locations ──────────────────────────────────
-        known_locations = _resolve_config_locations()
-        logger.info("MCPScanner: found %d known config location(s)", len(known_locations))
+        if scan_folder:
+            folder_path = pathlib.Path(scan_folder).resolve()
+            all_locations = []
+            
+            cursor_mcp = folder_path / ".cursor" / "mcp.json"
+            if cursor_mcp.exists() and cursor_mcp.is_file():
+                all_locations.append((cursor_mcp, "Cursor IDE (workspace-level)"))
+            kiro_mcp = folder_path / ".kiro" / "settings" / "mcp.json"
+            if kiro_mcp.exists() and kiro_mcp.is_file():
+                all_locations.append((kiro_mcp, "Kiro IDE (workspace)"))
+            
+            # Walk directory for generic configs
+            generic_locations = []
+            target_names = {".mcp.json", "mcp.json", "mcp-config.json", "mcp_config.json"}
+            skip_dirs = {".git", "node_modules", "__pycache__", "venv", ".venv", "env", "dist", "build"}
+            seen = set()
+            root_depth = len(folder_path.parts)
+            for dirpath, dirs, files in os.walk(folder_path, topdown=True, onerror=lambda _: None):
+                dirs[:] = [d for d in dirs if d not in skip_dirs]
+                current = pathlib.Path(dirpath)
+                if len(current.parts) - root_depth >= 4:
+                    dirs.clear()
+                for fname in files:
+                    if fname.lower() in target_names:
+                        full = (current / fname).resolve()
+                        key = str(full)
+                        if key not in seen:
+                            seen.add(key)
+                            generic_locations.append((full, f"Generic MCP config ({fname})"))
+            all_locations.extend(generic_locations)
+        else:
+            # ── Step 1: Well-known locations ──────────────────────────────────
+            known_locations = _resolve_config_locations()
+            logger.info("MCPScanner: found %d known config location(s)", len(known_locations))
 
-        # ── Step 2: Generic config discovery ──────────────────────────────
-        generic_locations = _discover_generic_configs()
-        logger.info("MCPScanner: discovered %d generic config file(s)", len(generic_locations))
+            # ── Step 2: Generic config discovery ──────────────────────────────
+            generic_locations = _discover_generic_configs()
+            logger.info("MCPScanner: discovered %d generic config file(s)", len(generic_locations))
+
+            all_locations = known_locations + generic_locations
 
         # ── Step 3: Merge and deduplicate ─────────────────────────────────
-        all_locations = known_locations + generic_locations
         seen_paths: set[str] = set()
         unique_locations: list[tuple[pathlib.Path, str]] = []
         for path, label in all_locations:
@@ -550,8 +582,11 @@ class MCPScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
+    def __init__(self, scan_folder: str | None = None) -> None:
+        self.scan_folder = scan_folder
+
     def scan(self) -> list[Finding]:
-        findings, _ = run()
+        findings, _ = run(scan_folder=self.scan_folder)
         return findings
 
 

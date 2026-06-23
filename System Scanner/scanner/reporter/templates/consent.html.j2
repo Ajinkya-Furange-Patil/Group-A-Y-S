@@ -589,7 +589,7 @@
               <div class="module-item"><span class="module-icon">🔌</span><span>Local Host Listeners</span></div>
               <div class="module-item"><span class="module-icon">🔑</span><span>Hidden API Credentials</span></div>
               <div class="module-item"><span class="module-icon">📜</span><span>Open Source Licenses</span></div>
-              <div class="module-item disabled" title="Feature coming soon"><span class="module-icon">🌐</span><span>Remote Github Repositories <span class="future-badge">FUTURE</span></span></div>
+              <div class="module-item"><span class="module-icon">🌐</span><span>Remote Github Repositories</span></div>
               <div class="module-item disabled" title="Feature coming soon"><span class="module-icon">☁️</span><span>Google Drive & Cloud <span class="future-badge">FUTURE</span></span></div>
             </div>
           </div>
@@ -631,7 +631,7 @@
               <select id="targetRegionSelect" class="form-select" onchange="toggleFolderInput(); validateConsent();">
                 <option value="all">Full System Scan</option>
                 <option value="folder">Custom Folder</option>
-                <option value="github" disabled>Remote Github Repositories (Future Scope)</option>
+                <option value="github">Remote Github Repositories</option>
                 <option value="gdrive" disabled>Google Drive & Cloud (Future Scope)</option>
               </select>
             </div>
@@ -639,6 +639,11 @@
             <div class="form-group" id="folderInputContainer" style="display: none;">
               <label for="folderPathInput">Folder Path</label>
               <input type="text" id="folderPathInput" class="form-input" placeholder="C:\Projects\" oninput="validateConsent()" />
+            </div>
+
+            <div class="form-group" id="githubInputContainer">
+              <label for="githubUrlInput">GitHub Repository URL (Optional)</label>
+              <input type="text" id="githubUrlInput" class="form-input" placeholder="https://github.com/owner/repository" oninput="validateConsent()" />
             </div>
 
             <div class="form-group">
@@ -742,9 +747,19 @@
       const isChecked = document.getElementById('consentCheckbox').checked;
       const targetRegion = document.getElementById('targetRegionSelect').value;
       let pathValid = true;
+      
+      const githubUrl = document.getElementById('githubUrlInput').value.trim();
+      
       if (targetRegion === 'folder') {
         const folderPath = document.getElementById('folderPathInput').value.trim();
         pathValid = folderPath.length > 0;
+      }
+      
+      // If Remote Github is selected, URL is mandatory. If another region is selected, it's optional but must be valid if filled.
+      if (targetRegion === 'github') {
+        pathValid = githubUrl.length > 0 && githubUrl.includes('github.com/');
+      } else if (githubUrl.length > 0) {
+        pathValid = githubUrl.includes('github.com/');
       }
       
       const depthLevel = document.getElementById('depthLevelSelect').value;
@@ -786,7 +801,13 @@
 
       // Make network request to trigger the Python scan controller
       let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
-      if (folderPath) {
+      
+      const githubUrl = document.getElementById('githubUrlInput').value.trim();
+      const isGithubScan = (targetRegion === 'github' || githubUrl.length > 0);
+      
+      if (isGithubScan) {
+        url += `&github_url=${encodeURIComponent(githubUrl)}`;
+      } else if (targetRegion === 'folder' && folderPath) {
         url += `&folder=${encodeURIComponent(folderPath)}`;
       }
 
@@ -827,11 +848,16 @@
             }, 6000);
           } else {
             // Poll status from the backend until complete
-            loadingStatus.textContent = "Exploring File System...";
-            loadingSubtext.textContent = folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...`;
+            if (isGithubScan) {
+              loadingStatus.textContent = "Downloading Repository...";
+              loadingSubtext.textContent = "Connecting to GitHub servers and fetching zip archive...";
+            } else {
+              loadingStatus.textContent = "Exploring File System...";
+              loadingSubtext.textContent = folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...`;
+            }
 
             let fileExplorationStartTime = Date.now();
-            let lastStatus = "Exploring File System...";
+            let lastStatus = isGithubScan ? "Downloading Repository..." : "Exploring File System...";
 
             const statusInterval = setInterval(() => {
               fetch('/api/status')
