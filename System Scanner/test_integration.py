@@ -88,7 +88,7 @@ def test_full_integration():
         export_excel(result, str(excel_path))
         size = excel_path.stat().st_size
         print(f"[OK] Excel exported: {excel_path} ({size:,} bytes)")
-        print(f"  - 3 sheets: SBOM Report, CBOM Report, AI BOM Report")
+        print(f"  - 7 sheets: Scan Summary, Risk Breakdown, All Findings, SBOM Report, CBOM Report, AI BOM Report, Diagnostics")
     except Exception as e:
         print(f"[FAIL] Excel export failed: {e}")
         import traceback
