@@ -8,6 +8,7 @@ It provides menu options to run scans, start the web UI, or export reports.
 
 from __future__ import annotations
 
+import atexit
 import logging
 import sys
 import os
@@ -17,6 +18,10 @@ import webbrowser
 
 from scanner.server import ScanServer
 from scanner.controller import ScanController
+from scanner.repo_scanner import download_and_extract_repo, cleanup_temp_repos
+
+# Ensure temp repos are cleaned up on any exit path
+atexit.register(cleanup_temp_repos)
 
 # Global variable to store last scan result for exports
 _last_scan_result = None
@@ -80,7 +85,7 @@ def print_menu():
     print("-" * 70)
 
 
-def run_scan(quick: bool = False, scan_folder: str = None, max_depth: int = None) -> None:
+def run_scan(quick: bool = False, scan_folder: str = None, max_depth: int = None, repo_mode: bool = False) -> None:
     """Run a headless scan and display results."""
     global _last_scan_result
     
@@ -97,7 +102,7 @@ def run_scan(quick: bool = False, scan_folder: str = None, max_depth: int = None
     print()
     
     try:
-        controller = ScanController(quick=quick, scan_folder=scan_folder, max_depth=max_depth)
+        controller = ScanController(quick=quick, scan_folder=scan_folder, max_depth=max_depth, repo_mode=repo_mode)
         result = controller.run_scan()
         
         # Store result for exports
@@ -203,10 +208,25 @@ def run_custom_scan():
                 print("✗ Scan cancelled")
                 return
     elif region_choice == "3":
-        print("\n⚠️  GitHub Repository scanning is not yet implemented")
-        print("This feature will allow scanning remote repositories via Git clone")
-        print("Expected in future release")
-        input("\nPress Enter to return to menu...")
+        print("\n→ GitHub Repository Scan")
+        github_url = input("  Enter GitHub URL (e.g. https://github.com/owner/repo): ").strip()
+        if not github_url:
+            print("✗ No URL provided, returning to menu.")
+            return
+        if "github.com" not in github_url:
+            print("✗ URL must be a GitHub URL containing 'github.com'.")
+            return
+
+        print(f"\n⬇ Downloading repository from: {github_url}")
+        try:
+            extracted_path = download_and_extract_repo(github_url)
+            print(f"✓ Repository extracted to: {extracted_path}")
+        except Exception as e:
+            print(f"✗ Failed to download repository: {e}")
+            return
+
+        # Run all 10 modules on the extracted folder with full depth
+        run_scan(quick=False, scan_folder=extracted_path, max_depth=10, repo_mode=True)
         return
     elif region_choice == "4":
         print("\n⚠️  Google Drive / Cloud Storage scanning is not yet implemented")

@@ -257,6 +257,62 @@ def _discover_generic_configs(max_depth: int = 4) -> list[tuple[pathlib.Path, st
     return found
 
 
+def _discover_repo_mcp_configs(folder: pathlib.Path) -> list[tuple[pathlib.Path, str]]:
+    """Discover MCP configs inside the repository (up to depth 6)."""
+    target_names: frozenset[str] = frozenset({
+        ".mcp.json", "mcp.json", "mcp-config.json", "mcp_config.json",
+        "cline_mcp_settings.json"
+    })
+    
+    found: list[tuple[pathlib.Path, str]] = []
+    seen: set[str] = set()
+
+    for root, dirs, files in os.walk(folder):
+        rel_root = pathlib.Path(root).relative_to(folder)
+        depth = len(rel_root.parts)
+        if depth > 6:
+            dirs.clear()
+            continue
+
+        for d in list(dirs):
+            if d.startswith(".") and d not in (".cursor", ".kiro", ".vscode"):
+                dirs.remove(d)
+            elif d in ("node_modules", "venv", ".venv", "env", ".env", "build", "dist", "__pycache__"):
+                dirs.remove(d)
+
+        for file in files:
+            file_lower = file.lower()
+            full_path = pathlib.Path(root) / file
+            rel_path = full_path.relative_to(folder)
+            rel_path_str = str(rel_path).replace("\\", "/")
+
+            if file_lower in target_names:
+                key = str(full_path.resolve())
+                if key not in seen:
+                    seen.add(key)
+                    found.append((full_path, f"Repo MCP config ({rel_path_str})"))
+            
+            elif file_lower == "mcp.json" and rel_path_str.endswith(".cursor/mcp.json"):
+                key = str(full_path.resolve())
+                if key not in seen:
+                    seen.add(key)
+                    found.append((full_path, f"Repo Cursor config ({rel_path_str})"))
+
+            elif file_lower == "mcp.json" and rel_path_str.endswith(".kiro/settings/mcp.json"):
+                key = str(full_path.resolve())
+                if key not in seen:
+                    seen.add(key)
+                    found.append((full_path, f"Repo Kiro config ({rel_path_str})"))
+
+            elif file_lower == "settings.json" and rel_path_str.endswith(".vscode/settings.json"):
+                key = str(full_path.resolve())
+                if key not in seen:
+                    seen.add(key)
+                    found.append((full_path, f"Repo VS Code settings ({rel_path_str})"))
+
+    return found
+
+
 # ── Config parsers ────────────────────────────────────────────────────────────
 
 def _extract_mcp_servers(data: dict[str, Any]) -> dict[str, Any]:
@@ -485,7 +541,7 @@ def _parse_config_file(
 
 # ── Module entry point ────────────────────────────────────────────────────────
 
-def run() -> tuple[list[Finding], ModuleInfo]:
+def run(scan_folder: str | None = None) -> tuple[list[Finding], ModuleInfo]:
     """Execute the MCP Config Scanner module.
 
     Steps:
@@ -502,16 +558,20 @@ def run() -> tuple[list[Finding], ModuleInfo]:
     start_time = time.monotonic()
 
     try:
-        # ── Step 1: Well-known locations ──────────────────────────────────
-        known_locations = _resolve_config_locations()
-        logger.info("MCPScanner: found %d known config location(s)", len(known_locations))
+        if scan_folder:
+            all_locations = _discover_repo_mcp_configs(pathlib.Path(scan_folder))
+        else:
+            # ── Step 1: Well-known locations ──────────────────────────────────
+            known_locations = _resolve_config_locations()
+            logger.info("MCPScanner: found %d known config location(s)", len(known_locations))
 
-        # ── Step 2: Generic config discovery ──────────────────────────────
-        generic_locations = _discover_generic_configs()
-        logger.info("MCPScanner: discovered %d generic config file(s)", len(generic_locations))
+            # ── Step 2: Generic config discovery ──────────────────────────────
+            generic_locations = _discover_generic_configs()
+            logger.info("MCPScanner: discovered %d generic config file(s)", len(generic_locations))
 
-        # ── Step 3: Merge and deduplicate ─────────────────────────────────
-        all_locations = known_locations + generic_locations
+            # ── Step 3: Merge and deduplicate ─────────────────────────────────
+            all_locations = known_locations + generic_locations
+
         seen_paths: set[str] = set()
         unique_locations: list[tuple[pathlib.Path, str]] = []
         for path, label in all_locations:
@@ -527,6 +587,17 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         for config_path, label in unique_locations:
             try:
                 file_findings = _parse_config_file(config_path, label)
+                if scan_folder:
+                    repo_path = pathlib.Path(scan_folder)
+                    for f in file_findings:
+                        try:
+                            rel = config_path.relative_to(repo_path)
+                            rel_str = str(rel).replace("\\", "/")
+                            f.source = rel_str
+                            if "config_file" in f.details:
+                                f.details["config_file"] = rel_str
+                        except Exception:
+                            pass
                 findings.extend(file_findings)
             except Exception as exc:
                 logger.warning("MCPScanner: error parsing %s: %s", config_path, exc)
@@ -550,8 +621,11 @@ class MCPScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
+    def __init__(self, scan_folder: str | None = None):
+        self._scan_folder = scan_folder
+
     def scan(self) -> list[Finding]:
-        findings, _ = run()
+        findings, _ = run(scan_folder=self._scan_folder)
         return findings
 
 

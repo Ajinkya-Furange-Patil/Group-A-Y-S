@@ -199,6 +199,322 @@ def _make_finding(
     )
 
 
+def parse_req_line(line: str) -> tuple[str, str]:
+    """Parse a package requirements line to extract package name and version constraint."""
+    line = line.split('#')[0].strip()
+    if not line:
+        return "", ""
+    import re
+    # match package name (letters, numbers, -, _, .) and optional extras like [extras]
+    match = re.match(r'^([a-zA-Z0-9_\-\.]+)(?:\[[a-zA-Z0-9_\-\.,]+\])?', line)
+    if not match:
+        return "", ""
+    pkg = match.group(1).strip()
+    
+    # look for operators like ==, >=, <=, !=, ~=, etc.
+    version = ""
+    ver_match = re.search(r'(===|==|>=|<=|!=|~=|>|<)\s*([a-zA-Z0-9\.\-\*_]+)', line)
+    if ver_match:
+        version = ver_match.group(2).strip()
+    return pkg, version
+
+
+def _is_ai_package(pkg_name: str) -> bool:
+    """Check if the given Python package name is an AI/ML target or matches keywords."""
+    name_lower = pkg_name.lower().replace("_", "-")
+    if name_lower in TARGET_PACKAGES:
+        return True
+    if any(kw in name_lower for kw in (
+        "openai", "anthropic", "gemini", "langchain", "llama",
+        "transformers", "torch", "tensorflow", "crewai",
+        "autogen", "ollama", "huggingface", "diffuser", "copilot", "pydantic-ai"
+    )):
+        return True
+    return False
+
+
+def _is_npm_ai_package(pkg_name: str) -> bool:
+    """Check if the given NPM package name is an AI target or matches keywords."""
+    name_lower = pkg_name.lower()
+    if name_lower in NPM_AI_PACKAGES:
+        return True
+    if any(kw in name_lower for kw in NPM_AI_KEYWORDS):
+        return True
+    return False
+
+
+def _scan_repo_dependencies(folder: pathlib.Path) -> list[Finding]:
+    """Scan files inside a repository for AI dependencies (up to depth 5)."""
+    findings: list[Finding] = []
+    seen: set[str] = set()
+
+    for root, dirs, files in os.walk(folder):
+        rel_root = pathlib.Path(root).relative_to(folder)
+        depth = len(rel_root.parts)
+        if depth > 5:
+            dirs.clear()
+            continue
+
+        for d in list(dirs):
+            if d.startswith(".") or d in ("node_modules", "venv", ".venv", "env", ".env", "build", "dist", "__pycache__"):
+                dirs.remove(d)
+
+        for file in files:
+            file_path = pathlib.Path(root) / file
+            file_lower = file.lower()
+            rel_file_path = file_path.relative_to(folder)
+            source_str = str(rel_file_path).replace("\\", "/")
+
+            if file_lower == "requirements.txt" or (file_lower.startswith("requirements") and file_lower.endswith(".txt")):
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    for line in content.splitlines():
+                        pkg, ver = parse_req_line(line)
+                        if pkg and _is_ai_package(pkg):
+                            name_lower = pkg.lower().replace("_", "-")
+                            dedup_key = f"{source_str}:{name_lower}"
+                            if dedup_key in seen:
+                                continue
+                            seen.add(dedup_key)
+
+                            category = FindingCategory.AI_AGENT if name_lower in {
+                                "langchain", "crewai", "autogen", "pydantic-ai", "semantic-kernel", "agno", "dspy-ai", "haystack-ai"
+                            } else FindingCategory.ML_FRAMEWORK
+
+                            findings.append(_make_finding(
+                                title=f"Package (repo): {pkg}" + (f" ({ver})" if ver else ""),
+                                description=f"Detected AI package in repository requirements file: {pkg}" + (f" (version {ver})" if ver else ""),
+                                source=source_str,
+                                package_name=pkg,
+                                version=ver or "unknown",
+                                installer=f"repo:{rel_file_path}",
+                                install_location=str(file_path.resolve()).replace("\\", "/"),
+                                category=category
+                            ))
+                except Exception as e:
+                    logger.debug("Error parsing requirements file %s: %s", file_path, e)
+
+            elif file_lower == "package.json":
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    data = json.loads(content)
+                    deps = data.get("dependencies", {})
+                    dev_deps = data.get("devDependencies", {})
+                    all_deps = {}
+                    all_deps.update(dev_deps)
+                    all_deps.update(deps)
+                    for pkg, ver in all_deps.items():
+                        if _is_npm_ai_package(pkg):
+                            name_lower = pkg.lower()
+                            dedup_key = f"{source_str}:{name_lower}"
+                            if dedup_key in seen:
+                                continue
+                            seen.add(dedup_key)
+
+                            label = NPM_AI_PACKAGES.get(pkg, pkg)
+                            clean_ver = str(ver).lstrip("^~>=<")
+                            if "modelcontextprotocol" in name_lower or "mcp" in name_lower:
+                                category = FindingCategory.AI_SERVICE
+                            elif any(kw in name_lower for kw in ("langchain", "agent", "crewai", "mastra", "genkit")):
+                                category = FindingCategory.AI_AGENT
+                            else:
+                                category = FindingCategory.ML_FRAMEWORK
+
+                            findings.append(_make_finding(
+                                title=f"NPM (repo): {pkg}" + (f" ({clean_ver})" if clean_ver else ""),
+                                description=f"NPM package in repository package.json: {label}" + (f" (version {clean_ver})" if clean_ver else ""),
+                                source=source_str,
+                                package_name=pkg,
+                                version=clean_ver or "unknown",
+                                installer=f"repo:{rel_file_path}",
+                                install_location=str(file_path.resolve()).replace("\\", "/"),
+                                category=category
+                            ))
+                except Exception as e:
+                    logger.debug("Error parsing package.json %s: %s", file_path, e)
+
+            elif file_lower == "pyproject.toml" or file_lower == "pipfile":
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    in_dep_section = False
+                    for line in content.splitlines():
+                        line_stripped = line.strip()
+                        if not line_stripped or line_stripped.startswith("#"):
+                            continue
+                        if line_stripped.startswith("[") and line_stripped.endswith("]"):
+                            section = line_stripped[1:-1].strip()
+                            if file_lower == "pyproject.toml":
+                                in_dep_section = section in (
+                                    "tool.poetry.dependencies",
+                                    "tool.poetry.dev-dependencies",
+                                    "tool.poetry.group.dev.dependencies",
+                                    "project.dependencies",
+                                    "project.optional-dependencies"
+                                )
+                            else:
+                                in_dep_section = section in ("packages", "dev-packages")
+                            continue
+                        if in_dep_section:
+                            import re
+                            kv_match = re.match(r'^([a-zA-Z0-9_\-\.]+)\s*=\s*(.*)', line_stripped)
+                            if kv_match:
+                                pkg = kv_match.group(1).strip()
+                                val = kv_match.group(2).strip()
+                                ver = ""
+                                val_match = re.match(r'^["\']([^"\']+)["\']', val)
+                                if val_match:
+                                    ver = val_match.group(1).strip().lstrip("^~>=<")
+                                elif val.startswith("{"):
+                                    ver_match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', val)
+                                    if ver_match:
+                                        ver = ver_match.group(1).strip().lstrip("^~>=<")
+                                if _is_ai_package(pkg):
+                                    name_lower = pkg.lower().replace("_", "-")
+                                    dedup_key = f"{source_str}:{name_lower}"
+                                    if dedup_key in seen:
+                                        continue
+                                    seen.add(dedup_key)
+
+                                    category = FindingCategory.AI_AGENT if name_lower in {
+                                        "langchain", "crewai", "autogen", "pydantic-ai", "semantic-kernel", "agno", "dspy-ai", "haystack-ai"
+                                    } else FindingCategory.ML_FRAMEWORK
+
+                                    findings.append(_make_finding(
+                                        title=f"Package (repo): {pkg}" + (f" ({ver})" if ver else ""),
+                                        description=f"Detected AI package in repository {file}: {pkg}" + (f" (version {ver})" if ver else ""),
+                                        source=source_str,
+                                        package_name=pkg,
+                                        version=ver or "unknown",
+                                        installer=f"repo:{rel_file_path}",
+                                        install_location=str(file_path.resolve()).replace("\\", "/"),
+                                        category=category
+                                    ))
+                except Exception as e:
+                    logger.debug("Error parsing dependency file %s: %s", file_path, e)
+
+            elif file_lower in ("conda.yaml", "environment.yml"):
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    in_deps = False
+                    in_pip = False
+                    for line in content.splitlines():
+                        line_stripped = line.strip()
+                        if not line_stripped or line_stripped.startswith("#"):
+                            continue
+                        if line_stripped == "dependencies:":
+                            in_deps = True
+                            in_pip = False
+                            continue
+                        elif line_stripped.startswith("- pip:") or line_stripped == "pip:":
+                            in_pip = True
+                            continue
+                        elif line_stripped.startswith("-") and in_deps:
+                            dep_val = line_stripped[1:].strip()
+                            if dep_val.startswith("pip:") or dep_val.startswith("-"):
+                                continue
+                            pkg = ""
+                            ver = ""
+                            if in_pip:
+                                pkg, ver = parse_req_line(dep_val)
+                            else:
+                                import re
+                                match = re.match(r'^([a-zA-Z0-9_\-\.]+)', dep_val)
+                                if match:
+                                    pkg = match.group(1).strip()
+                                    ver_match = re.search(r'([>=<=!~=]+)(.*)', dep_val)
+                                    if ver_match:
+                                        ver = ver_match.group(2).strip()
+                            if pkg and _is_ai_package(pkg):
+                                name_lower = pkg.lower().replace("_", "-")
+                                dedup_key = f"{source_str}:{name_lower}"
+                                if dedup_key in seen:
+                                    continue
+                                seen.add(dedup_key)
+
+                                category = FindingCategory.AI_AGENT if name_lower in {
+                                    "langchain", "crewai", "autogen", "pydantic-ai", "semantic-kernel", "agno", "dspy-ai", "haystack-ai"
+                                } else FindingCategory.ML_FRAMEWORK
+
+                                findings.append(_make_finding(
+                                    title=f"conda (repo): {pkg}" + (f" ({ver})" if ver else ""),
+                                    description=f"Detected AI package in repository environment config: {pkg}" + (f" (version {ver})" if ver else ""),
+                                    source=source_str,
+                                    package_name=pkg,
+                                    version=ver or "unknown",
+                                    installer=f"repo:{rel_file_path}",
+                                    install_location=str(file_path.resolve()).replace("\\", "/"),
+                                    category=category
+                                ))
+                except Exception as e:
+                    logger.debug("Error parsing conda file %s: %s", file_path, e)
+
+            elif file_lower == "setup.py":
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    import re
+                    req_matches = re.findall(r'[\'"]([a-zA-Z0-9_\-\[\]\.\<\>\=\!]+)[\'"]', content)
+                    for item in req_matches:
+                        pkg, ver = parse_req_line(item)
+                        if pkg and _is_ai_package(pkg):
+                            name_lower = pkg.lower().replace("_", "-")
+                            dedup_key = f"{source_str}:{name_lower}"
+                            if dedup_key in seen:
+                                continue
+                            seen.add(dedup_key)
+
+                            category = FindingCategory.AI_AGENT if name_lower in {
+                                "langchain", "crewai", "autogen", "pydantic-ai", "semantic-kernel", "agno", "dspy-ai", "haystack-ai"
+                            } else FindingCategory.ML_FRAMEWORK
+
+                            findings.append(_make_finding(
+                                title=f"Package (repo): {pkg}" + (f" ({ver})" if ver else ""),
+                                description=f"Detected AI package in repository setup.py: {pkg}" + (f" (version {ver})" if ver else ""),
+                                source=source_str,
+                                package_name=pkg,
+                                version=ver or "unknown",
+                                installer=f"repo:{rel_file_path}",
+                                install_location=str(file_path.resolve()).replace("\\", "/"),
+                                category=category
+                            ))
+                except Exception as e:
+                    logger.debug("Error parsing setup.py %s: %s", file_path, e)
+
+            elif file_lower == "setup.cfg":
+                try:
+                    import configparser
+                    config = configparser.ConfigParser()
+                    config.read(file_path, encoding="utf-8")
+                    if 'options' in config and 'install_requires' in config['options']:
+                        reqs = config['options']['install_requires'].splitlines()
+                        for line in reqs:
+                            pkg, ver = parse_req_line(line)
+                            if pkg and _is_ai_package(pkg):
+                                name_lower = pkg.lower().replace("_", "-")
+                                dedup_key = f"{source_str}:{name_lower}"
+                                if dedup_key in seen:
+                                    continue
+                                seen.add(dedup_key)
+
+                                category = FindingCategory.AI_AGENT if name_lower in {
+                                    "langchain", "crewai", "autogen", "pydantic-ai", "semantic-kernel", "agno", "dspy-ai", "haystack-ai"
+                                } else FindingCategory.ML_FRAMEWORK
+
+                                findings.append(_make_finding(
+                                    title=f"Package (repo): {pkg}" + (f" ({ver})" if ver else ""),
+                                    description=f"Detected AI package in repository setup.cfg: {pkg}" + (f" (version {ver})" if ver else ""),
+                                    source=source_str,
+                                    package_name=pkg,
+                                    version=ver or "unknown",
+                                    installer=f"repo:{rel_file_path}",
+                                    install_location=str(file_path.resolve()).replace("\\", "/"),
+                                    category=category
+                                ))
+                except Exception as e:
+                    logger.debug("Error parsing setup.cfg %s: %s", file_path, e)
+
+    return findings
+
+
 # ── Scanner A: pip (active environment) ──────────────────────────────────────
 
 def _scan_pip() -> list[Finding]:
@@ -1030,7 +1346,7 @@ def _verify_against_baseline(installer: str, pkg_name: str, version: str, calc_h
         return "unverified", False, False
 
 
-def run() -> tuple[list[Finding], ModuleInfo]:
+def run(scan_folder: str | None = None) -> tuple[list[Finding], ModuleInfo]:
     """Execute the Package Scanner module across all supported package ecosystems.
 
     Runs scanners for:
@@ -1049,15 +1365,20 @@ def run() -> tuple[list[Finding], ModuleInfo]:
     findings: list[Finding] = []
     start_time = time.monotonic()
 
-    scanners = [
-        ("pip",         _scan_pip),
-        ("pip-global",  _scan_pip_global_envs),
-        ("npm",         _scan_npm_global),
-        ("pipx",        _scan_pipx),
-        ("uv",          _scan_uv_tools),
-        ("homebrew",    _scan_homebrew),
-        ("conda",       _scan_conda),
-    ]
+    if scan_folder:
+        scanners = [
+            ("repo-dependencies", lambda: _scan_repo_dependencies(pathlib.Path(scan_folder)))
+        ]
+    else:
+        scanners = [
+            ("pip",         _scan_pip),
+            ("pip-global",  _scan_pip_global_envs),
+            ("npm",         _scan_npm_global),
+            ("pipx",        _scan_pipx),
+            ("uv",          _scan_uv_tools),
+            ("homebrew",    _scan_homebrew),
+            ("conda",       _scan_conda),
+        ]
 
     errors: list[str] = []
     for name, scanner_fn in scanners:
@@ -1078,7 +1399,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
         installer = finding.details.get("installer", "")
         install_loc = finding.details.get("install_location")
 
-        if pkg_name and version and install_loc:
+        if pkg_name and version and install_loc and not installer.startswith("repo:"):
             # Determine normalized installer type (pip or npm)
             inst_type = "pip"
             if "npm" in installer.lower():
@@ -1118,7 +1439,7 @@ def run() -> tuple[list[Finding], ModuleInfo]:
                 finding.title = f"[UNVERIFIED] {finding.title}"
                 finding.description += " Note: Could not compute metadata hash. Package integrity unverified."
         else:
-            # Missing basic package info
+            # Missing basic package info or is a repo dependency
             finding.details["verified"] = False
             finding.details["tampered"] = False
             finding.details["verification_status"] = "unverified"
@@ -1144,8 +1465,11 @@ class PackageScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
+    def __init__(self, scan_folder: str | None = None):
+        self._scan_folder = scan_folder
+
     def scan(self) -> list[Finding]:
-        findings, _ = run()
+        findings, _ = run(scan_folder=self._scan_folder)
         return findings
 
 

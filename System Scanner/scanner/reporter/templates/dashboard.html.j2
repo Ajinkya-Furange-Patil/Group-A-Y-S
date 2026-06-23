@@ -1693,6 +1693,64 @@
     .highlight-pulse {
       animation: highlight-pulse 2s ease-in-out;
     }
+
+    /* Floating action dock in the bottom-right corner */
+    .floating-action-dock {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--hud-bg-trans) !important; /* Force translucent theme background */
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 15px var(--hud-red-glow);
+      backdrop-filter: blur(8px);
+      transition: all 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .floating-action-dock:hover {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 25px rgba(211, 13, 48, 0.25);
+      border-color: var(--hud-red) !important;
+    }
+    .dock-title {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px dashed var(--hud-border-dim);
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+    }
+    .dock-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-main);
+      background: rgba(211, 13, 48, 0.04);
+      border: 1px solid var(--hud-border-dim);
+      padding: 10px 16px;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s ease-in-out;
+      letter-spacing: 0.04em;
+    }
+    .dock-btn:hover {
+      background: rgba(211, 13, 48, 0.12);
+      border-color: var(--hud-red);
+      color: var(--hud-red);
+      box-shadow: 0 0 8px rgba(211, 13, 48, 0.2);
+    }
+
+    /* In light theme, invert Talakunchi logo to black */
+    body:not(.dark-theme) .header-logo img {
+      filter: invert(1) drop-shadow(0 0 4px var(--hud-red));
+    }
   </style>
 </head>
 <body>
@@ -1939,106 +1997,7 @@
       </div>
     </div>
 
-    <!-- ═══════════════ TELEMETRY ADDON PANELS (radar + loop) ═══════════════ -->
-    <div class="telemetry-addons-grid">
-
-      <!-- Radar Dome Panel -->
-      <div class="hud-panel addon-panel">
-        <div class="hud-corner c-tl"></div><div class="hud-corner c-tr"></div>
-        <div class="hud-corner c-bl"></div><div class="hud-corner c-br"></div>
-        <div class="hud-header-tab" style="left: 14px;">THREAT RADAR</div>
-        <div class="addon-content">
-          <svg class="dome-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
-            <!-- Dome arc grid lines -->
-            <path d="M10,100 A90,90 0 0,1 190,100" class="dome-grid-line"/>
-            <path d="M28,100 A72,72 0 0,1 172,100" class="dome-grid-line"/>
-            <path d="M46,100 A54,54 0 0,1 154,100" class="dome-grid-line"/>
-            <path d="M64,100 A36,36 0 0,1 136,100" class="dome-grid-line"/>
-            <!-- Radial spokes -->
-            <line x1="100" y1="10" x2="100" y2="100" class="dome-grid-line"/>
-            <line x1="100" y1="100" x2="10" y2="100" class="dome-grid-line"/>
-            <line x1="100" y1="100" x2="190" y2="100" class="dome-grid-line"/>
-            <line x1="100" y1="100" x2="36" y2="36"  class="dome-grid-line"/>
-            <line x1="100" y1="100" x2="164" y2="36" class="dome-grid-line"/>
-            <!-- Sweep line -->
-            <line x1="100" y1="100" x2="100" y2="10" class="dome-sweep-line"/>
-            <!-- Dynamic Risk nodes based on actual findings -->
-            {% for f in result.findings[:5] %}
-              {% if f.severity|lower == 'critical' %}
-                {% if loop.index == 1 %}<circle cx="142" cy="48" r="4" class="dome-node critical"/>
-                {% elif loop.index == 2 %}<circle cx="120" cy="70" r="4" class="dome-node critical"/>
-                {% elif loop.index == 3 %}<circle cx="75"  cy="75" r="4" class="dome-node critical"/>
-                {% elif loop.index == 4 %}<circle cx="50"  cy="60" r="4" class="dome-node critical"/>
-                {% else %}<circle cx="160" cy="80" r="4" class="dome-node critical"/>{% endif %}
-              {% elif f.severity|lower == 'high' %}
-                {% if loop.index == 1 %}<circle cx="142" cy="48" r="4" class="dome-node high"/>
-                {% elif loop.index == 2 %}<circle cx="120" cy="70" r="4" class="dome-node high"/>
-                {% elif loop.index == 3 %}<circle cx="75"  cy="75" r="4" class="dome-node high"/>
-                {% elif loop.index == 4 %}<circle cx="50"  cy="60" r="4" class="dome-node high"/>
-                {% else %}<circle cx="160" cy="80" r="4" class="dome-node high"/>{% endif %}
-              {% elif f.severity|lower == 'medium' %}
-                {% if loop.index == 1 %}<circle cx="142" cy="48" r="3.5" class="dome-node medium"/>
-                {% elif loop.index == 2 %}<circle cx="120" cy="70" r="3.5" class="dome-node medium"/>
-                {% elif loop.index == 3 %}<circle cx="75"  cy="75" r="3.5" class="dome-node medium"/>
-                {% elif loop.index == 4 %}<circle cx="50"  cy="60" r="3.5" class="dome-node medium"/>
-                {% else %}<circle cx="160" cy="80" r="3.5" class="dome-node medium"/>{% endif %}
-              {% endif %}
-            {% endfor %}
-            <!-- Fallback static circles if no findings -->
-            {% if result.findings|length == 0 %}
-              <circle cx="142" cy="48" r="4" class="dome-node high"/>
-              <circle cx="75"  cy="75" r="3.5" class="dome-node medium"/>
-            {% endif %}
-            <!-- Baseline -->
-            <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(211,13,48,0.4)" stroke-width="1.5"/>
-          </svg>
-          <div class="addon-meta">
-            <div class="addon-title">Active Threat Nodes</div>
-            <div class="addon-status">
-              CRITICAL: {{ result.summary.critical_count }} &nbsp;|&nbsp;
-              HIGH: {{ result.summary.high_count }} &nbsp;|&nbsp;
-              MEDIUM: {{ result.summary.medium_count }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Loop Particle Panel -->
-      <div class="hud-panel addon-panel">
-        <div class="hud-corner c-tl"></div><div class="hud-corner c-tr"></div>
-        <div class="hud-corner c-bl"></div><div class="hud-corner c-br"></div>
-        <div class="hud-header-tab" style="left: 14px;">TELEMETRY STREAM</div>
-        <div class="addon-content">
-          <svg class="loop-svg" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-            <!-- Ellipse track -->
-            <ellipse cx="100" cy="50" rx="88" ry="36" class="loop-track"/>
-            <!-- Particle 1 -->
-            <circle r="5" class="loop-particle">
-              <animateMotion dur="3s" repeatCount="indefinite">
-                <mpath href="#loop-path-dashboard"/>
-              </animateMotion>
-            </circle>
-            <!-- Particle 2 (offset) -->
-            <circle r="3.5" class="loop-particle-delayed">
-              <animateMotion dur="3s" begin="-1.5s" repeatCount="indefinite">
-                <mpath href="#loop-path-dashboard"/>
-              </animateMotion>
-            </circle>
-            <defs>
-              <path id="loop-path-dashboard" d="M 188,50 A 88,36 0 1,1 12,50 A 88,36 0 1,1 188,50"/>
-            </defs>
-          </svg>
-          <div class="addon-meta">
-            <div class="addon-title">Scan Pipeline</div>
-            <div class="addon-status">
-              {{ result.modules|length }} MODULES &nbsp;|&nbsp;
-              {{ result.findings|length }} SIGNALS
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    <!-- Addon panels removed -->
 
     <!-- ═══════════════ MAIN SECTIONS LAYOUT: FINDINGS & SIDEBAR ═══════════════ -->
     <div class="main-grid">
@@ -2534,6 +2493,25 @@
     </div>
   </div>
   
+  <!-- FLOATING NAVIGATION DOCK -->
+  <div class="floating-action-dock hud-panel">
+    <div class="hud-corner c-tl"></div>
+    <div class="hud-corner c-tr"></div>
+    <div class="hud-corner c-bl"></div>
+    <div class="hud-corner c-br"></div>
+    <div class="hud-header-tab" style="left: 15px;">NAVIGATION</div>
+    
+    <a href="/" class="dock-btn" style="margin-top: 10px;">
+      <span>🔄</span> Rescan System
+    </a>
+    <a href="/?focus=github" class="dock-btn">
+      <span>🌐</span> Scan GitHub Repo
+    </a>
+    <button class="dock-btn" onclick="openPdfModal()">
+      <span>📄</span> Export Report
+    </button>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 </body>

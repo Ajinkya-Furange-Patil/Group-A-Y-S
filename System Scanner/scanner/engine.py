@@ -161,6 +161,14 @@ class DiscoveryEngine:
         AMBER = "\033[38;5;214m"
         DIM = "\033[2m"
 
+        from scanner.status_tracker import get_scan_status, update_scan_status
+        current_status = get_scan_status()
+        base_progress = current_status.get("progress", 10)
+        is_repo = "Repository" in current_status.get("status", "") or "Repo" in current_status.get("status", "")
+        
+        last_written_status = None
+        last_written_progress = None
+
         try:
             with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="ScannerModule") as executor:
                 future_to_module = {
@@ -189,10 +197,21 @@ class DiscoveryEngine:
                     if len(running_names) > 2:
                         running_str += f" (+{len(running_names) - 2} more)"
                     
-                    status_text = f"Scanning ({running_str})..." if running_names else "Wrapping up..."
+                    # Calculate progress scaled between base_progress and 60%
+                    progress = base_progress + int((completed_modules / total_modules) * (60 - base_progress))
+                    
+                    if is_repo:
+                        status_text = f"Scanning Repository Files ({running_str})..." if running_names else "Scanning Repository Files..."
+                    else:
+                        status_text = f"Exploring File System ({running_str})..." if running_names else "Exploring File System..."
+                    
+                    if status_text != last_written_status or progress != last_written_progress:
+                        update_scan_status(status_text, progress)
+                        last_written_status = status_text
+                        last_written_progress = progress
                     
                     try:
-                        sys.stdout.write(f"\r{GOLD}{spin}{RESET} {AMBER}[{bar}]{RESET} {BOLD}{percent}%{RESET} | {DIM}{status_text}{RESET}")
+                        sys.stdout.write(f"\r{GOLD}{spin}{RESET} {AMBER}[{bar}]{RESET} {BOLD}{percent}%{RESET} | {DIM}Scanning ({running_str})...{RESET}" if running_names else f"\r{GOLD}{spin}{RESET} {AMBER}[{bar}]{RESET} {BOLD}{percent}%{RESET} | {DIM}Wrapping up...{RESET}")
                         sys.stdout.flush()
                     except UnicodeEncodeError:
                         ascii_spin = ["|", "/", "-", "\\"][spinner_idx % 4]
