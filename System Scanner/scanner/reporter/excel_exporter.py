@@ -5,11 +5,9 @@ Generates a fully-formatted multi-sheet .xlsx workbook from a ScanResult.
 Uses only Python standard-library (zipfile + xml) — no openpyxl required.
 
 Sheets produced:
-  1. Summary       — scan metadata, risk score, module results
-  2. Findings      — one row per finding with all fields
-  3. Risk Breakdown — 5-dimension scores
-  4. By Category   — finding counts per category
-  5. By Risk Level — finding counts per risk level
+  1. SBOM Report   — Software Bill of Materials findings
+  2. CBOM Report   — Configuration Bill of Materials findings
+  3. AI BOM Report — AI Bill of Materials findings
 
 Usage:
     from scanner.reporter.excel_exporter import export_excel
@@ -589,12 +587,10 @@ def _content_types_xml(num_sheets: int) -> str:
 def export_excel(scan_result: ScanResult | dict, output_path: str) -> None:
     """Write a multi-sheet .xlsx workbook for the given ScanResult.
 
-    Produces 5 sheets:
-      1. Summary        — scan metadata + module results
-      2. Findings       — one row per finding
-      3. Risk Breakdown — 5-dimension scores
-      4. By Category    — findings grouped by category
-      5. By Risk Level  — findings grouped by risk level
+    Produces 3 sheets:
+      1. SBOM Report     — Software Bill of Materials findings
+      2. CBOM Report     — Configuration Bill of Materials findings
+      3. AI BOM Report   — AI Bill of Materials findings
 
     No third-party dependencies required (stdlib zipfile + xml only).
 
@@ -610,15 +606,9 @@ def export_excel(scan_result: ScanResult | dict, output_path: str) -> None:
         result_dict = scan_result.to_dict()
 
     sheet_defs = [
-        ("Configuration BOM (CBOM)", _build_cbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
-        ("Software BOM (SBOM)",      _build_sbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
-        ("AI BOM (AIBOM)",          _build_aibom_sheet(result_dict), [15, 18, 28, 45, 18, 40, 15, 15, 25]),
-        ("Summary",                 _build_summary_sheet(result_dict), [30, 30, 15, 15]),
-        ("Diagnostics",             _build_diagnostics_sheet(result_dict), [30, 45, 15, 25]),
-        ("All Findings",            _build_findings_sheet(result_dict), [15, 18, 28, 45, 18, 15, 40, 15, 25]),
-        ("Risk Breakdown",          _build_risk_breakdown_sheet(result_dict), [22, 12, 15, 15]),
-        ("By Category",             _build_by_category_sheet(result_dict), [25, 15]),
-        ("By Risk Level",           _build_by_risk_sheet(result_dict), [18, 15]),
+        ("SBOM Report",   _build_sbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
+        ("CBOM Report",   _build_cbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
+        ("AI BOM Report", _build_aibom_sheet(result_dict), [15, 18, 28, 45, 18, 40, 15, 15, 25]),
     ]
 
     # Build all sheet XMLs first (populates shared-string table)

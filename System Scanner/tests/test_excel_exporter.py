@@ -86,21 +86,17 @@ class TestExportExcel(unittest.TestCase):
             "xl/worksheets/sheet1.xml",
             "xl/worksheets/sheet2.xml",
             "xl/worksheets/sheet3.xml",
-            "xl/worksheets/sheet4.xml",
-            "xl/worksheets/sheet5.xml",
-            "xl/worksheets/sheet6.xml",
-            "xl/worksheets/sheet7.xml",
-            "xl/worksheets/sheet8.xml",
-            "xl/worksheets/sheet9.xml",
         }
         for member in required:
             self.assertIn(member, names, f"Missing: {member}")
+        for sheet_num in range(4, 10):
+            self.assertNotIn(f"xl/worksheets/sheet{sheet_num}.xml", names)
 
-    def test_nine_sheets(self):
+    def test_three_sheets(self):
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
             sheets = [n for n in zf.namelist() if n.startswith("xl/worksheets/sheet")]
-        self.assertEqual(len(sheets), 9)
+        self.assertEqual(len(sheets), 3)
 
     # ── Content checks ────────────────────────────────────────────────────
 
@@ -109,51 +105,36 @@ class TestExportExcel(unittest.TestCase):
         with zipfile.ZipFile(self.path) as zf:
             wb = zf.read("xl/workbook.xml").decode("utf-8")
         expected_names = [
-            "Configuration BOM (CBOM)",
-            "Software BOM (SBOM)",
-            "AI BOM (AIBOM)",
-            "Summary",
-            "Diagnostics",
-            "All Findings",
-            "Risk Breakdown",
-            "By Category",
-            "By Risk Level",
+            "SBOM Report",
+            "CBOM Report",
+            "AI BOM Report",
         ]
         for name in expected_names:
             self.assertIn(name, wb, f"Sheet name missing from workbook.xml: {name}")
 
-    def test_shared_strings_contains_scan_id(self):
-        r = _make_result(scan_id="sst-check-99")
-        export_excel(r, self.path)
+    def test_sheet_row_counts(self):
+        """Verify SBOM, CBOM, and AIBOM sheets have the correct number of rows based on findings categorization."""
+        export_excel(_make_result(n_findings=4), self.path)
         with zipfile.ZipFile(self.path) as zf:
-            sst = zf.read("xl/sharedStrings.xml").decode("utf-8")
-        self.assertIn("sst-check-99", sst)
-
-    def test_shared_strings_contains_hostname(self):
-        export_excel(_make_result(), self.path)
-        with zipfile.ZipFile(self.path) as zf:
-            sst = zf.read("xl/sharedStrings.xml").decode("utf-8")
-        self.assertIn("test-host", sst)
-
-    def test_findings_sheet_has_all_rows(self):
-        """Sheet6 (All Findings) should have header + n_findings rows."""
-        n = 6
-        export_excel(_make_result(n_findings=n), self.path)
-        with zipfile.ZipFile(self.path) as zf:
-            sheet6 = zf.read("xl/worksheets/sheet6.xml").decode("utf-8")
-        # Count <row> elements — header + n data rows = n+1
-        row_count = sheet6.count('<row r=')
-        self.assertEqual(row_count, n + 1)
+            sheet1 = zf.read("xl/worksheets/sheet1.xml").decode("utf-8")
+            sheet2 = zf.read("xl/worksheets/sheet2.xml").decode("utf-8")
+            sheet3 = zf.read("xl/worksheets/sheet3.xml").decode("utf-8")
+        # Sheet 1: SBOM Report has 1 finding of category ML Framework (ML_FRAMEWORK)
+        self.assertEqual(sheet1.count('<row r='), 2)  # header + 1 data row
+        # Sheet 2: CBOM Report has 1 finding of category Configuration (CONFIGURATION)
+        self.assertEqual(sheet2.count('<row r='), 2)  # header + 1 data row
+        # Sheet 3: AI BOM Report has 2 findings of categories AI Agent & AI Model
+        self.assertEqual(sheet3.count('<row r='), 3)  # header + 2 data rows
 
     def test_xml_escaping_in_description(self):
         """Special XML chars in description must be escaped, not break XML."""
         export_excel(_make_result(), self.path)
         with zipfile.ZipFile(self.path) as zf:
-            sheet6 = zf.read("xl/worksheets/sheet6.xml").decode("utf-8")
+            sheet3 = zf.read("xl/worksheets/sheet3.xml").decode("utf-8")
         # If escaping works the file is valid XML — just verify no raw < inside cell values
         # (our inline strings should use &lt;)
         import xml.etree.ElementTree as ET
-        ET.fromstring(sheet6)   # raises if malformed
+        ET.fromstring(sheet3)   # raises if malformed
 
     def test_zero_findings(self):
         """Should produce a valid file even with no findings."""

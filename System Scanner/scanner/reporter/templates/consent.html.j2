@@ -589,7 +589,11 @@
               <div class="module-item"><span class="module-icon">🔌</span><span>Local Host Listeners</span></div>
               <div class="module-item"><span class="module-icon">🔑</span><span>Hidden API Credentials</span></div>
               <div class="module-item"><span class="module-icon">📜</span><span>Open Source Licenses</span></div>
+<<<<<<< HEAD
               <div class="module-item"><span class="module-icon">🌐</span><span>Remote Github Repositories</span></div>
+=======
+              <div class="module-item"><span class="module-icon">🌐</span><span>Remote GitHub Repositories</span></div>
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
               <div class="module-item disabled" title="Feature coming soon"><span class="module-icon">☁️</span><span>Google Drive & Cloud <span class="future-badge">FUTURE</span></span></div>
             </div>
           </div>
@@ -609,8 +613,8 @@
               letter-spacing: 0.5px;
           }
           .form-select, .form-input {
-              background-color: var(--bg-primary);
-              border: 1px solid var(--border-color);
+              background-color: var(--bg-subtle);
+              border: 1px solid var(--border);
               color: var(--text-primary);
               padding: 10px 15px;
               border-radius: 4px;
@@ -621,12 +625,21 @@
               transition: border-color 0.2s;
           }
           .form-select:focus, .form-input:focus {
-              border-color: var(--hud-blue);
+              border-color: var(--red);
+              box-shadow: 0 0 0 2px var(--red-glow);
+          }
+          .github-hint {
+              color: var(--text-muted);
+              font-size: 11px;
+              margin-top: 6px;
+              font-family: var(--font-mono-auth);
           }
           </style>
 
           <div class="controls-section animate-in">
+
             <div class="form-group">
+<<<<<<< HEAD
               <label for="targetRegionSelect">Target Region</label>
               <select id="targetRegionSelect" class="form-select" onchange="toggleFolderInput(); validateConsent();">
                 <option value="all">Full System Scan</option>
@@ -634,11 +647,19 @@
                 <option value="github">Remote Github Repositories</option>
                 <option value="gdrive" disabled>Google Drive & Cloud (Future Scope)</option>
               </select>
+=======
+              <label for="githubUrlInput">GitHub Repository URL <span style="color:var(--text-muted);font-weight:400;">(Optional)</span></label>
+              <input type="text" id="githubUrlInput" class="form-input"
+                     placeholder="https://github.com/owner/repo"
+                     oninput="validateConsent()" />
+              <span class="github-hint">📡 Repo will be downloaded, scanned, then deleted on exit.</span>
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
             </div>
 
-            <div class="form-group" id="folderInputContainer" style="display: none;">
-              <label for="folderPathInput">Folder Path</label>
-              <input type="text" id="folderPathInput" class="form-input" placeholder="C:\Projects\" oninput="validateConsent()" />
+            <div class="form-group">
+              <label for="repoNameInput">Scan Label <span style="color:var(--text-muted);font-weight:400;">(Optional)</span></label>
+              <input type="text" id="repoNameInput" class="form-input"
+                     placeholder="e.g. my-project-audit" />
             </div>
 
             <div class="form-group" id="githubInputContainer">
@@ -728,14 +749,21 @@
       themeCheckbox.addEventListener('change', toggleTheme);
     }
 
-    // Load theme on DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', loadTheme);
-
-    function toggleFolderInput() {
-      const select = document.getElementById('targetRegionSelect');
-      const container = document.getElementById('folderInputContainer');
-      container.style.display = (select.value === 'folder') ? 'block' : 'none';
-    }
+    // Load theme on DOMContentLoaded & auto-focus GitHub URL if query param is set
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTheme();
+      
+      // Auto-focus GitHub input if parameter focus=github is present
+      if (window.location.search.includes('focus=github') || window.location.hash === '#github') {
+        const gitInput = document.getElementById('githubUrlInput');
+        if (gitInput) {
+          setTimeout(() => {
+            gitInput.focus();
+            gitInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        }
+      }
+    });
 
     function toggleDepthInput() {
       const select = document.getElementById('depthLevelSelect');
@@ -745,6 +773,7 @@
 
     function validateConsent() {
       const isChecked = document.getElementById('consentCheckbox').checked;
+<<<<<<< HEAD
       const targetRegion = document.getElementById('targetRegionSelect').value;
       let pathValid = true;
       
@@ -762,19 +791,19 @@
         pathValid = githubUrl.includes('github.com/');
       }
       
+=======
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
       const depthLevel = document.getElementById('depthLevelSelect').value;
       let depthValid = true;
       if (depthLevel === 'custom') {
         const depthVal = document.getElementById('customDepthInput').value.trim();
         depthValid = depthVal.length > 0 && !isNaN(depthVal) && parseInt(depthVal) >= 0;
       }
-
-      document.getElementById('startScanBtn').disabled = !(isChecked && pathValid && depthValid);
+      document.getElementById('startScanBtn').disabled = !(isChecked && depthValid);
     }
 
     function triggerScan() {
-      const targetRegion = document.getElementById('targetRegionSelect').value;
-      const folderPath = (targetRegion === 'folder') ? document.getElementById('folderPathInput').value.trim() : '';
+      const githubUrl = document.getElementById('githubUrlInput').value.trim();
 
       const depthLevel = document.getElementById('depthLevelSelect').value;
       let depthValue = 10;
@@ -783,22 +812,22 @@
       } else if (depthLevel === 'custom') {
         depthValue = parseInt(document.getElementById('customDepthInput').value) || 10;
       }
-
       const quickScan = (depthLevel === 'faster');
-      
+
       // Hide Consent, Show Loader
       document.getElementById('consentContent').style.display = 'none';
       document.getElementById('loadingContent').style.display = 'block';
 
-      const progressBar = document.getElementById('progressBar');
-      const loadingStatus = document.getElementById('loadingStatus');
+      const progressBar    = document.getElementById('progressBar');
+      const loadingStatus  = document.getElementById('loadingStatus');
       const loadingSubtext = document.getElementById('loadingSubtext');
 
       progressBar.style.transition = "width 0.5s ease";
       progressBar.style.width = "10%";
-      loadingStatus.textContent = "Initializing scan request...";
+      loadingStatus.textContent  = "Initializing scan request...";
       loadingSubtext.textContent = "Connecting to background host...";
 
+<<<<<<< HEAD
       // Make network request to trigger the Python scan controller
       let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
       
@@ -809,6 +838,17 @@
         url += `&github_url=${encodeURIComponent(githubUrl)}`;
       } else if (targetRegion === 'folder' && folderPath) {
         url += `&folder=${encodeURIComponent(folderPath)}`;
+=======
+      // Decide endpoint: GitHub URL filled → repo scan, else → system scan
+      let url;
+      const isGithubScan = githubUrl.length > 0 && githubUrl.includes('github.com');
+      if (isGithubScan) {
+        url = `/repo-scan?url=${encodeURIComponent(githubUrl)}`;
+        loadingStatus.textContent  = "Downloading GitHub Repository...";
+        loadingSubtext.textContent = `Fetching: ${githubUrl}`;
+      } else {
+        url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
       }
 
       fetch(url)
@@ -819,7 +859,7 @@
           return response.json();
         })
         .then(data => {
-          if (data.has_previous) {
+          if (data.has_previous && !isGithubScan) {
             // Animate progress bar to 100% over 6 seconds
             progressBar.style.transition = "width 6s cubic-bezier(0.2, 0.8, 0.2, 1)";
             progressBar.style.width = "100%";
@@ -848,6 +888,7 @@
             }, 6000);
           } else {
             // Poll status from the backend until complete
+<<<<<<< HEAD
             if (isGithubScan) {
               loadingStatus.textContent = "Downloading Repository...";
               loadingSubtext.textContent = "Connecting to GitHub servers and fetching zip archive...";
@@ -858,6 +899,15 @@
 
             let fileExplorationStartTime = Date.now();
             let lastStatus = isGithubScan ? "Downloading Repository..." : "Exploring File System...";
+=======
+            loadingStatus.textContent = isGithubScan ? "Downloading GitHub Repository..." : "Exploring File System...";
+            loadingSubtext.textContent = isGithubScan
+              ? `Fetching archive from GitHub...`
+              : `Performing filesystem search (depth ${depthValue})...`;
+
+            let fileExplorationStartTime = Date.now();
+            let lastStatus = isGithubScan ? "Downloading GitHub Repository..." : "Exploring File System...";
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
 
             const statusInterval = setInterval(() => {
               fetch('/api/status')
@@ -868,13 +918,17 @@
                   throw new Error();
                 })
                 .then(data => {
-                  let status = data.status || "Exploring File System...";
+                  let status = data.status || (isGithubScan ? "Downloading GitHub Repository..." : "Exploring File System...");
                   let progress = data.progress || 10;
 
-                  if (status === "Exploring File System...") {
+                  if (status.startsWith("Exploring File System")) {
                     if (Date.now() - fileExplorationStartTime > 3000) {
                       status = "Locating Files (This may take a moment)...";
                     }
+                  } else if (status === "Downloading GitHub Repository...") {
+                    loadingSubtext.textContent = "Fetching repository archive from GitHub...";
+                  } else if (status.startsWith("Scanning Repository Files")) {
+                    loadingSubtext.textContent = "Running modules on the extracted repository...";
                   } else {
                     fileExplorationStartTime = Date.now();
                   }

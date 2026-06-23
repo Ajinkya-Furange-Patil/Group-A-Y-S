@@ -97,7 +97,7 @@ class TestServer(unittest.TestCase):
         response = urllib.request.urlopen(url)
         self.assertEqual(response.status, 200)
         data = json.loads(response.read().decode("utf-8"))
-        self.assertEqual(data["status"], "success")
+        self.assertIn(data["status"], ["started", "already_running"])
         response.close()
         
         # Wait up to 2.5s for the background thread to invoke the mock

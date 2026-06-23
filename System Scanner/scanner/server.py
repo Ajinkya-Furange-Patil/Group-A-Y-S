@@ -7,6 +7,7 @@ upon receiving explicit web-based consent approval.
 
 from __future__ import annotations
 
+import atexit
 import http.server
 import json
 import logging
@@ -17,8 +18,12 @@ import urllib.parse
 from jinja2 import Environment, FileSystemLoader
 from scanner.status_tracker import update_scan_status
 from scanner.version_manager import get_version, get_version_info
+from scanner.repo_scanner import download_and_extract_repo, cleanup_temp_repos
 
 import threading
+
+# Register temp repo cleanup when server process exits
+atexit.register(cleanup_temp_repos)
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +55,7 @@ def _run_scan_background(quick: bool, folder: str | None, depth: int | None) -> 
 
 
 def _run_repo_scan_background(github_url: str) -> None:
+<<<<<<< HEAD
     global _scan_thread
     with _scan_lock:
         try:
@@ -71,6 +77,41 @@ def _run_repo_scan_background(github_url: str) -> None:
                 update_scan_status("Error: Scan Failed", 100)
         except Exception as e:
             logger.error("Background repository scan failed: %s", e, exc_info=True)
+=======
+    """Background thread: download repo ZIP → extract → run full scan."""
+    global _scan_thread
+    with _scan_lock:
+        try:
+            from scanner.controller import ScanController
+            from scanner.reporter import generate_json_report, generate_html_report
+
+            update_scan_status("Downloading GitHub Repository...", 5)
+            logger.info("Starting GitHub repo scan: %s", github_url)
+
+            # Download and extract the repo
+            extracted_path = download_and_extract_repo(github_url)
+            logger.info("Repo extracted to: %s", extracted_path)
+
+            update_scan_status("Scanning Repository Files...", 15)
+
+            # Run all 10 modules on the extracted folder
+            controller = ScanController(quick=False, scan_folder=extracted_path, max_depth=10, repo_mode=True)
+            result = controller.run_scan()
+
+            # Tag the result so dashboard knows it's a repo scan
+            result.hostname = f"GitHub: {github_url.rstrip('/').split('/')[-1]}"
+
+            generate_json_report(result, "report.json")
+            generate_html_report(result, "rendered_dashboard.html")
+
+            update_scan_status("Complete", 100)
+            logger.info("GitHub repo scan complete.")
+        except ValueError as e:
+            logger.error("Invalid GitHub URL: %s", e)
+            update_scan_status(f"Error: {e}", 100)
+        except Exception as e:
+            logger.error("GitHub repo scan failed: %s", e, exc_info=True)
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
             update_scan_status(f"Error: {e}", 100)
 
 
@@ -362,6 +403,50 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(b'{"error": "No scan results found to export"}')
+
+        elif path == "/repo-scan":
+            query = urllib.parse.parse_qs(parsed_url.query)
+            github_url = query.get("url", [""])[0].strip()
+
+            if not github_url:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": "Missing 'url' parameter"}).encode("utf-8"))
+                return
+
+            # Basic GitHub URL validation
+            if "github.com" not in github_url:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": "URL must be a GitHub repository URL (github.com)"}).encode("utf-8"))
+                return
+
+            has_previous = False
+
+            try:
+                if _scan_thread is None or not _scan_thread.is_alive():
+                    _scan_thread = threading.Thread(
+                        target=_run_repo_scan_background,
+                        args=(github_url,),
+                        daemon=True
+                    )
+                    _scan_thread.start()
+                    status_msg = "started"
+                else:
+                    status_msg = "already_running"
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": status_msg, "has_previous": has_previous}).encode("utf-8"))
+            except Exception as e:
+                logger.error("Repo scan start failed: %s", e, exc_info=True)
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode("utf-8"))
 
         elif path == "/run-scan":
             query = urllib.parse.parse_qs(parsed_url.query)
