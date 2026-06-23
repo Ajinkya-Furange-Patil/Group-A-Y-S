@@ -1693,13 +1693,71 @@
     .highlight-pulse {
       animation: highlight-pulse 2s ease-in-out;
     }
+    
+    /* ═══════════════ EXPORT BUTTONS (Day 8) ═══════════════ */
+    .export-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+    .export-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .export-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border: 1px solid var(--hud-border-dim);
+      background: transparent;
+      color: var(--hud-red);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .export-btn:hover {
+      background: rgba(211, 13, 48, 0.08);
+      border-color: var(--hud-red);
+      color: var(--text-main);
+    }
+    /* Excel button gets a green accent */
+    .export-btn-excel {
+      color: #007a3d;
+      border-color: rgba(0, 122, 61, 0.35);
+    }
+    .export-btn-excel:hover {
+      background: rgba(0, 122, 61, 0.08);
+      border-color: #007a3d;
+      color: #005a2b;
+      box-shadow: 0 0 10px rgba(0, 122, 61, 0.18);
+    }
+    body.dark-theme .export-btn-excel {
+      color: #00e676;
+      border-color: rgba(0, 230, 118, 0.3);
+    }
+    body.dark-theme .export-btn-excel:hover {
+      background: rgba(0, 230, 118, 0.08);
+      border-color: #00e676;
+      color: #69ffb4;
+    }
   </style>
 </head>
 <body>
   <!-- Animated scanline overlay -->
   <div class="scanline"></div>
 
-  <div class="container">
+  <div class="container" id="dashboard-view">
     
     <!-- ═══════════════ HEADER PANEL ═══════════════ -->
     <header class="hud-panel header">
@@ -2051,6 +2109,20 @@
         <div class="hud-corner c-br"></div>
         <div class="hud-header-tab" style="left: 20px;">SUSPECTED DETECTION VECTORS</div>
 
+        <!-- Export Bar -->
+        <div class="export-bar">
+          <span class="export-lbl">Export:</span>
+          <button class="export-btn" onclick="exportDashboardJSON()" title="Download findings as JSON">
+            ⬇ JSON
+          </button>
+          <button class="export-btn export-btn-excel" onclick="exportDashboardExcel()" title="Download full report as Excel workbook (.xlsx)">
+            📊 Excel
+          </button>
+          <button class="export-btn" onclick="openPdfModal()" title="Configure and generate a formatted PDF report">
+            🖨 PDF Report
+          </button>
+        </div>
+
         <!-- Filter bar -->
         <div class="filter-bar">
           <input type="text" id="search-box" class="hud-input" placeholder="Search telemetry findings (source, title)..." />
@@ -2171,6 +2243,323 @@
 
   <!-- ═══════════════ INTERACTION SCRIPTS ═══════════════ -->
   <script>
+    // Global SCAN_DATA variable initialized from Jinja
+    const SCAN_DATA = {{ result.to_dict() | tojson }};
+
+    function exportDashboardJSON() {
+      if (window.location.protocol.startsWith('http')) {
+        window.location.href = '/api/export/json';
+      } else {
+        const blob = new Blob([JSON.stringify(SCAN_DATA, null, 2)], {type: 'application/json'});
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'ai_scan_' + (SCAN_DATA.scan_id || 'report') + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function exportDashboardExcel() {
+      if (window.location.protocol.startsWith('http')) {
+        window.location.href = '/api/export/excel';
+      } else {
+        function escXml(s) {
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+        }
+
+        const sst = [], sstMap = {};
+        function si(text) {
+          const k = String(text);
+          if (!(k in sstMap)) { sstMap[k] = sst.length; sst.push(k); }
+          return sstMap[k];
+        }
+
+        function col(n) {
+          let r = ''; n++;
+          while (n) { r = String.fromCharCode(64 + (n % 26 || 26)) + r; n = Math.floor((n - 1) / 26); }
+          return r;
+        }
+        const ref = (r, c) => col(c) + (r + 1);
+
+        function sheetXml(rows, colWidths) {
+          let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
+            + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`;
+          if (colWidths && colWidths.length > 0) {
+            xml += `<cols>`;
+            colWidths.forEach((w, i) => {
+              xml += `<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`;
+            });
+            xml += `</cols>`;
+          }
+          xml += `<sheetData>`;
+          rows.forEach((row, ri) => {
+            if (!row || row.length === 0) return;
+            xml += `<row r="${ri + 1}">`;
+            row.forEach((cell, ci) => {
+              if (!cell) return;
+              const {t, v, s} = cell;
+              if (v === null || v === undefined) return;
+              const r = ref(ri, ci);
+              const styleAttr = s !== undefined ? ` s="${s}"` : '';
+              if (t === 'n') {
+                xml += `<c r="${r}"${styleAttr}><v>${escXml(v)}</v></c>`;
+              } else if (t === 'h') {
+                xml += `<c r="${r}" t="s" s="1"><v>${si(v)}</v></c>`;
+              } else if (t === 'i') {
+                xml += `<c r="${r}" t="inlineStr"${styleAttr}><is><t xml:space="preserve">${escXml(v)}</t></is></c>`;
+              } else {
+                xml += `<c r="${r}" t="s"${styleAttr}><v>${si(v)}</v></c>`;
+              }
+            });
+            xml += `</row>`;
+          });
+          xml += `</sheetData></worksheet>`;
+          return xml;
+        }
+
+        // ── Configuration BOM (CBOM) ──────────────────────────────────────────
+        const cbomHeader = ["Finding ID", "Module", "Setting Name", "Description",
+                            "Value / Source", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
+        const cbomRows = [cbomHeader];
+        const cbomCats = ["Configuration", "System Info"];
+        const cbomFindings = SCAN_DATA.findings.filter(f => cbomCats.includes(f.category));
+        cbomFindings.forEach((f, idx) => {
+          const isEven = idx % 2 === 0;
+          const rl = (f.risk_level||'').toLowerCase();
+          let riskStyle = isEven ? 10 : 11;
+          if (rl === 'critical') riskStyle = 5;
+          else if (rl === 'high') riskStyle = 6;
+          else if (rl === 'medium') riskStyle = 7;
+          else if (rl === 'low' || rl === 'info') riskStyle = 8;
+
+          cbomRows.push([
+            {t:'s',v:f.finding_id,s:isEven?10:11},
+            {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
+            {t:'s',v:f.title,s:isEven?0:4},
+            {t:'i',v:f.description||'',s:isEven?14:15},
+            {t:'i',v:f.source||'',s:isEven?14:15},
+            {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
+            {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp,s:isEven?10:11},
+          ]);
+        });
+
+        // ── Software BOM (SBOM) ────────────────────────────────────────────────
+        const sbomHeader = ["Finding ID", "Module", "Package / Library", "Description",
+                            "Location / Source", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
+        const sbomRows = [sbomHeader];
+        const sbomCats = ["ML Framework", "AI Service"];
+        const sbomFindings = SCAN_DATA.findings.filter(f => sbomCats.includes(f.category));
+        sbomFindings.forEach((f, idx) => {
+          const isEven = idx % 2 === 0;
+          const rl = (f.risk_level||'').toLowerCase();
+          let riskStyle = isEven ? 10 : 11;
+          if (rl === 'critical') riskStyle = 5;
+          else if (rl === 'high') riskStyle = 6;
+          else if (rl === 'medium') riskStyle = 7;
+          else if (rl === 'low' || rl === 'info') riskStyle = 8;
+
+          sbomRows.push([
+            {t:'s',v:f.finding_id,s:isEven?10:11},
+            {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
+            {t:'s',v:f.title,s:isEven?0:4},
+            {t:'i',v:f.description||'',s:isEven?14:15},
+            {t:'i',v:f.source||'',s:isEven?14:15},
+            {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
+            {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp,s:isEven?10:11},
+          ]);
+        });
+
+        // ── AI BOM (AIBOM) ───────────────────────────────────────────────────
+        const aibomHeader = ["Finding ID", "Module", "AI Model / Agent / Runtime", "Description",
+                             "Type (Category)", "Location / Endpoint", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
+        const aibomRows = [aibomHeader];
+        const aibomCats = ["AI Model", "AI Agent", "LLM Runtime"];
+        const aibomFindings = SCAN_DATA.findings.filter(f => aibomCats.includes(f.category));
+        aibomFindings.forEach((f, idx) => {
+          const isEven = idx % 2 === 0;
+          const rl = (f.risk_level||'').toLowerCase();
+          let riskStyle = isEven ? 10 : 11;
+          if (rl === 'critical') riskStyle = 5;
+          else if (rl === 'high') riskStyle = 6;
+          else if (rl === 'medium') riskStyle = 7;
+          else if (rl === 'low' || rl === 'info') riskStyle = 8;
+
+          aibomRows.push([
+            {t:'s',v:f.finding_id,s:isEven?10:11},
+            {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
+            {t:'s',v:f.title,s:isEven?0:4},
+            {t:'i',v:f.description||'',s:isEven?14:15},
+            {t:'s',v:f.category,s:isEven?10:11},
+            {t:'i',v:f.source||'',s:isEven?14:15},
+            {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
+            {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp,s:isEven?10:11},
+          ]);
+        });
+
+        const sheets = [
+          {name:'SBOM Report',   xml:sheetXml(sbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
+          {name:'CBOM Report',   xml:sheetXml(cbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
+          {name:'AI BOM Report', xml:sheetXml(aibomRows, [15, 18, 28, 45, 18, 40, 15, 15, 25])},
+        ];
+
+        const wbXml = `<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    ${sheets.map((s,i)=>`<sheet name="${escXml(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('\n    ')}
+  </sheets>
+</workbook>`;
+
+        const wbRels = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('\n  ')}
+  <Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>
+  <Relationship Id="rId${sheets.length+2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+        const sstXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+     count="${sst.length}" uniqueCount="${sst.length}">
+${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
+</sst>`;
+
+        const stylesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="8">
+    <font><sz val="11"/><name val="Calibri"/><color rgb="FF000000"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font>
+    <font><b/><sz val="16"/><name val="Calibri"/><color rgb="FF1F4E79"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FF1F4E79"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFC00000"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFE36C0A"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFB25E00"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/><color rgb="FF385723"/></font>
+  </fonts>
+  <fills count="9">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F2"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFADBD8"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFF5CBA7"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FCF3CF"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="D4EFDF"/><bgColor indexed="64"/></patternFill></fill>
+  </fills>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/></border>
+    <border><left style="thin"><color rgb="FFD3D3D3"/></left><right style="thin"><color rgb="FFD3D3D3"/></right><top style="thin"><color rgb="FFD3D3D3"/></top><bottom style="thin"><color rgb="FFD3D3D3"/></bottom></border>
+  </borders>
+  <cellStyleXfs count="1">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
+  </cellStyleXfs>
+  <cellXfs count="16">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="2" fillId="0" borderId="0"/>
+    <xf numFmtId="0" fontId="3" fillId="0" borderId="0"/>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="4" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="5" fillId="6" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="6" fillId="7" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="7" fillId="8" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="4" borderId="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="1" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="1" fillId="6" borderId="1" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="4" borderId="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" applyFill="1" applyBorder="1"/>
+  </cellXfs>
+</styleSheet>`;
+
+        function writeZip(files) {
+          let offset = 0;
+          const headers = [];
+          const dataParts = [];
+
+          files.forEach(f => {
+            const content = new TextEncoder().encode(f.content);
+            const size = content.length;
+            const nameBytes = new TextEncoder().encode(f.name);
+            
+            const lfh = new Uint8Array(30 + nameBytes.length);
+            lfh.set([0x50, 0x4b, 0x03, 0x04, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            lfh.set([size & 0xFF, (size >> 8) & 0xFF, (size >> 16) & 0xFF, (size >> 24) & 0xFF], 18);
+            lfh.set([size & 0xFF, (size >> 8) & 0xFF, (size >> 16) & 0xFF, (size >> 24) & 0xFF], 22);
+            lfh.set([nameBytes.length & 0xFF, (nameBytes.length >> 8) & 0xFF], 26);
+            lfh.set(nameBytes, 30);
+
+            dataParts.push(lfh);
+            dataParts.push(content);
+
+            const cdh = new Uint8Array(46 + nameBytes.length);
+            cdh.set([0x50, 0x4b, 0x01, 0x02, 20, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            cdh.set([size & 0xFF, (size >> 8) & 0xFF, (size >> 16) & 0xFF, (size >> 24) & 0xFF], 20);
+            cdh.set([size & 0xFF, (size >> 8) & 0xFF, (size >> 16) & 0xFF, (size >> 24) & 0xFF], 24);
+            cdh.set([nameBytes.length & 0xFF, (nameBytes.length >> 8) & 0xFF], 28);
+            cdh.set([offset & 0xFF, (offset >> 8) & 0xFF, (offset >> 16) & 0xFF, (offset >> 24) & 0xFF], 42);
+            cdh.set(nameBytes, 46);
+            
+            headers.push(cdh);
+            offset += lfh.length + size;
+          });
+
+          const dirOffset = offset;
+          let dirSize = 0;
+          headers.forEach(h => { dirSize += h.length; dataParts.push(h); });
+
+          const eocd = new Uint8Array(22);
+          eocd.set([0x50, 0x4b, 0x05, 0x06, 0, 0, 0, 0]);
+          eocd.set([files.length & 0xFF, (files.length >> 8) & 0xFF], 8);
+          eocd.set([files.length & 0xFF, (files.length >> 8) & 0xFF], 10);
+          eocd.set([dirSize & 0xFF, (dirSize >> 8) & 0xFF, (dirSize >> 16) & 0xFF, (dirSize >> 24) & 0xFF], 12);
+          eocd.set([dirOffset & 0xFF, (dirOffset >> 8) & 0xFF, (dirOffset >> 16) & 0xFF, (dirOffset >> 24) & 0xFF], 16);
+          dataParts.push(eocd);
+
+          return new Blob(dataParts, {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+        }
+
+        const files = [
+          {name: '[Content_Types].xml', content: `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  ${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('\n  ')}
+  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>`},
+          {name: '_rels/.rels', content: `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`},
+          {name: 'xl/workbook.xml', content: wbXml},
+          {name: 'xl/_rels/workbook.xml.rels', content: wbRels},
+          {name: 'xl/sharedStrings.xml', content: sstXml},
+          {name: 'xl/styles.xml', content: stylesXml},
+          ...sheets.map((s,i)=>({name: `xl/worksheets/sheet${i+1}.xml`, content: s.xml}))
+        ];
+
+        const blob = writeZip(files);
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'ai_scan_report_' + (SCAN_DATA.scan_id || 'report') + '.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    }
+
     // Theme Toggling Logic with checkbox switch
     const body = document.body;
     const themeCheckbox = document.getElementById('theme-checkbox');
@@ -2352,55 +2741,300 @@
     }
     
     function generateCorporatePdf() {
-      const btn = document.getElementById('generatePdfBtn');
+      var btn = document.getElementById('generatePdfBtn');
       btn.textContent = "Generating...";
       btn.disabled = true;
-      
-      const excludeInfo = document.getElementById('pdfExcludeInfo').checked;
-      
-      // Temporarily switch body to light theme for corporate print
-      const wasDark = document.body.classList.contains('dark-theme');
-      document.body.classList.remove('dark-theme');
-      
-      // Clone the dashboard view to format it cleanly for print
-      const dashboard = document.getElementById('dashboard-view');
-      const clone = dashboard.cloneNode(true);
-      
-      // Clean up the clone for a corporate look
-      clone.style.background = "#ffffff";
-      clone.style.color = "#000000";
-      clone.querySelector('.header').style.background = "#ffffff";
-      clone.querySelector('.header-title h1').style.color = "#333333";
-      clone.querySelector('.header-title h1').style.textShadow = "none";
-      clone.querySelector('.header-title p').style.color = "#666666";
-      
-      // Remove export bar from PDF
-      const exportBar = clone.querySelector('.export-bar');
-      if (exportBar) exportBar.remove();
-      
-      // If exclude INFO, remove them
-      if (excludeInfo) {
-        const infos = clone.querySelectorAll('.risk-level-info');
-        infos.forEach(el => el.remove());
-      }
-      
-      // Force all finding cards to be open so details are visible in PDF
-      clone.querySelectorAll('.finding-card').forEach(card => card.classList.add('open'));
-      
-      const opt = {
-        margin:       0.5,
-        filename:     'AI_Scanner_Corporate_Report.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      
-      html2pdf().set(opt).from(clone).save().then(() => {
-        closePdfModal();
+
+      // Check if html2pdf library is loaded
+      if (typeof html2pdf === 'undefined') {
+        alert('PDF library failed to load. Please check your internet connection and reload the page.');
         btn.textContent = "Generate PDF";
         btn.disabled = false;
-        if(wasDark) document.body.classList.add('dark-theme');
-      });
+        return;
+      }
+
+      var jsPDFClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+      if (!jsPDFClass) {
+        alert('jsPDF library not found in html2pdf bundle.');
+        btn.textContent = "Generate PDF";
+        btn.disabled = false;
+        return;
+      }
+
+      var excludeInfo = document.getElementById('pdfExcludeInfo').checked;
+      var includeLogs = document.getElementById('pdfIncludeLogs').checked;
+
+      // Temporarily switch body to light theme for corporate print style inheritance
+      var wasDark = document.body.classList.contains('dark-theme');
+      document.body.classList.remove('dark-theme');
+
+      function cleanup() {
+        var w = document.getElementById('pdf-render-wrapper');
+        if (w) w.remove();
+        btn.textContent = "Generate PDF";
+        btn.disabled = false;
+        if (wasDark) document.body.classList.add('dark-theme');
+      }
+
+      try {
+        var dashboard = document.getElementById('dashboard-view');
+        if (!dashboard) { throw new Error('Dashboard container not found'); }
+
+        // Initialize jsPDF document (letter format, portrait)
+        var doc = new jsPDFClass({
+          orientation: 'portrait',
+          unit: 'in',
+          format: 'letter'
+        });
+
+        // Compile a queue of pages to render sequentially to avoid large canvas overflow
+        var queue = [];
+
+        // 1. Page 1: Header + Summary Section + Host Info
+        var p1 = document.createElement('div');
+        p1.className = 'pdf-page-wrapper';
+        p1.style.cssText = 'background:#ffffff; padding:20px;';
+
+        var headerClone = document.querySelector('.header').cloneNode(true);
+        p1.appendChild(headerClone);
+
+        var summaryClone = document.querySelector('.summary-section').cloneNode(true);
+        p1.appendChild(summaryClone);
+
+        var hostInfo = document.querySelector('.host-info-bar');
+        if (hostInfo) {
+          p1.appendChild(hostInfo.cloneNode(true));
+        }
+        
+        // Remove telemetry stream panel from summary if logs are excluded
+        if (!includeLogs) {
+          p1.querySelectorAll('.hud-panel').forEach(function(panel) {
+            var tab = panel.querySelector('.hud-header-tab');
+            if (tab && tab.textContent.trim() === 'TELEMETRY STREAM') {
+              panel.remove();
+            }
+          });
+        }
+        queue.push({ el: p1, name: 'Summary' });
+
+        // 2. Page 2: Sidebar (Module Compliance)
+        var p2 = document.createElement('div');
+        p2.className = 'pdf-page-wrapper';
+        p2.style.cssText = 'background:#ffffff; padding:20px;';
+        var sidebar = document.querySelector('.module-compliance-panel');
+        if (sidebar) {
+          var sidebarClone = sidebar.cloneNode(true);
+          var scrollContainer = sidebarClone.querySelector('.module-compliance-scroll');
+          if (scrollContainer) {
+            scrollContainer.style.overflow = 'visible';
+            scrollContainer.style.maxHeight = 'none';
+          }
+          p2.appendChild(sidebarClone);
+          queue.push({ el: p2, name: 'Compliance' });
+        }
+
+        // 3. Page 3+: Module Sections
+        var sections = document.querySelectorAll('#findings-list .module-section');
+        sections.forEach(function(section, idx) {
+          var p = document.createElement('div');
+          p.className = 'pdf-page-wrapper';
+          p.style.cssText = 'background:#ffffff; padding:20px;';
+          
+          var secClone = section.cloneNode(true);
+
+          // If excludeInfo, remove info cards
+          if (excludeInfo) {
+            secClone.querySelectorAll('.risk-level-info').forEach(function(c) { c.remove(); });
+          }
+
+          // Check if there are any finding cards left in this section
+          var cards = secClone.querySelectorAll('.finding-card');
+          if (cards.length > 0) {
+            // Force open all cards for print details exposure
+            cards.forEach(function(card) {
+              card.classList.add('open');
+              var body = card.querySelector('.finding-body');
+              if (body) {
+                body.style.display = 'block';
+                body.style.maxHeight = 'none';
+              }
+            });
+            p.appendChild(secClone);
+            queue.push({ el: p, name: 'ModuleSection_' + idx });
+          }
+        });
+
+        // 4. Page Last: Console Logs (if included)
+        if (includeLogs) {
+          var logsPanel = null;
+          document.querySelectorAll('.hud-panel').forEach(function(panel) {
+            var tab = panel.querySelector('.hud-header-tab');
+            if (tab && tab.textContent.trim() === 'CONSOLE LOGS') {
+              logsPanel = panel;
+            }
+          });
+          if (logsPanel) {
+            var pLast = document.createElement('div');
+            pLast.className = 'pdf-page-wrapper';
+            pLast.style.cssText = 'background:#ffffff; padding:20px;';
+            pLast.appendChild(logsPanel.cloneNode(true));
+            queue.push({ el: pLast, name: 'ConsoleLogs' });
+          }
+        }
+
+        // Create a wrapper ATTACHED TO THE DOM in a visible coordinate area but hidden behind content
+        var wrapper = document.createElement('div');
+        wrapper.id = 'pdf-render-wrapper';
+        wrapper.style.cssText = 'position:absolute;left:0;top:0;width:1100px;z-index:-9999;background:#ffffff;overflow:hidden;';
+        document.body.appendChild(wrapper);
+
+        var isFirstPage = true;
+
+        function addCanvasToPdf(canvas) {
+          var pageHeightPx = Math.floor(canvas.width * (10 / 7.5)); // Aspect ratio of printable page height (10 / 7.5)
+          var totalHeight = canvas.height;
+          var startY = 0;
+
+          while (startY < totalHeight) {
+            var chunkHeight = Math.min(pageHeightPx, totalHeight - startY);
+
+            // Create a temporary canvas for the slice
+            var tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = chunkHeight;
+
+            var ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(canvas, 0, startY, canvas.width, chunkHeight, 0, 0, canvas.width, chunkHeight);
+
+            if (!isFirstPage) {
+              doc.addPage();
+            } else {
+              isFirstPage = false;
+            }
+
+            var imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
+            var imgHeightInches = (chunkHeight / canvas.width) * 7.5;
+            doc.addImage(imgData, 'JPEG', 0.5, 0.5, 7.5, imgHeightInches);
+
+            startY += chunkHeight;
+          }
+        }
+
+        function processQueue(index) {
+          if (index >= queue.length) {
+            // All pages generated! Trigger direct download
+            doc.save('AI_Scanner_Corporate_Report.pdf');
+            closePdfModal();
+            cleanup();
+            return;
+          }
+
+          var item = queue[index];
+          var pageEl = item.el;
+
+          // Clean wrapper and add current page element
+          wrapper.innerHTML = '';
+          wrapper.appendChild(pageEl);
+
+          // Apply corporate light-theme colors to the contents inside wrapper
+          pageEl.style.width = '100%';
+          pageEl.style.color = '#111111';
+
+          // Style header, panels, metric cards, badges etc
+          pageEl.querySelectorAll('.header').forEach(function(headerEl) {
+            headerEl.style.background = '#ffffff';
+            headerEl.style.border = '2px solid #d30d30';
+            headerEl.style.boxShadow = 'none';
+          });
+          pageEl.querySelectorAll('.header-title h1').forEach(function(el) { el.style.color = '#1a1a2e'; el.style.textShadow = 'none'; });
+          pageEl.querySelectorAll('.header-title p').forEach(function(el) { el.style.color = '#444444'; });
+          
+          pageEl.querySelectorAll('.hud-panel').forEach(function(panel) {
+            panel.style.background = '#ffffff';
+            panel.style.border = '1px solid #cccccc';
+            panel.style.boxShadow = 'none';
+            panel.style.color = '#111111';
+          });
+
+          pageEl.querySelectorAll('.metric-card').forEach(function(card) {
+            card.style.background = '#f8f9fa';
+            card.style.border = '1px solid #dddddd';
+            card.style.color = '#111111';
+          });
+
+          pageEl.querySelectorAll('.finding-card').forEach(function(card) {
+            card.style.background = '#ffffff';
+            card.style.border = '1px solid #dddddd';
+            card.style.color = '#111111';
+          });
+          pageEl.querySelectorAll('.finding-header').forEach(function(h) {
+            h.style.color = '#111111';
+          });
+          pageEl.querySelectorAll('.finding-body').forEach(function(b) {
+            b.style.display = 'block';
+            b.style.maxHeight = 'none';
+            b.style.color = '#222222';
+          });
+
+          pageEl.querySelectorAll(
+            '.module-section-title, .title-txt, .module-badge, ' +
+            '.details-label, .details-val, .details-val-source, ' +
+            '.finding-title, .badge, .metric-title, .metric-value, ' +
+            '.hud-dial-number, .hud-dial-lbl, .risk-title-badge, ' +
+            '.risk-score-subtitle, .header-title h1, .header-title p, ' +
+            '.details-code, table th, table td, ' +
+            '.module-name-lbl, .module-time, .module-index, ' +
+            '.export-lbl, .hud-header-tab'
+          ).forEach(function(el) {
+            el.style.color = '#111111';
+          });
+
+          pageEl.querySelectorAll('.details-code, table, table th, table td').forEach(function(el) {
+            el.style.background = '#ffffff';
+            el.style.color = '#111111';
+            el.style.borderColor = '#cccccc';
+          });
+
+          // Hide decorators and non-printable UI inside the page
+          pageEl.querySelectorAll('.export-bar, .theme-toggle, .scanline, .search-filter-bar, #scan-progress-banner').forEach(function(el) {
+            el.remove();
+          });
+          pageEl.querySelectorAll('.hud-corner').forEach(function(el) {
+            el.style.display = 'none';
+          });
+
+          // Allow layout calculation time
+          setTimeout(function() {
+            html2canvas(pageEl, {
+              scale: 1.5,
+              useCORS: true,
+              logging: true,
+              width: 1100,
+              windowWidth: 1100,
+              scrollX: 0,
+              scrollY: 0
+            }).then(function(canvas) {
+              // Slice the canvas to PDF pages
+              addCanvasToPdf(canvas);
+              
+              // Proceed to next page in queue
+              processQueue(index + 1);
+            }).catch(function(err) {
+              console.error('PDF generation page ' + item.name + ' failed:', err);
+              alert('PDF generation failed: ' + err.message);
+              cleanup();
+            });
+          }, 300);
+        }
+
+        // Start processing the queue
+        processQueue(0);
+
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        alert('PDF generation error: ' + err.message);
+        cleanup();
+      }
     }
 
     // Format timestamp for Indian timezone

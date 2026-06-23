@@ -23,9 +23,9 @@ def test_full_integration():
         from scanner.models import ScanResult, Finding, FindingCategory, RiskLevel
         from scanner.reporter.excel_exporter import export_excel
         from scanner.reporter.report_generator import generate_html_report
-        print("✓ All imports successful")
+        print("[OK] All imports successful")
     except ImportError as e:
-        print(f"✗ Import failed: {e}")
+        print(f"[FAIL] Import failed: {e}")
         return False
     
     # Test 2: Run full scan with all 9 modules
@@ -33,25 +33,25 @@ def test_full_integration():
     try:
         controller = ScanController(scan_folder=".", max_depth=2)
         result = controller.run_scan()
-        print(f"✓ Scan completed successfully")
+        print(f"[OK] Scan completed successfully")
         print(f"  - Found {len(result.findings)} findings")
         print(f"  - {len(result.modules)} modules executed")
         print(f"  - Overall risk score: {result.summary.get('overall_risk_score', 0)}")
     except Exception as e:
-        print(f"✗ Scan failed: {e}")
+        print(f"[FAIL] Scan failed: {e}")
         import traceback
         traceback.print_exc()
         return False
     
-    # Test 3: Verify License Scanner findings
+    # Test 3: Verify License Scanner integration...
     print("\n[TEST 3] Verifying License Scanner integration...")
     license_findings = [f for f in result.findings if f.module_name == "LicenseScanner"]
     if license_findings:
-        print(f"✓ License Scanner produced {len(license_findings)} findings")
+        print(f"[OK] License Scanner produced {len(license_findings)} findings")
         for f in license_findings[:3]:  # Show first 3
             print(f"  - {f.title} (Risk: {f.risk_level})")
     else:
-        print("⚠ No license findings (OK if no licenses detected in scan folder)")
+        print("[WARN] No license findings (OK if no licenses detected in scan folder)")
     
     # Test 4: Verify Runtime Scanner with process metadata
     print("\n[TEST 4] Verifying Runtime Scanner process metadata...")
@@ -60,14 +60,14 @@ def test_full_integration():
     for f in runtime_findings:
         if "process_id" in f.details:
             process_metadata_count += 1
-            print(f"✓ Finding '{f.title}' includes process metadata:")
+            print(f"[OK] Finding '{f.title}' includes process metadata:")
             print(f"  - PID: {f.details['process_id']}")
             print(f"  - Name: {f.details['process_name']}")
     
     if process_metadata_count > 0:
-        print(f"✓ {process_metadata_count} findings with process metadata")
+        print(f"[OK] {process_metadata_count} findings with process metadata")
     else:
-        print("⚠ No active ports with process metadata (OK if no services running)")
+        print("[WARN] No active ports with process metadata (OK if no services running)")
     
     # Test 5: Export to JSON
     print("\n[TEST 5] Exporting to JSON...")
@@ -76,9 +76,9 @@ def test_full_integration():
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(result.to_dict(), f, indent=2)
         size = json_path.stat().st_size
-        print(f"✓ JSON exported: {json_path} ({size:,} bytes)")
+        print(f"[OK] JSON exported: {json_path} ({size:,} bytes)")
     except Exception as e:
-        print(f"✗ JSON export failed: {e}")
+        print(f"[FAIL] JSON export failed: {e}")
         return False
     
     # Test 6: Export to Excel
@@ -87,10 +87,10 @@ def test_full_integration():
         excel_path = pathlib.Path("test_report.xlsx")
         export_excel(result, str(excel_path))
         size = excel_path.stat().st_size
-        print(f"✓ Excel exported: {excel_path} ({size:,} bytes)")
-        print(f"  - 5 sheets: Summary, Findings, Risk Breakdown, By Category, By Risk Level")
+        print(f"[OK] Excel exported: {excel_path} ({size:,} bytes)")
+        print(f"  - 3 sheets: SBOM Report, CBOM Report, AI BOM Report")
     except Exception as e:
-        print(f"✗ Excel export failed: {e}")
+        print(f"[FAIL] Excel export failed: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -101,9 +101,9 @@ def test_full_integration():
         html_path = pathlib.Path("test_dashboard.html")
         generate_html_report(result, str(html_path))
         size = html_path.stat().st_size
-        print(f"✓ HTML dashboard: {html_path} ({size:,} bytes)")
+        print(f"[OK] HTML dashboard: {html_path} ({size:,} bytes)")
     except Exception as e:
-        print(f"✗ HTML generation failed: {e}")
+        print(f"[FAIL] HTML generation failed: {e}")
         return False
     
     # Test 8: Verify all modules executed
@@ -117,10 +117,10 @@ def test_full_integration():
     for expected in expected_modules:
         if expected in module_names:
             module = next(m for m in result.modules if m.name == expected)
-            status_icon = "✓" if module.status == "success" else "✗"
+            status_icon = "[OK]" if module.status == "success" else "[FAIL]"
             print(f"  {status_icon} {expected}: {module.status} ({module.findings_count} findings)")
         else:
-            print(f"  ⚠ {expected}: not registered")
+            print(f"  [WARN] {expected}: not registered")
     
     # Test 9: Verify data model consistency
     print("\n[TEST 9] Verifying data model consistency...")
@@ -134,12 +134,12 @@ def test_full_integration():
             issues.append(f"Invalid confidence {f.confidence} for {f.title}")
     
     if issues:
-        print(f"✗ Found {len(issues)} data model issues:")
+        print(f"[FAIL] Found {len(issues)} data model issues:")
         for issue in issues[:5]:
             print(f"  - {issue}")
         return False
     else:
-        print("✓ All findings conform to data model")
+        print("[OK] All findings conform to data model")
     
     # Test 10: Verify summary statistics
     print("\n[TEST 10] Verifying summary statistics...")
@@ -153,7 +153,7 @@ def test_full_integration():
     ]
     
     for check, desc in checks:
-        icon = "✓" if check else "✗"
+        icon = "[OK]" if check else "[FAIL]"
         print(f"  {icon} {desc}")
         if not check:
             return False
@@ -162,7 +162,7 @@ def test_full_integration():
     print("\n" + "="*70)
     print("INTEGRATION TEST RESULTS")
     print("="*70)
-    print(f"✅ ALL TESTS PASSED")
+    print(f"[SUCCESS] ALL TESTS PASSED")
     print(f"\nGenerated Outputs:")
     print(f"  - JSON Report:      test_report.json")
     print(f"  - Excel Workbook:   test_report.xlsx")
@@ -172,7 +172,7 @@ def test_full_integration():
     print(f"  - Modules Success:  {summary.get('modules_succeeded', 0)}/{summary.get('modules_run', 0)}")
     print(f"  - Overall Risk:     {summary.get('overall_risk_score', 0)}/100")
     print(f"  - Scan Duration:    {result.total_duration_sec:.2f}s")
-    print("\n🎉 All components integrated and working correctly!")
+    print("\n[OK] All components integrated and working correctly!")
     print("="*70)
     
     return True

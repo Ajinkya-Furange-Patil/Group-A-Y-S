@@ -3255,14 +3255,9 @@
 
       // ── Assemble workbook XML ─────────────────────────────────────────────
       const sheets = [
-        {name:'Configuration BOM (CBOM)', xml:sheetXml(cbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
-        {name:'Software BOM (SBOM)',      xml:sheetXml(sbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
-        {name:'AI BOM (AIBOM)',          xml:sheetXml(aibomRows, [15, 18, 28, 45, 18, 40, 15, 15, 25])},
-        {name:'Summary',                 xml:sheetXml(summaryRows, [30, 30, 15, 15])},
-        {name:'All Findings',            xml:sheetXml(findingsRows, [15, 18, 28, 45, 18, 15, 40, 15, 25])},
-        {name:'Risk Breakdown',          xml:sheetXml(dimRows, [22, 12, 15, 15])},
-        {name:'By Category',             xml:sheetXml(catRows, [25, 15])},
-        {name:'By Risk Level',           xml:sheetXml(riskRows, [18, 15])},
+        {name:'SBOM Report',   xml:sheetXml(sbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
+        {name:'CBOM Report',   xml:sheetXml(cbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
+        {name:'AI BOM Report', xml:sheetXml(aibomRows, [15, 18, 28, 45, 18, 40, 15, 15, 25])},
       ];
 
       const wbXml = `<?xml version="1.0" encoding="UTF-8"?>
