@@ -31,45 +31,68 @@
       
       {% if f.details %}
         <div class="details-code">
-          {% for k, v in f.details.items() %}
-            {% if k == "registry_entries" and v is iterable and v is not string and v|length > 0 %}
-              <div class="details-label" style="margin-top: 10px; margin-bottom: 5px;">Registry Entries</div>
-              <table class="metadata-table">
-                <thead>
+          {%- if f.details.get("registry_entries") -%}
+            <div class="details-label" style="margin-top: 10px; margin-bottom: 5px;">Registry Entries</div>
+            <table class="metadata-table" style="margin-bottom: 10px;">
+              <thead>
+                <tr>
+                  <th>Hive</th>
+                  <th>Key Path</th>
+                  <th>Value Name</th>
+                  <th>Interpretation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%- for entry in f.details.get("registry_entries") -%}
+                <tr>
+                  <td>{{ entry.get("hive", "") }}</td>
+                  <td style="word-break: break-all;">{{ entry.get("key_path", "") }}</td>
+                  <td>{{ entry.get("value_name", "") }}</td>
+                  <td>{{ entry.get("interpretation", "") }}</td>
+                </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
+          {%- endif -%}
+
+          {%- if f.details|length > 1 or (f.details|length == 1 and not f.details.get("registry_entries")) -%}
+            <div class="details-label" style="margin-top: 10px; margin-bottom: 5px;">Additional Configuration Details</div>
+            <table class="metadata-table">
+              <thead>
+                <tr>
+                  <th style="width: 35%;">Configuration Key</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%- for k, v in f.details.items() -%}
+                  {%- if k != "registry_entries" -%}
                   <tr>
-                    <th>Hive</th>
-                    <th>Key Path</th>
-                    <th>Value Name</th>
-                    <th>Interpretation</th>
+                    <td><strong>{{ k }}</strong></td>
+                    <td>
+                      {%- if v is mapping -%}
+                        <table class="metadata-table" style="margin: 0; width: 100%;">
+                          <tbody>
+                            {%- for sub_k, sub_v in v.items() -%}
+                            <tr>
+                              <td style="width: 35%;"><strong>{{ sub_k }}</strong></td>
+                              <td>{{ sub_v }}</td>
+                            </tr>
+                            {%- endfor -%}
+                          </tbody>
+                        </table>
+                      {%- elif v is iterable and v is not string -%}
+                        {{ v|join(", ") }}
+                      {%- else -%}
+                        {{ v }}
+                      {%- endif -%}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {% for entry in v %}
-                  <tr>
-                    <td>{{ entry.get("hive", "") }}</td>
-                    <td style="word-break: break-all;">{{ entry.get("key_path", "") }}</td>
-                    <td>{{ entry.get("value_name", "") }}</td>
-                    <td>{{ entry.get("interpretation", "") }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            {% elif v is mapping %}
-              <strong>{{ k }}:</strong>
-              <table class="metadata-table" style="margin-top: 4px; margin-bottom: 8px;">
-                <tbody>
-                {% for sub_k, sub_v in v.items() %}
-                  <tr>
-                    <td style="width: 30%;"><strong>{{ sub_k }}</strong></td>
-                    <td>{{ sub_v }}</td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-            {% else %}
-              <strong>{{ k }}:</strong> {{ v }}<br>
-            {% endif %}
-          {% endfor %}
+                  {%- endif -%}
+                {%- endfor -%}
+              </tbody>
+            </table>
+          {%- endif -%}
         </div>
       {% endif %}
     </div>
@@ -149,7 +172,7 @@
     
     /* Smooth theme transition for elements using themed CSS variables */
     body, #dashboard-view, .hud-panel, .metric-card, .module-row, .finding-card, .hud-input, .hud-select, button, .export-btn, .details-code, .details-val-source {
-      transition: all 350ms cubic-bezier(0.16, 1, 0.3, 1);
+      transition: background-color 350ms cubic-bezier(0.16, 1, 0.3, 1), border-color 350ms cubic-bezier(0.16, 1, 0.3, 1), color 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     /* Staggered fadeInUp animation for metric cards */
@@ -182,6 +205,43 @@
     .pdf-modal-header { display: flex; justify-content: space-between; font-weight: bold; font-family: var(--font-mono); color: var(--hud-red); margin-bottom: 15px;}
     .pdf-modal-close { background: transparent; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; }
     .pdf-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    
+    #pdf-render-wrapper {
+      position: absolute !important;
+      left: -9999px !important;
+      top: 0 !important;
+      width: 1100px !important;
+      background: #ffffff !important;
+      overflow: hidden !important;
+      z-index: -9999 !important;
+    }
+    .pdf-page-wrapper {
+      --card-bg: #ffffff !important;
+      --card-bg-hover: #ffffff !important;
+      --card-border: #cccccc !important;
+      --glass-bg: #ffffff !important;
+      --glass-border: #cccccc !important;
+      --glass-shadow: none !important;
+      --surface-base: #ffffff !important;
+      --surface-raised: #ffffff !important;
+      --surface-overlay: #ffffff !important;
+      --hud-bg: #ffffff !important;
+      --text-muted: #444444 !important;
+      --text-main: #111111 !important;
+      --text-secondary: #444444 !important;
+      --hud-bg-trans: #ffffff !important;
+      --hud-panel-bg: #ffffff !important;
+      --hud-panel-bg-hover: #ffffff !important;
+      --primary-glow: none !important;
+      --primary-dim: none !important;
+      --primary-border: #cccccc !important;
+      --hud-red-glow: none !important;
+      --hud-red-dim: none !important;
+      --hud-border-dim: #cccccc !important;
+      background: #ffffff !important;
+      color: #111111 !important;
+      box-sizing: border-box;
+    }
     
     .metadata-table {
       width: 100%;
@@ -2207,23 +2267,117 @@
     // Global SCAN_DATA variable initialized from Jinja
     const SCAN_DATA = {{ result.to_dict() | tojson }};
 
+    function showToast(message, type = 'info') {
+      var toast = document.createElement('div');
+      toast.className = 'hud-toast ' + type;
+      toast.textContent = message;
+      toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:rgba(5, 5, 8, 0.95); border:2px solid ' + 
+        (type === 'error' ? 'var(--hud-red)' : type === 'success' ? 'var(--color-secure)' : '#ffd200') + 
+        '; color:' + (type === 'error' ? '#ff4d6d' : type === 'success' ? '#39ffb9' : '#ffd200') + '; padding:12px 24px; font-family:var(--font-mono); font-size:0.85rem; box-shadow:0 0 15px rgba(0,0,0,0.5); z-index:99999; transition:all 0.5s ease; opacity:0; transform:translateY(20px); pointer-events:none;';
+      document.body.appendChild(toast);
+      toast.offsetHeight;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        setTimeout(function() {
+          toast.remove();
+        }, 500);
+      }, 4000);
+    }
+
     function exportDashboardJSON() {
+      console.log("[JSON Export] Button clicked.");
+      showToast('Initiating JSON export...', 'info');
+      if (window.pywebview && window.pywebview.api) {
+        console.log("[JSON Export] window.pywebview.api detected. Calling download_report('json')...");
+        window.pywebview.api.download_report('json').then(function(res) {
+          console.log("[JSON Export] Native API response received:", res);
+          if (res && res.status === 'success') {
+            showToast('JSON report saved to: ' + res.path, 'success');
+          } else if (res && res.status === 'error') {
+            showToast('Error saving JSON: ' + res.message, 'error');
+          } else if (res && res.status === 'cancelled') {
+            showToast('JSON export cancelled.', 'info');
+          }
+        }).catch(function(err) {
+          console.error("[JSON Export] Native API call failed:", err);
+          showToast('Native API error: ' + err, 'error');
+        });
+        return;
+      }
       if (window.location.protocol.startsWith('http')) {
-        window.location.href = '/api/export/json';
+        console.log("[JSON Export] Regular browser HTTP mode. Fetching '/api/export/json'...");
+        fetch('/api/export/json')
+          .then(function(response) {
+            console.log("[JSON Export] Fetch response status:", response.status);
+            if (response.ok) {
+              window.location.href = '/api/export/json';
+              showToast('JSON report downloaded successfully.', 'success');
+            } else {
+              return response.json().then(function(err) { throw err; });
+            }
+          })
+          .catch(function(err) {
+            console.error("[JSON Export] Fetch or parse failed:", err);
+            showToast('JSON export failed: ' + (err.error || err.message || 'Server error'), 'error');
+          });
       } else {
-        const blob = new Blob([JSON.stringify(SCAN_DATA, null, 2)], {type: 'application/json'});
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = 'ai_scan_' + (SCAN_DATA.scan_id || 'report') + '.json';
-        a.click();
-        URL.revokeObjectURL(url);
+        try {
+          console.log("[JSON Export] Local file protocol mode. Building client-side blob...");
+          const blob = new Blob([JSON.stringify(SCAN_DATA, null, 2)], {type: 'application/json'});
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href     = url;
+          a.download = 'ai_scan_' + (SCAN_DATA.scan_id || 'report') + '.json';
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast('JSON report downloaded offline.', 'success');
+          console.log("[JSON Export] Offline blob download triggered.");
+        } catch(err) {
+          console.error("[JSON Export] Offline export failed:", err);
+          showToast('Offline JSON export failed: ' + err, 'error');
+        }
       }
     }
 
     function exportDashboardExcel() {
+      console.log("[Excel Export] Button clicked.");
+      showToast('Initiating Excel export...', 'info');
+      if (window.pywebview && window.pywebview.api) {
+        console.log("[Excel Export] window.pywebview.api detected. Calling download_report('excel')...");
+        window.pywebview.api.download_report('excel').then(function(res) {
+          console.log("[Excel Export] Native API response received:", res);
+          if (res && res.status === 'success') {
+            showToast('Excel report saved to: ' + res.path, 'success');
+          } else if (res && res.status === 'error') {
+            showToast('Error saving Excel: ' + res.message, 'error');
+          } else if (res && res.status === 'cancelled') {
+            showToast('Excel export cancelled.', 'info');
+          }
+        }).catch(function(err) {
+          console.error("[Excel Export] Native API call failed:", err);
+          showToast('Native API error: ' + err, 'error');
+        });
+        return;
+      }
       if (window.location.protocol.startsWith('http')) {
-        window.location.href = '/api/export/excel';
+        console.log("[Excel Export] Regular browser HTTP mode. Fetching '/api/export/excel'...");
+        fetch('/api/export/excel')
+          .then(function(response) {
+            console.log("[Excel Export] Fetch response status:", response.status);
+            if (response.ok) {
+              window.location.href = '/api/export/excel';
+              showToast('Excel report downloaded successfully.', 'success');
+            } else {
+              return response.json().then(function(err) { throw err; });
+            }
+          })
+          .catch(function(err) {
+            console.error("[Excel Export] Fetch or parse failed:", err);
+            showToast('Excel export failed: ' + (err.error || err.message || 'Server error'), 'error');
+          });
       } else {
         function escXml(s) {
           return String(s)
@@ -2526,7 +2680,7 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
     const themeCheckbox = document.getElementById('theme-checkbox');
 
     function loadTheme() {
-      const savedTheme = localStorage.getItem('scanner-theme') || 'dark'; // default to dark
+      const savedTheme = localStorage.getItem('theme') || 'dark'; // default to dark
       if (savedTheme === 'light') {
         body.classList.remove('dark-theme');
         if (themeCheckbox) themeCheckbox.checked = false;
@@ -2539,10 +2693,10 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
     function toggleTheme() {
       if (themeCheckbox.checked) {
         body.classList.add('dark-theme');
-        localStorage.setItem('scanner-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       } else {
         body.classList.remove('dark-theme');
-        localStorage.setItem('scanner-theme', 'light');
+        localStorage.setItem('theme', 'light');
       }
     }
 
@@ -2702,21 +2856,14 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
     }
     
     function generateCorporatePdf() {
+      showToast('Generating PDF report...', 'info');
       var btn = document.getElementById('generatePdfBtn');
       btn.textContent = "Generating...";
       btn.disabled = true;
 
       // Check if html2pdf library is loaded
       if (typeof html2pdf === 'undefined') {
-        alert('PDF library failed to load. Please check your internet connection and reload the page.');
-        btn.textContent = "Generate PDF";
-        btn.disabled = false;
-        return;
-      }
-
-      var jsPDFClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
-      if (!jsPDFClass) {
-        alert('jsPDF library not found in html2pdf bundle.');
+        alert('PDF library failed to load. Please check your internet connection.');
         btn.textContent = "Generate PDF";
         btn.disabled = false;
         return;
@@ -2725,280 +2872,741 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
       var excludeInfo = document.getElementById('pdfExcludeInfo').checked;
       var includeLogs = document.getElementById('pdfIncludeLogs').checked;
 
-      // Temporarily switch body to light theme for corporate print style inheritance
-      var wasDark = document.body.classList.contains('dark-theme');
-      document.body.classList.remove('dark-theme');
-
-      function cleanup() {
-        var w = document.getElementById('pdf-render-wrapper');
-        if (w) w.remove();
-        btn.textContent = "Generate PDF";
-        btn.disabled = false;
-        if (wasDark) document.body.classList.add('dark-theme');
-      }
-
       try {
-        var dashboard = document.getElementById('dashboard-view');
-        if (!dashboard) { throw new Error('Dashboard container not found'); }
+        // Create a wrapper container to hold reportEl off-screen
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;width:790px;overflow:hidden;';
+        
+        // Create off-screen container for rendering the PDF
+        var reportEl = document.createElement('div');
+        reportEl.id = 'pdf-render-wrapper';
+        reportEl.style.cssText = 'width:790px;background:#ffffff;box-sizing:border-box;';
+        
+        // CSS Style Block specifically designed for printable PDF layout
+        var stylesHtml = `
+          <style>
+            #pdf-render-wrapper {
+              width: 790px;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              color: #202124;
+              background: #ffffff;
+              line-height: 1.5;
+              box-sizing: border-box;
+            }
+            .pdf-page {
+              page-break-after: always;
+              box-sizing: border-box;
+              padding: 0.1in 0;
+            }
+            .pdf-page:last-child {
+              page-break-after: avoid !important;
+            }
+            .pdf-h1 {
+              font-size: 30px;
+              font-weight: 800;
+              color: #1a73e8;
+              margin: 0 0 10px 0;
+              letter-spacing: -0.5px;
+            }
+            .pdf-h2 {
+              font-size: 18px;
+              font-weight: 700;
+              color: #1f2937;
+              margin: 0 0 15px 0;
+              border-bottom: 2px solid #eaeef2;
+              padding-bottom: 6px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .pdf-h3 {
+              font-size: 12px;
+              font-weight: 700;
+              color: #4b5563;
+              margin: 20px 0 10px 0;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .pdf-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+              font-size: 11px;
+            }
+            .pdf-table th {
+              background: #f8fafc;
+              color: #475569;
+              font-weight: 700;
+              text-align: left;
+              padding: 8px 10px;
+              border-bottom: 2px solid #e2e8f0;
+              text-transform: uppercase;
+              font-size: 9px;
+              letter-spacing: 0.5px;
+            }
+            .pdf-table td {
+              padding: 8px 10px;
+              border-bottom: 1px solid #e2e8f0;
+              color: #334155;
+            }
+            .pdf-table tr:nth-child(even) td {
+              background: #f8fafc;
+            }
+            .pdf-badge {
+              display: inline-block;
+              padding: 2px 6px;
+              font-size: 9px;
+              font-weight: 700;
+              text-transform: uppercase;
+              border-radius: 3px;
+              letter-spacing: 0.5px;
+            }
+            .badge-pass { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+            .badge-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+            .badge-fail { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+            
+            .cover-container {
+              height: 9.4in;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              padding: 0.5in 0;
+              box-sizing: border-box;
+            }
+            .cover-header {
+              border-left: 6px solid #1a73e8;
+              padding-left: 20px;
+            }
+            .cover-title {
+              font-size: 36px;
+              font-weight: 800;
+              color: #1f2937;
+              line-height: 1.15;
+              margin: 15px 0 10px 0;
+              letter-spacing: -1px;
+            }
+            .cover-subtitle {
+              font-size: 16px;
+              color: #4b5563;
+              font-weight: 400;
+            }
+            .cover-metadata-table {
+              width: 100%;
+              margin-top: 50px;
+              border-collapse: collapse;
+            }
+            .cover-metadata-table td {
+              padding: 12px 0;
+              border-bottom: 1px solid #f3f4f6;
+              font-size: 13px;
+            }
+            .cover-metadata-label {
+              font-weight: 700;
+              color: #4b5563;
+              width: 180px;
+              text-transform: uppercase;
+              font-size: 10px;
+              letter-spacing: 1px;
+            }
+            .cover-metadata-value {
+              color: #111827;
+            }
+            .cover-footer {
+              border-top: 1px solid #e5e7eb;
+              padding-top: 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              font-size: 10px;
+              color: #6b7280;
+            }
+            .dashboard-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+              margin-bottom: 25px;
+            }
+            .dashboard-card {
+              border: 1px solid #e5e7eb;
+              border-radius: 6px;
+              padding: 15px;
+              background: #ffffff;
+            }
+            .metric-large {
+              font-size: 32px;
+              font-weight: 850;
+              color: #111827;
+              line-height: 1.1;
+            }
+            .metric-label {
+              font-size: 10px;
+              color: #6b7280;
+              text-transform: uppercase;
+              font-weight: 700;
+              margin-top: 5px;
+              letter-spacing: 0.5px;
+            }
+            .severity-breakdown {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              gap: 10px;
+              margin-bottom: 25px;
+            }
+            .severity-box {
+              border-radius: 4px;
+              padding: 10px;
+              text-align: center;
+              border: 1px solid transparent;
+            }
+            .sev-critical { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+            .sev-high { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+            .sev-medium { background: #fefce8; border-color: #fef08a; color: #854d0e; }
+            .sev-low { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+            .sev-info { background: #f0f9ff; border-color: #bae6fd; color: #075985; }
+            .severity-count { font-size: 22px; font-weight: 800; margin-top: 4px; }
+            .severity-label { font-size: 9px; font-weight: 700; text-transform: uppercase; }
+            
+            .finding-card {
+              border: 1px solid #e5e7eb;
+              border-radius: 4px;
+              padding: 15px;
+              margin-bottom: 15px;
+              page-break-inside: avoid;
+              background: #ffffff;
+            }
+            .finding-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              margin-bottom: 8px;
+            }
+            .finding-title {
+              font-size: 13px;
+              font-weight: 700;
+              color: #111827;
+              margin: 0;
+            }
+            .finding-meta {
+              font-size: 10px;
+              color: #4b5563;
+              margin-bottom: 8px;
+            }
+            .finding-desc {
+              font-size: 11.5px;
+              color: #374151;
+              line-height: 1.5;
+              margin-bottom: 10px;
+            }
+            .finding-source {
+              font-family: monospace;
+              font-size: 9.5px;
+              background: #f8fafc;
+              padding: 4px 8px;
+              border-radius: 3px;
+              color: #1f2937;
+              word-break: break-all;
+              border: 1px solid #e2e8f0;
+            }
+            .details-table {
+              width: 100%;
+              border-collapse: collapse;
+              font-size: 9.5px;
+              font-family: monospace;
+              margin-top: 8px;
+              border: 1px solid #e5e7eb;
+            }
+            .details-table td, .details-table th {
+              padding: 4px 6px;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            .details-table tr:nth-child(even) {
+              background: #f9fafb;
+            }
+            .details-key {
+              font-weight: 700;
+              color: #4b5563;
+              width: 150px;
+              border-right: 1px solid #e5e7eb;
+            }
+            .details-val {
+              color: #111827;
+              word-break: break-all;
+            }
+          </style>
+        `;
+        
+        // 1. COVER PAGE GENERATION
+        var hostname = SCAN_DATA.hostname || 'Unknown Host';
+        var osInfo = SCAN_DATA.os_info || 'Unknown OS';
+        var scanId = SCAN_DATA.scan_id || 'N/A';
+        var rawTimestamp = SCAN_DATA.scan_timestamp || '';
+        var formattedTimestamp = rawTimestamp;
+        var d = new Date(rawTimestamp);
+        if (!isNaN(d)) {
+          formattedTimestamp = d.toLocaleString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            timeZoneName: 'short'
+          });
+        }
+        var duration = parseFloat(SCAN_DATA.total_duration_sec || 0).toFixed(2) + "s";
+        var riskScore = SCAN_DATA.summary.overall_risk_score || 0;
+        var isCompliant = (riskScore <= 40);
+        var complianceStatus = isCompliant ? "COMPLIANT" : "ACTION REQUIRED";
+        var complianceColor = isCompliant ? "#065f46" : "#991b1b";
+        var complianceBg = isCompliant ? "#d1fae5" : "#fee2e2";
+        var complianceBorder = isCompliant ? "#a7f3d0" : "#fca5a5";
 
-        // Initialize jsPDF document (letter format, portrait)
-        var doc = new jsPDFClass({
-          orientation: 'portrait',
-          unit: 'in',
-          format: 'letter'
-        });
+        var coverHtml = `
+          <div class="pdf-page">
+            <div class="cover-container">
+              <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px;">
+                  <div style="width: 32px; height: 32px; background: #1a73e8; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 16px;">AI</div>
+                  <div>
+                    <div style="font-weight: 800; font-size: 14px; color: #1f2937; letter-spacing: -0.5px;">TALAKUNCHI NETWORKS</div>
+                    <div style="font-size: 8px; color: #6b7280; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Security Research & Labs</div>
+                  </div>
+                </div>
+                
+                <div class="cover-header">
+                  <div style="color: #1a73e8; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">// CYBER SECURITY COMPLIANCE REPORT</div>
+                  <h1 class="cover-title">System Vulnerability &<br>Compliance Assessment</h1>
+                  <p class="cover-subtitle">Automated Security Configuration, Daemon, and ML Framework Assessment Briefing</p>
+                </div>
+                
+                <table class="cover-metadata-table">
+                  <tr>
+                    <td class="cover-metadata-label">Target System Host</td>
+                    <td class="cover-metadata-value" style="font-weight: 600;">${hostname}</td>
+                  </tr>
+                  <tr>
+                    <td class="cover-metadata-label">Operating System</td>
+                    <td class="cover-metadata-value">${osInfo}</td>
+                  </tr>
+                  <tr>
+                    <td class="cover-metadata-label">Assessment Date</td>
+                    <td class="cover-metadata-value">${formattedTimestamp}</td>
+                  </tr>
+                  <tr>
+                    <td class="cover-metadata-label">Security Identifier</td>
+                    <td class="cover-metadata-value" style="font-family: monospace; color:#3b82f6;">${scanId}</td>
+                  </tr>
+                  <tr>
+                    <td class="cover-metadata-label">Audit Compliance Baseline</td>
+                    <td class="cover-metadata-value">
+                      <span class="pdf-badge" style="background: ${complianceBg}; color: ${complianceColor}; border: 1px solid ${complianceBorder}; font-size: 10px; padding: 4px 8px;">${complianceStatus}</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div class="cover-footer">
+                <span>Audited by AI Discovery Scanner Framework (v${SCAN_DATA.version || "1.4.0"})</span>
+                <span style="font-weight: 700; color: #1a73e8;">🔒 CERT-IN COMPLIANT ASSESSOR BASELINE</span>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // 2. EXECUTIVE SUMMARY & DASHBOARD PAGE
+        var riskCounts = SCAN_DATA.summary.findings_by_risk || {};
+        var criticalCount = riskCounts.critical || 0;
+        var highCount = riskCounts.high || 0;
+        var mediumCount = riskCounts.medium || 0;
+        var lowCount = riskCounts.low || 0;
+        var infoCount = riskCounts.info || 0;
+        var totalFindings = SCAN_DATA.summary.total_findings || 0;
 
-        // Compile a queue of pages to render sequentially to avoid large canvas overflow
-        var queue = [];
+        var summaryHtml = `
+          <div class="pdf-page">
+            <h2 class="pdf-h2">01. Executive Summary & Overview</h2>
+            <div style="font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 25px;">
+              An automated vulnerability and configuration assessment was conducted on host <strong>${hostname}</strong>. The evaluation audited daemon processes, active configurations, ML model integrity, local repository files, write permissions, and network exposures. The analysis identified <strong>${totalFindings}</strong> security issues, generating an overall system risk score of <strong>${riskScore.toFixed(1)}/100.0</strong>.
+            </div>
+            
+            <div class="dashboard-grid">
+              <div class="dashboard-card" style="border-left: 5px solid ${isCompliant ? '#10b981' : '#ef4444'};">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="metric-label">Compliance Status</span>
+                  <span class="pdf-badge" style="background: ${complianceBg}; color: ${complianceColor}; border: 1px solid ${complianceBorder}; font-size: 9px;">${complianceStatus}</span>
+                </div>
+                <div style="margin-top: 12px; font-size: 11.5px; color: #4b5563; line-height: 1.5;">
+                  ${isCompliant ? 
+                    "System metrics align with baseline standards. The risk level is low and complies with automated standards." : 
+                    "System requires remediation. Multiple configuration parameters or artifacts deviate from recommended hardening baselines."
+                  }
+                </div>
+              </div>
+              
+              <div class="dashboard-card" style="border-left: 5px solid #1a73e8;">
+                <span class="metric-label">Security Risk Profile</span>
+                <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 8px;">
+                  <span class="metric-large">${riskScore.toFixed(1)}</span>
+                  <span style="font-size: 13px; color: #6b7280; font-weight: 500;">/ 100.0</span>
+                </div>
+                <div style="font-size: 10px; color: #4b5563; margin-top: 5px; text-transform: uppercase; font-weight: 700;">
+                  Risk Rating: ${riskScore <= 25 ? '<span style="color:#065f46">Low Risk</span>' : 
+                          riskScore <= 50 ? '<span style="color:#854d0e">Medium Risk</span>' : 
+                          riskScore <= 75 ? '<span style="color:#c2410c">High Risk</span>' : 
+                          '<span style="color:#991b1b">Critical Risk</span>'}
+                </div>
+              </div>
+            </div>
+            
+            <h3 class="pdf-h3">Findings Severity Matrix</h3>
+            <div class="severity-breakdown">
+              <div class="severity-box sev-critical">
+                <div class="severity-label">Critical</div>
+                <div class="severity-count">${criticalCount}</div>
+              </div>
+              <div class="severity-box sev-high">
+                <div class="severity-label">High</div>
+                <div class="severity-count">${highCount}</div>
+              </div>
+              <div class="severity-box sev-medium">
+                <div class="severity-label">Medium</div>
+                <div class="severity-count">${mediumCount}</div>
+              </div>
+              <div class="severity-box sev-low">
+                <div class="severity-label">Low</div>
+                <div class="severity-count">${lowCount}</div>
+              </div>
+              <div class="severity-box sev-info">
+                <div class="severity-label">Info</div>
+                <div class="severity-count">${infoCount}</div>
+              </div>
+            </div>
+            
+            <h3 class="pdf-h3">Core Audit Execution Telemetry</h3>
+            <table class="pdf-table">
+              <thead>
+                <tr>
+                  <th>Telemetry Field</th>
+                  <th>Measured Value</th>
+                  <th>Implications</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Total Findings</strong></td>
+                  <td style="font-weight: 600;">${totalFindings}</td>
+                  <td>Aggregated vulnerability configurations needing review.</td>
+                </tr>
+                <tr>
+                  <td><strong>Modules Executed</strong></td>
+                  <td style="font-weight: 600;">${SCAN_DATA.summary.modules_run || 0}</td>
+                  <td>Number of discrete check sets completed by the agent.</td>
+                </tr>
+                <tr>
+                  <td><strong>Module Statuses</strong></td>
+                  <td>
+                    <span style="color:#065f46; font-weight:700;">${SCAN_DATA.summary.modules_succeeded || 0} Succeeded</span> &nbsp;/&nbsp; 
+                    <span style="color:#991b1b; font-weight:700;">${SCAN_DATA.summary.modules_failed || 0} Skipped/Failed</span>
+                  </td>
+                  <td>Scanner components system performance.</td>
+                </tr>
+                <tr>
+                  <td><strong>Total Scan Duration</strong></td>
+                  <td style="font-family: monospace;">${duration}</td>
+                  <td>Wall-clock execution duration for entire diagnostic run.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
 
-        // 1. Page 1: Header + Summary Section + Host Info
-        var p1 = document.createElement('div');
-        p1.className = 'pdf-page-wrapper';
-        p1.style.cssText = 'background:#ffffff; padding:20px;';
+        // 3. DETAILED MODULES & SYSTEM DIAGNOSTICS PAGE
+        var modulesRows = '';
+        var modulesList = SCAN_DATA.modules || [];
+        for (var i = 0; i < modulesList.length; i++) {
+          var m = modulesList[i];
+          var mNum = (m.module_number || i + 1).toString().padStart(2, '0');
+          var statusClass = m.status === 'success' ? 'badge-pass' : 'badge-fail';
+          var statusText = m.status.toUpperCase();
+          var durationText = parseFloat(m.duration_sec || 0).toFixed(3) + 's';
+          modulesRows += '<tr>' +
+            '<td style="font-family: monospace; color:#6b7280;">' + mNum + '</td>' +
+            '<td style="font-weight: 600; color:#111827;">' + m.name + '</td>' +
+            '<td><span class="pdf-badge ' + statusClass + '">' + statusText + '</span></td>' +
+            '<td style="text-align: right; font-weight: 600;">' + m.findings_count + '</td>' +
+            '<td style="text-align: right; font-family: monospace; color: #475569;">' + durationText + '</td>' +
+            '</tr>';
+        }
 
-        var headerClone = document.querySelector('.header').cloneNode(true);
-        p1.appendChild(headerClone);
+        var diagRows = '';
+        var diagList = SCAN_DATA.diagnostics || [];
+        for (var i = 0; i < diagList.length; i++) {
+          var diag = diagList[i];
+          var badgeClass = 'badge-pass';
+          if (diag.status === 'WARNING') badgeClass = 'badge-warning';
+          else if (diag.status === 'FAIL') badgeClass = 'badge-fail';
+          diagRows += '<tr>' +
+            '<td style="font-weight: 600; color:#1f2937;">' + diag.name + '</td>' +
+            '<td style="font-family: monospace; color:#4b5563; word-break: break-all;">' + diag.value + '</td>' +
+            '<td style="text-align: center;"><span class="pdf-badge ' + badgeClass + '">' + diag.status + '</span></td>' +
+            '</tr>';
+        }
 
-        var summaryClone = document.querySelector('.summary-section').cloneNode(true);
-        p1.appendChild(summaryClone);
-
-        var hostInfo = document.querySelector('.host-info-bar');
-        if (hostInfo) {
-          p1.appendChild(hostInfo.cloneNode(true));
+        var diagnosticsHtml = `
+          <div class="pdf-page">
+            <h2 class="pdf-h2">02. Assessor Modules & System Diagnostics</h2>
+            
+            <h3 class="pdf-h3" style="margin-top:0;">Scanner Module Statuses</h3>
+            <table class="pdf-table" style="margin-bottom: 20px;">
+              <thead>
+                <tr>
+                  <th style="width: 30px;">#</th>
+                  <th>Module Name</th>
+                  <th>Execution Status</th>
+                  <th style="text-align: right;">Findings Count</th>
+                  <th style="text-align: right;">Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${modulesRows}
+              </tbody>
+            </table>
+            
+            <h3 class="pdf-h3">System Diagnostics Log Check (15 Parameters)</h3>
+            <table class="pdf-table" style="font-size: 10px;">
+              <thead>
+                <tr>
+                  <th>Diagnostic Check</th>
+                  <th>Measured Values</th>
+                  <th style="width: 70px; text-align: center;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${diagRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+        
+        // 4. DETAILED FINDINGS PAGES
+        var displayedFindings = (SCAN_DATA.findings || []).slice();
+        if (excludeInfo) {
+          displayedFindings = displayedFindings.filter(f => (f.risk_level || '').toLowerCase() !== 'info');
         }
         
-        // Remove telemetry stream panel from summary if logs are excluded
-        if (!includeLogs) {
-          p1.querySelectorAll('.hud-panel').forEach(function(panel) {
-            var tab = panel.querySelector('.hud-header-tab');
-            if (tab && tab.textContent.trim() === 'TELEMETRY STREAM') {
-              panel.remove();
-            }
-          });
-        }
-        queue.push({ el: p1, name: 'Summary' });
-
-        // 2. Page 2: Sidebar (Module Compliance)
-        var p2 = document.createElement('div');
-        p2.className = 'pdf-page-wrapper';
-        p2.style.cssText = 'background:#ffffff; padding:20px;';
-        var sidebar = document.querySelector('.module-compliance-panel');
-        if (sidebar) {
-          var sidebarClone = sidebar.cloneNode(true);
-          var scrollContainer = sidebarClone.querySelector('.module-compliance-scroll');
-          if (scrollContainer) {
-            scrollContainer.style.overflow = 'visible';
-            scrollContainer.style.maxHeight = 'none';
-          }
-          p2.appendChild(sidebarClone);
-          queue.push({ el: p2, name: 'Compliance' });
-        }
-
-        // 3. Page 3+: Module Sections
-        var sections = document.querySelectorAll('#findings-list .module-section');
-        sections.forEach(function(section, idx) {
-          var p = document.createElement('div');
-          p.className = 'pdf-page-wrapper';
-          p.style.cssText = 'background:#ffffff; padding:20px;';
-          
-          var secClone = section.cloneNode(true);
-
-          // If excludeInfo, remove info cards
-          if (excludeInfo) {
-            secClone.querySelectorAll('.risk-level-info').forEach(function(c) { c.remove(); });
-          }
-
-          // Check if there are any finding cards left in this section
-          var cards = secClone.querySelectorAll('.finding-card');
-          if (cards.length > 0) {
-            // Force open all cards for print details exposure
-            cards.forEach(function(card) {
-              card.classList.add('open');
-              var body = card.querySelector('.finding-body');
-              if (body) {
-                body.style.display = 'block';
-                body.style.maxHeight = 'none';
-              }
-            });
-            p.appendChild(secClone);
-            queue.push({ el: p, name: 'ModuleSection_' + idx });
-          }
+        // Sort findings by severity order: critical -> high -> medium -> low -> info
+        var severityOrder = { 'critical': 1, 'high': 2, 'medium': 3, 'low': 4, 'info': 5 };
+        displayedFindings.sort((a, b) => {
+          var aSev = severityOrder[(a.risk_level || '').toLowerCase()] || 99;
+          var bSev = severityOrder[(b.risk_level || '').toLowerCase()] || 99;
+          return aSev - bSev;
         });
 
-        // 4. Page Last: Console Logs (if included)
-        if (includeLogs) {
-          var logsPanel = null;
-          document.querySelectorAll('.hud-panel').forEach(function(panel) {
-            var tab = panel.querySelector('.hud-header-tab');
-            if (tab && tab.textContent.trim() === 'CONSOLE LOGS') {
-              logsPanel = panel;
+        var findingsHtml = '<div class="pdf-page"><h2 class="pdf-h2">03. Detailed Security Findings</h2>';
+        if (displayedFindings.length === 0) {
+          findingsHtml += '<div style="padding: 40px; text-align: center; border: 2px dashed #e5e7eb; border-radius: 6px; background: #f9fafb; color: #6b7280; margin-top: 20px;">' +
+            '<div style="font-size: 24px; color: #10b981; margin-bottom: 10px;">✓</div>' +
+            '<div style="font-weight: 700; font-size: 13px; text-transform: uppercase;">No Vulnerable Findings Reported</div>' +
+            '<div style="font-size: 11px; margin-top: 5px;">All scanned parameters comply with the target baseline parameters.</div>' +
+            '</div>';
+        } else {
+          for (var idx = 0; idx < displayedFindings.length; idx++) {
+            var f = displayedFindings[idx];
+            var risk = (f.risk_level || '').toLowerCase();
+            var badgeClass = 'sev-info';
+            var borderCol = '#9ca3af';
+            
+            if (risk === 'critical') { badgeClass = 'sev-critical'; borderCol = '#ef4444'; }
+            else if (risk === 'high') { badgeClass = 'sev-high'; borderCol = '#f97316'; }
+            else if (risk === 'medium') { badgeClass = 'sev-medium'; borderCol = '#eab308'; }
+            else if (risk === 'low') { badgeClass = 'sev-low'; borderCol = '#10b981'; }
+            else if (risk === 'info') { badgeClass = 'sev-info'; borderCol = '#3b82f6'; }
+
+            // Format details if present
+            var detailsTable = '';
+            if (f.details) {
+              if (f.details.registry_entries && f.details.registry_entries.length > 0) {
+                var rows = '';
+                for (var r = 0; r < f.details.registry_entries.length; r++) {
+                  var entry = f.details.registry_entries[r];
+                  rows += '<tr>' +
+                    '<td style="font-weight:700; padding:4px 6px;">' + (entry.hive || '') + '</td>' +
+                    '<td style="padding:4px 6px;">' + (entry.key_path || '') + '</td>' +
+                    '<td style="padding:4px 6px; font-weight:600;">' + (entry.value_name || '') + '</td>' +
+                    '<td style="padding:4px 6px; color:#4b5563;">' + (entry.interpretation || '') + '</td>' +
+                    '</tr>';
+                }
+                detailsTable = '<table class="details-table">' +
+                  '<thead>' +
+                  '<tr style="background:#f3f4f6; text-align:left; border-bottom:1px solid #e5e7eb;">' +
+                  '<th style="padding:4px 6px; font-weight:700;">Hive</th>' +
+                  '<th style="padding:4px 6px; font-weight:700;">Key Path</th>' +
+                  '<th style="padding:4px 6px; font-weight:700;">Value</th>' +
+                  '<th style="padding:4px 6px; font-weight:700;">Details</th>' +
+                  '</tr>' +
+                  '</thead>' +
+                  '<tbody>' + rows + '</tbody>' +
+                  '</table>';
+              } else {
+                var detailsKeys = Object.keys(f.details).filter(function(k) { return k !== 'registry_entries'; });
+                if (detailsKeys.length > 0) {
+                  var rows = '';
+                  for (var kIdx = 0; kIdx < detailsKeys.length; kIdx++) {
+                    var k = detailsKeys[kIdx];
+                    var val = f.details[k];
+                    var valStr = typeof val === 'object' ? JSON.stringify(val) : val;
+                    var label = k.replace(/_/g, ' ');
+                    rows += '<tr>' +
+                      '<td class="details-key">' + label + '</td>' +
+                      '<td class="details-val">' + valStr + '</td>' +
+                      '</tr>';
+                  }
+                  detailsTable = '<table class="details-table">' +
+                    '<tbody>' + rows + '</tbody>' +
+                    '</table>';
+                }
+              }
             }
-          });
-          if (logsPanel) {
-            var pLast = document.createElement('div');
-            pLast.className = 'pdf-page-wrapper';
-            pLast.style.cssText = 'background:#ffffff; padding:20px;';
-            pLast.appendChild(logsPanel.cloneNode(true));
-            queue.push({ el: pLast, name: 'ConsoleLogs' });
+
+            var fConfidence = (parseFloat(f.confidence || 1.0) * 100).toFixed(0) + '%';
+            findingsHtml += '<div class="finding-card" style="border-left: 4px solid ' + borderCol + ';">' +
+              '<div class="finding-header">' +
+              '<h4 class="finding-title">[' + f.finding_id + '] ' + f.title + '</h4>' +
+              '<span class="pdf-badge ' + badgeClass + '">' + (f.risk_level || 'info').toUpperCase() + '</span>' +
+              '</div>' +
+              '<div class="finding-meta">' +
+              '<strong>Module:</strong> ' + (f.module_name || 'Generic') + ' &nbsp;&bull;&nbsp; ' +
+              '<strong>Category:</strong> ' + f.category + ' &nbsp;&bull;&nbsp; ' +
+              '<strong>Confidence:</strong> ' + fConfidence +
+              '</div>' +
+              '<div class="finding-desc">' + f.description + '</div>' +
+              '<div class="finding-source">' +
+              '<strong>SOURCE PATH:</strong> ' + f.source +
+              '</div>' +
+              detailsTable +
+              '</div>';
           }
         }
+        findingsHtml += '</div>';
 
-        // Create a wrapper ATTACHED TO THE DOM in a visible coordinate area but hidden behind content
-        var wrapper = document.createElement('div');
-        wrapper.id = 'pdf-render-wrapper';
-        wrapper.style.cssText = 'position:absolute;left:0;top:0;width:1100px;z-index:-9999;background:#ffffff;overflow:hidden;';
+        // Assemble the full report DOM wrapper
+        reportEl.innerHTML = stylesHtml + coverHtml + summaryHtml + diagnosticsHtml + findingsHtml;
+
+        // 5. DIAGNOSTIC CONSOLE LOGS (IF INCLUDED)
+        if (includeLogs) {
+          var logsContent = document.getElementById('consoleLogsPre') ? document.getElementById('consoleLogsPre').textContent : "No system logs available.";
+          var logsHtml = `
+            <div class="pdf-page" style="page-break-before: always;">
+              <h2 class="pdf-h2">04. System Telemetry Diagnostic Logs</h2>
+              <pre style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; font-family: monospace; font-size: 8.5px; color: #334155; white-space: pre-wrap; word-break: break-all; max-height: none; line-height: 1.4; border: 1px solid #e2e8f0;">${logsContent}</pre>
+            </div>
+          `;
+          reportEl.innerHTML += logsHtml;
+        }
+
+        // Add wrapper to body for rendering
+        wrapper.appendChild(reportEl);
         document.body.appendChild(wrapper);
 
-        var isFirstPage = true;
+        // Configure html2pdf parameters
+        var opt = {
+          margin:       [0.8, 0.6, 0.8, 0.6], // top, right, bottom, left in inches
+          filename:     'AI_Scanner_Corporate_Report.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+          jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+          pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        };
 
-        function addCanvasToPdf(canvas) {
-          var pageHeightPx = Math.floor(canvas.width * (10 / 7.5)); // Aspect ratio of printable page height (10 / 7.5)
-          var totalHeight = canvas.height;
-          var startY = 0;
-
-          while (startY < totalHeight) {
-            var chunkHeight = Math.min(pageHeightPx, totalHeight - startY);
-
-            // Create a temporary canvas for the slice
-            var tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = chunkHeight;
-
-            var ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(canvas, 0, startY, canvas.width, chunkHeight, 0, 0, canvas.width, chunkHeight);
-
-            if (!isFirstPage) {
-              doc.addPage();
-            } else {
-              isFirstPage = false;
-            }
-
-            var imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
-            var imgHeightInches = (chunkHeight / canvas.width) * 7.5;
-            doc.addImage(imgData, 'JPEG', 0.5, 0.5, 7.5, imgHeightInches);
-
-            startY += chunkHeight;
-          }
-        }
-
-        function processQueue(index) {
-          if (index >= queue.length) {
-            // All pages generated! Trigger direct download
-            doc.save('AI_Scanner_Corporate_Report.pdf');
-            closePdfModal();
-            cleanup();
-            return;
-          }
-
-          var item = queue[index];
-          var pageEl = item.el;
-
-          // Clean wrapper and add current page element
-          wrapper.innerHTML = '';
-          wrapper.appendChild(pageEl);
-
-          // Apply corporate light-theme colors to the contents inside wrapper
-          pageEl.style.width = '100%';
-          pageEl.style.color = '#111111';
-
-          // Style header, panels, metric cards, badges etc
-          pageEl.querySelectorAll('.header').forEach(function(headerEl) {
-            headerEl.style.background = '#ffffff';
-            headerEl.style.border = '2px solid #d30d30';
-            headerEl.style.boxShadow = 'none';
-          });
-          pageEl.querySelectorAll('.header-title h1').forEach(function(el) { el.style.color = '#1a1a2e'; el.style.textShadow = 'none'; });
-          pageEl.querySelectorAll('.header-title p').forEach(function(el) { el.style.color = '#444444'; });
+        // Render HTML to PDF and post-process pages for headers and footers
+        html2pdf().set(opt).from(reportEl).toPdf().get('pdf').then(function(pdf) {
+          // Clean up the off-screen DOM element
+          wrapper.remove();
           
-          pageEl.querySelectorAll('.hud-panel').forEach(function(panel) {
-            panel.style.background = '#ffffff';
-            panel.style.border = '1px solid #cccccc';
-            panel.style.boxShadow = 'none';
-            panel.style.color = '#111111';
-          });
+          var totalPages = pdf.internal.getNumberOfPages();
+          var pageWidth = pdf.internal.pageSize.getWidth ? pdf.internal.pageSize.getWidth() : pdf.internal.pageSize.width;
+          var pageHeight = pdf.internal.pageSize.getHeight ? pdf.internal.pageSize.getHeight() : pdf.internal.pageSize.height;
+          
+          // Draw professional running headers and footers on every page except the Cover Page
+          for (var i = 2; i <= totalPages; i++) {
+            pdf.setPage(i);
+            
+            // Thin elegant header border line at Y = 0.55in
+            pdf.setDrawColor(229, 231, 235); // #e5e7eb
+            pdf.setLineWidth(0.007);
+            pdf.line(0.6, 0.55, pageWidth - 0.6, 0.55);
+            
+            // Header text
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(7.5);
+            pdf.setTextColor(107, 114, 128); // #6b7280
+            pdf.text("SYSTEM SECURITY & COMPLIANCE ASSESSMENT REPORT", 0.6, 0.48);
+            
+            pdf.setFont("helvetica", "normal");
+            pdf.text("HOST: " + hostname.toUpperCase(), pageWidth - 0.6, 0.48, { align: "right" });
+            
+            // Thin elegant footer border line at Y = 10.45in
+            pdf.line(0.6, pageHeight - 0.55, pageWidth - 0.6, pageHeight - 0.55);
+            
+            // Footer text
+            pdf.setFont("helvetica", "bold");
+            pdf.setTextColor(156, 163, 175); // #9ca3af
+            pdf.text("CONFIDENTIAL — GOOGLE EXECUTIVE BRIEFING", 0.6, pageHeight - 0.43);
+            
+            pdf.setFont("helvetica", "normal");
+            pdf.text("Page " + i + " of " + totalPages, pageWidth - 0.6, pageHeight - 0.43, { align: "right" });
+          }
 
-          pageEl.querySelectorAll('.metric-card').forEach(function(card) {
-            card.style.background = '#f8f9fa';
-            card.style.border = '1px solid #dddddd';
-            card.style.color = '#111111';
-          });
-
-          pageEl.querySelectorAll('.finding-card').forEach(function(card) {
-            card.style.background = '#ffffff';
-            card.style.border = '1px solid #dddddd';
-            card.style.color = '#111111';
-          });
-          pageEl.querySelectorAll('.finding-header').forEach(function(h) {
-            h.style.color = '#111111';
-          });
-          pageEl.querySelectorAll('.finding-body').forEach(function(b) {
-            b.style.display = 'block';
-            b.style.maxHeight = 'none';
-            b.style.color = '#222222';
-          });
-
-          pageEl.querySelectorAll(
-            '.module-section-title, .title-txt, .module-badge, ' +
-            '.details-label, .details-val, .details-val-source, ' +
-            '.finding-title, .badge, .metric-title, .metric-value, ' +
-            '.hud-dial-number, .hud-dial-lbl, .risk-title-badge, ' +
-            '.risk-score-subtitle, .header-title h1, .header-title p, ' +
-            '.details-code, table th, table td, ' +
-            '.module-name-lbl, .module-time, .module-index, ' +
-            '.export-lbl, .hud-header-tab'
-          ).forEach(function(el) {
-            el.style.color = '#111111';
-          });
-
-          pageEl.querySelectorAll('.details-code, table, table th, table td').forEach(function(el) {
-            el.style.background = '#ffffff';
-            el.style.color = '#111111';
-            el.style.borderColor = '#cccccc';
-          });
-
-          // Hide decorators and non-printable UI inside the page
-          pageEl.querySelectorAll('.export-bar, .theme-toggle, .scanline, .search-filter-bar, #scan-progress-banner').forEach(function(el) {
-            el.remove();
-          });
-          pageEl.querySelectorAll('.hud-corner').forEach(function(el) {
-            el.style.display = 'none';
-          });
-
-          // Allow layout calculation time
-          setTimeout(function() {
-            html2canvas(pageEl, {
-              scale: 1.5,
-              useCORS: true,
-              logging: true,
-              width: 1100,
-              windowWidth: 1100,
-              scrollX: 0,
-              scrollY: 0
-            }).then(function(canvas) {
-              // Slice the canvas to PDF pages
-              addCanvasToPdf(canvas);
-              
-              // Proceed to next page in queue
-              processQueue(index + 1);
+          // Handle client download based on execution environment
+          if (window.pywebview && window.pywebview.api) {
+            console.log("[PDF Export] Webview mode. Saving report to server cache...");
+            var pdfBase64 = pdf.output('datauristring');
+            window.pywebview.api.save_base64_file(pdfBase64, 'AI_Scanner_Corporate_Report.pdf', 'PDF Files (*.pdf)').then(function(res) {
+              if (res && res.status === 'success') {
+                showToast('PDF report generated and downloaded via browser.', 'success');
+              } else if (res && res.status === 'error') {
+                showToast('Error saving PDF: ' + res.message, 'error');
+              } else if (res && res.status === 'cancelled') {
+                showToast('Export cancelled.', 'info');
+              }
+              closePdfModal();
+              btn.textContent = "Generate PDF";
+              btn.disabled = false;
             }).catch(function(err) {
-              console.error('PDF generation page ' + item.name + ' failed:', err);
-              alert('PDF generation failed: ' + err.message);
-              cleanup();
+              console.log("[PDF Export] Native API failed:", err);
+              showToast('Native API error: ' + err, 'error');
+              closePdfModal();
+              btn.textContent = "Generate PDF";
+              btn.disabled = false;
             });
-          }, 300);
-        }
-
-        // Start processing the queue
-        processQueue(0);
+          } else {
+            console.log("[PDF Export] Browser mode. Downloading PDF directly...");
+            pdf.save('AI_Scanner_Corporate_Report.pdf');
+            showToast('PDF report downloaded successfully.', 'success');
+            closePdfModal();
+            btn.textContent = "Generate PDF";
+            btn.disabled = false;
+          }
+        }).catch(function(err) {
+          console.log('[PDF Export] Generation failed:', err);
+          alert('PDF generation failed: ' + err.message);
+          wrapper.remove();
+          closePdfModal();
+          btn.textContent = "Generate PDF";
+          btn.disabled = false;
+        });
 
       } catch (err) {
-        console.error('PDF generation error:', err);
+        console.log('PDF generation error:', err);
         alert('PDF generation error: ' + err.message);
-        cleanup();
+        var w = document.getElementById('pdf-render-wrapper');
+        if (w) {
+          if (w.parentNode && w.parentNode !== document.body) {
+            w.parentNode.remove();
+          } else {
+            w.remove();
+          }
+        }
+        closePdfModal();
+        btn.textContent = "Generate PDF";
+        btn.disabled = false;
       }
-    }
-
-    // Format timestamp for Indian timezone
+    }    // Format timestamp for Indian timezone
     const tsEl = document.getElementById('humanReadableTimestamp');
     if (tsEl) {
       const rawIso = tsEl.textContent;
@@ -3148,7 +3756,8 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
     </button>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/static/jspdf.umd.min.js"></script>
+  <script src="/static/html2pdf.bundle.min.js"></script>
 
 </body>
 </html>

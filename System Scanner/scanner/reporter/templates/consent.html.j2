@@ -706,7 +706,7 @@
     const themeCheckbox = document.getElementById('theme-checkbox');
 
     function loadTheme() {
-      const savedTheme = localStorage.getItem('scanner-theme') || 'dark'; // default to dark
+      const savedTheme = localStorage.getItem('theme') || 'dark'; // default to dark
       if (savedTheme === 'light') {
         body.classList.remove('dark-theme');
         if (themeCheckbox) themeCheckbox.checked = false;
@@ -719,10 +719,10 @@
     function toggleTheme() {
       if (themeCheckbox.checked) {
         body.classList.add('dark-theme');
-        localStorage.setItem('scanner-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       } else {
         body.classList.remove('dark-theme');
-        localStorage.setItem('scanner-theme', 'light');
+        localStorage.setItem('theme', 'light');
       }
     }
 

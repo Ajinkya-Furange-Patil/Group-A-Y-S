@@ -56,6 +56,65 @@ def start_server_in_thread(port: int) -> ScanServer:
     return server
 
 
+class GUI_API:
+    def __init__(self, port: int, window=None):
+        self.port = port
+        self.window = window
+
+    def download_report(self, file_type: str) -> dict:
+        """
+        Triggered from JavaScript inside PyWebView GUI.
+        file_type: 'json' or 'excel' or 'html'
+        """
+        try:
+            import webbrowser
+            print(f"\n[GUI API] download_report called with file_type={file_type!r}")
+            logging.info("GUI API: download_report called with file_type=%s", file_type)
+            
+            url = f"http://127.0.0.1:{self.port}/api/export/{file_type}"
+            webbrowser.open(url)
+            return {"status": "success", "path": "Browser Download"}
+        except Exception as e:
+            print(f"[GUI API] ERROR in download_report: {e}")
+            logging.error("GUI API error in download_report", exc_info=True)
+            return {"status": "error", "message": str(e)}
+
+    def save_base64_file(self, base64_data: str, default_filename: str, file_type_desc: str) -> dict:
+        """
+        Save a base64 encoded data string sent from JS (e.g. PDF).
+        """
+        try:
+            import base64
+            import webbrowser
+            import urllib.parse
+            print(f"\n[GUI API] save_base64_file called for {default_filename!r}")
+            logging.info("GUI API: save_base64_file called for %s", default_filename)
+            
+            # URL-decode the base64 data first to convert %2B, %2F, %3D back to +, /, =
+            base64_data = urllib.parse.unquote(base64_data)
+            
+            # Remove header if present (e.g. data:application/pdf;base64,...)
+            if ',' in base64_data:
+                base64_data = base64_data.split(',')[1]
+                
+            file_bytes = base64.b64decode(base64_data)
+            print(f"[GUI API] Decoded base64 data: {len(file_bytes)} bytes")
+            
+            # Save it to client_report.pdf in current working directory
+            with open("client_report.pdf", "wb") as f:
+                f.write(file_bytes)
+            print("[GUI API] Saved base64 file to client_report.pdf")
+            
+            url = f"http://127.0.0.1:{self.port}/api/download-client-pdf"
+            webbrowser.open(url)
+            return {"status": "success", "path": "Browser Download"}
+            
+        except Exception as e:
+            print(f"[GUI API] ERROR in save_base64_file: {e}")
+            logging.error("GUI API error in save_base64_file", exc_info=True)
+            return {"status": "error", "message": str(e)}
+
+
 def main() -> None:
     """Launch the client GUI version of the scanner."""
     # Change CWD to the executable's folder to ensure local reports and logs
@@ -90,7 +149,8 @@ def main() -> None:
     logger.info("Opening desktop window pointing to %s", url)
 
     # Initialize the borderless window with comfortable dimensions
-    webview.create_window(
+    api = GUI_API(port=port)
+    window = webview.create_window(
         title="AI Discovery Scanner",
         url=url,
         width=1280,
@@ -99,10 +159,12 @@ def main() -> None:
         resizable=True,
         text_select=True,
         confirm_close=False,
+        js_api=api
     )
+    api.window = window
     
     # Start webview loop (blocks until the window is closed)
-    webview.start()
+    webview.start(gui='edgechromium')
     logger.info("Client GUI closed.")
 
 

@@ -122,7 +122,8 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args: any) -> None:
         """Override standard logging to redirect requests to python logging system."""
-        logger.debug("%s - - %s", self.address_string(), format % args)
+        # Use info so requests print to the console under standard settings
+        logger.info("%s - - %s", self.address_string(), format % args)
 
     def do_GET(self) -> None:
         """Handle incoming HTTP GET requests."""
@@ -259,19 +260,22 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(b'{"error": "No scan results found"}')
 
         elif path == "/api/export/excel":
+            print("\n[SERVER API] /api/export/excel requested")
+            logger.info("Server API: /api/export/excel requested")
             report_path = "report.json"
             if os.path.exists(report_path):
                 try:
                     import tempfile
-                    from scanner.reporter.excel_exporter import export_excel
+                    from scanner.exporters.excel_exporter import export_to_excel
                     
+                    print("[SERVER API] Reading report.json and generating excel workbook in temp file...")
                     with open(report_path, "r", encoding="utf-8") as f:
                         report_data = json.load(f)
                         
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
                         tmp_name = tmp.name
                         
-                    export_excel(report_data, tmp_name)
+                    export_to_excel(report_data, tmp_name)
                     
                     with open(tmp_name, "rb") as f:
                         excel_data = f.read()
@@ -282,11 +286,13 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     version = get_version().replace(".", "_")
                     filename = f"ai_scan_report_v{version}.xlsx"
                     
+                    print(f"[SERVER API] Generated Excel workbook ({len(excel_data)} bytes), sending attachment...")
                     self.send_response(200)
                     self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                     self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
                     self.end_headers()
                     self.wfile.write(excel_data)
+                    print("[SERVER API] SUCCESS: Sent Excel workbook.")
                 except PermissionError as e:
                     logger.error("Excel export permission error: %s", e, exc_info=True)
                     self.send_response(500)
@@ -321,9 +327,95 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(b'{"error": "No scan results found to export"}')
+
+        elif path == "/api/export/pdf":
+            print("\n[SERVER API] /api/export/pdf requested")
+            logger.info("Server API: /api/export/pdf requested")
+            report_path = "report.json"
+            if os.path.exists(report_path):
+                try:
+                    import tempfile
+                    from scanner.exporters.pdf_exporter import export_to_pdf
+                    
+                    print("[SERVER API] Reading report.json and generating pdf report in temp file...")
+                    with open(report_path, "r", encoding="utf-8") as f:
+                        report_data = json.load(f)
+                        
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                        tmp_name = tmp.name
+                        
+                    export_to_pdf(report_data, tmp_name)
+                    
+                    with open(tmp_name, "rb") as f:
+                        pdf_data = f.read()
+                        
+                    os.unlink(tmp_name)
+                    
+                    # Include version in filename
+                    version = get_version().replace(".", "_")
+                    filename = f"ai_scan_report_v{version}.pdf"
+                    
+                    print(f"[SERVER API] Generated PDF report ({len(pdf_data)} bytes), sending attachment...")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/pdf")
+                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                    self.end_headers()
+                    self.wfile.write(pdf_data)
+                    print("[SERVER API] SUCCESS: Sent PDF report.")
+                except PermissionError as e:
+                    logger.error("PDF export permission error: %s", e, exc_info=True)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Cannot write to destination folder. Check permissions."}).encode("utf-8"))
+                except OSError as e:
+                    import errno
+                    logger.error("PDF export OS error: %s", e, exc_info=True)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    if e.errno == errno.ENOSPC:
+                        err_msg = "Insufficient disk space for export."
+                    else:
+                        err_msg = f"Export failed: {e.strerror or str(e)}"
+                    self.wfile.write(json.dumps({"error": err_msg}).encode("utf-8"))
+                except Exception as e:
+                    logger.error("Error generating PDF report: %s", e, exc_info=True)
+                    self.send_response(500)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": f"Failed to generate PDF: {e}"}).encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "No scan results found to export"}')
+
+        elif path == "/api/download-client-pdf":
+            client_pdf_path = "client_report.pdf"
+            if os.path.exists(client_pdf_path):
+                self.send_response(200)
+                self.send_header("Content-Type", "application/pdf")
+                version = get_version().replace(".", "_")
+                filename = f"ai_scan_report_v{version}.pdf"
+                self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                self.end_headers()
+                try:
+                    with open(client_pdf_path, "rb") as f:
+                        self.wfile.write(f.read())
+                except Exception as e:
+                    logger.error("Error reading client_report.pdf: %s", e)
+                    self.wfile.write(b"Error reading file")
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "Client PDF report not found"}')
         
         elif path == "/api/export/json":
             """Download JSON report with versioned filename"""
+            print("\n[SERVER API] /api/export/json requested")
+            logger.info("Server API: /api/export/json requested")
             report_path = "report.json"
             if os.path.exists(report_path):
                 try:
@@ -334,11 +426,13 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     version = get_version().replace(".", "_")
                     filename = f"ai_scan_report_v{version}.json"
                     
+                    print(f"[SERVER API] Found report.json ({len(json_data)} bytes), sending JSON report...")
                     self.send_response(200)
                     self.send_header("Content-Type", "application/json")
                     self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
                     self.end_headers()
                     self.wfile.write(json_data)
+                    print("[SERVER API] SUCCESS: Sent JSON report.")
                 except Exception as e:
                     logger.error("Error downloading JSON report: %s", e)
                     self.send_response(500)
@@ -351,8 +445,28 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"error": "No scan results found to export"}')
         
+        elif path in ("/static/jspdf.umd.min.js", "/static/html2pdf.bundle.min.js"):
+            filename = os.path.basename(path)
+            scanner_dir = os.path.dirname(os.path.abspath(__file__))
+            js_path = os.path.join(scanner_dir, "reporter", "templates", filename)
+            if os.path.exists(js_path):
+                self.send_response(200)
+                self.send_header("Content-Type", "application/javascript; charset=utf-8")
+                self.end_headers()
+                try:
+                    with open(js_path, "rb") as f:
+                        self.wfile.write(f.read())
+                except Exception as e:
+                    logger.error("Error reading static JS file %s: %s", filename, e)
+                    self.wfile.write(b"Error reading file")
+            else:
+                self.send_response(404)
+                self.end_headers()
+
         elif path == "/api/export/html":
             """Download HTML report with versioned filename"""
+            print("\n[SERVER API] /api/export/html requested")
+            logger.info("Server API: /api/export/html requested")
             html_path = "rendered_dashboard.html"
             if os.path.exists(html_path):
                 try:
@@ -363,11 +477,13 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     version = get_version().replace(".", "_")
                     filename = f"ai_scan_dashboard_v{version}.html"
                     
+                    print(f"[SERVER API] Found rendered_dashboard.html ({len(html_data)} bytes), sending HTML...")
                     self.send_response(200)
                     self.send_header("Content-Type", "text/html")
                     self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
                     self.end_headers()
                     self.wfile.write(html_data)
+                    print("[SERVER API] SUCCESS: Sent HTML report.")
                 except Exception as e:
                     logger.error("Error downloading HTML report: %s", e)
                     self.send_response(500)
@@ -403,6 +519,7 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
             try:
                 if _scan_thread is None or not _scan_thread.is_alive():
+                    update_scan_status("Starting scan...", 5)
                     _scan_thread = threading.Thread(
                         target=_run_repo_scan_background,
                         args=(github_url,),
@@ -444,6 +561,7 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
             try:
                 if _scan_thread is None or not _scan_thread.is_alive():
+                    update_scan_status("Starting scan...", 5)
                     _scan_thread = threading.Thread(
                         target=_run_scan_background,
                         args=(quick, folder, depth),

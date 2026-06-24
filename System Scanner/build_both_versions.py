@@ -164,7 +164,6 @@ class BuildVerifier:
         
         optional_packages = [
             ("pywebview", "webview", "Required for GUI client"),
-            ("openpyxl", "openpyxl", "Required for Excel export"),
         ]
         
         found_count = 0

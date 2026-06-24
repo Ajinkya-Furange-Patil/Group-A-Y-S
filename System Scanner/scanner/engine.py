@@ -136,7 +136,9 @@ class DiscoveryEngine:
             logger.warning("Discovery Engine: No modules registered to execute.")
             return all_findings, module_infos
 
-        max_workers = len(self._modules)
+        import os
+        # Optimize thread concurrency to prevent CPU/disk contention and GIL freezing
+        max_workers = min(3, os.cpu_count() or 2)
         logger.debug("ThreadPoolExecutor initialized with max_workers=%d", max_workers)
         import sys
         import time
@@ -226,22 +228,20 @@ class DiscoveryEngine:
                     try:
                         import psutil
                         process = psutil.Process()
+                        num_cpus = psutil.cpu_count() or 1
                         
                         # Calculate relative memory percentage (Process RSS / Total Hardware RAM)
                         mem_info = process.memory_info().rss
                         total_mem = psutil.virtual_memory().total
                         mem_pct = (mem_info / total_mem) * 100.0
                         
-                        # CPU percentage
-                        cpu_pct = process.cpu_percent(interval=None)
+                        # CPU percentage normalized by system logical core count
+                        cpu_pct = process.cpu_percent(interval=None) / num_cpus
 
-                        if mem_pct > self.ram_limit or cpu_pct > self.cpu_limit:
-                            logger.error("Resource limits exceeded (RAM: %.1f%% / %.1f%%, CPU: %.1f%% / %.1f%%). Aborting remaining modules.", mem_pct, self.ram_limit, cpu_pct, self.cpu_limit)
-                            # Restore terminal and print abort message
-                            sys.stdout.write(f"\r\033[31m[!] ABORTING: Execution limit bounds exceeded (RAM: {mem_pct:.1f}%, CPU: {cpu_pct:.1f}%)\033[0m" + " " * 20 + "\n")
-                            sys.stdout.flush()
-                            executor.shutdown(wait=False, cancel_futures=True)
-                            break
+                        if mem_pct > self.ram_limit:
+                            logger.warning("Resource threshold warning: RAM usage is %.1f%% (limit: %.1f%%)", mem_pct, self.ram_limit)
+                        if cpu_pct > self.cpu_limit:
+                            logger.warning("Resource threshold warning: CPU usage is %.1f%% (limit: %.1f%%)", cpu_pct, self.cpu_limit)
                     except Exception as e:
                         logger.debug("Failed to profile process: %s", e)
                         

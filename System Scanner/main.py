@@ -79,8 +79,10 @@ def print_menu():
     print("  [4] Start Web UI Dashboard")
     print("  [5] View Last Scan Results")
     print("  [6] Export Last Scan (JSON)")
-    print("  [7] Export Last Scan (HTML)")
-    print("  [8] About / Help")
+    print("  [7] Export Last Scan (Excel)")
+    print("  [8] Export Last Scan (PDF)")
+    print("  [9] Export Last Scan (HTML)")
+    print("  [10] About / Help")
     print("  [0] Exit")
     print("-" * 70)
 
@@ -337,16 +339,101 @@ def view_last_results():
 
 def export_json():
     """Export last scan results to JSON."""
+    global _last_scan_result
     print("\nExporting to JSON...")
     
-    from pathlib import Path
-    report_path = Path("report.json")
+    result = _last_scan_result
+    if result is None:
+        import json
+        from pathlib import Path
+        json_path = Path("report.json")
+        if json_path.exists():
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    result = json.load(f)
+            except Exception as e:
+                print(f"✗ Failed to load existing report.json: {e}")
+                return
+        else:
+            print("✗ No scan results found in memory or disk. Run a scan first.")
+            return
+
+    default_path = "report.json"
+    user_path = input(f"Enter output path (default: {default_path}): ").strip()
+    output_path = user_path if user_path else default_path
+
+    try:
+        from scanner.exporters.json_exporter import export_to_json
+        export_to_json(result, output_path)
+        print(f"✓ JSON report exported successfully to: {os.path.abspath(output_path)}")
+    except Exception as e:
+        print(f"✗ Failed to export JSON: {e}")
+
+
+def export_excel():
+    """Export last scan results to Excel workbook."""
+    global _last_scan_result
+    print("\nExporting to Excel...")
     
-    if report_path.exists():
-        print(f"✓ JSON report already exists: {report_path.absolute()}")
-        print(f"  Size: {report_path.stat().st_size / 1024:.2f} KB")
-    else:
-        print("✗ No scan results found. Run a scan first.")
+    result = _last_scan_result
+    if result is None:
+        import json
+        from pathlib import Path
+        json_path = Path("report.json")
+        if json_path.exists():
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    result = json.load(f)
+            except Exception as e:
+                print(f"✗ Failed to load existing report.json: {e}")
+                return
+        else:
+            print("✗ No scan results found in memory or disk. Run a scan first.")
+            return
+
+    default_path = "report.xlsx"
+    user_path = input(f"Enter output path (default: {default_path}): ").strip()
+    output_path = user_path if user_path else default_path
+
+    try:
+        from scanner.exporters.excel_exporter import export_to_excel
+        export_to_excel(result, output_path)
+        print(f"✓ Excel report exported successfully to: {os.path.abspath(output_path)}")
+    except Exception as e:
+        print(f"✗ Failed to export Excel: {e}")
+
+
+def export_pdf():
+    """Export last scan results to PDF report."""
+    global _last_scan_result
+    print("\nExporting to PDF...")
+    
+    result = _last_scan_result
+    if result is None:
+        import json
+        from pathlib import Path
+        json_path = Path("report.json")
+        if json_path.exists():
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    result = json.load(f)
+            except Exception as e:
+                print(f"✗ Failed to load existing report.json: {e}")
+                return
+        else:
+            print("✗ No scan results found in memory or disk. Run a scan first.")
+            return
+
+    default_path = "report.pdf"
+    user_path = input(f"Enter output path (default: {default_path}): ").strip()
+    output_path = user_path if user_path else default_path
+
+    try:
+        from scanner.exporters.pdf_exporter import export_to_pdf
+        export_to_pdf(result, output_path)
+        print(f"✓ PDF report exported successfully to: {os.path.abspath(output_path)}")
+    except Exception as e:
+        print(f"✗ Failed to export PDF: {e}")
 
 
 def export_html():
@@ -380,9 +467,15 @@ def export_html():
     if not json_path.exists():
         print("✗ No scan results found. Run a scan first.")
         return
-    
-    print("⚠ No scan result in memory. HTML export requires running a fresh scan.")
-    print("  Please run option [1] or [2] first to generate a new scan.")
+        
+    try:
+        from _open_dashboard import load_from_json
+        from scanner.reporter import generate_html_report
+        scan_obj = load_from_json(json_path)
+        generate_html_report(scan_obj, "report.html")
+        print(f"✓ HTML report exported: {Path('report.html').absolute()}")
+    except Exception as e:
+        print(f"✗ Failed to export HTML: {e}")
 
 
 
@@ -448,7 +541,7 @@ def main() -> None:
     while True:
         try:
             print_menu()
-            choice = input("\nSelect option [0-8]: ").strip()
+            choice = input("\nSelect option [0-10]: ").strip()
             
             if choice == "1":
                 run_scan(quick=True)
@@ -463,15 +556,19 @@ def main() -> None:
             elif choice == "6":
                 export_json()
             elif choice == "7":
-                export_html()
+                export_excel()
             elif choice == "8":
+                export_pdf()
+            elif choice == "9":
+                export_html()
+            elif choice == "10":
                 show_help()
             elif choice == "0":
                 print("\nExiting AI Discovery Scanner...")
                 print("Thank you for using the scanner!\n")
                 sys.exit(0)
             else:
-                print("\n✗ Invalid option. Please select 0-8.")
+                print("\n✗ Invalid option. Please select 0-10.")
             
             input("\nPress Enter to continue...")
             
