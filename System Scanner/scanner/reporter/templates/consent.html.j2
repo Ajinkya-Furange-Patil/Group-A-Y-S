@@ -589,7 +589,11 @@
               <div class="module-item"><span class="module-icon">🔌</span><span>Local Host Listeners</span></div>
               <div class="module-item"><span class="module-icon">🔑</span><span>Hidden API Credentials</span></div>
               <div class="module-item"><span class="module-icon">📜</span><span>Open Source Licenses</span></div>
+<<<<<<< HEAD
+              <div class="module-item"><span class="module-icon">🌐</span><span>Remote Github Repositories</span></div>
+=======
               <div class="module-item"><span class="module-icon">🌐</span><span>Remote GitHub Repositories</span></div>
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
               <div class="module-item disabled" title="Feature coming soon"><span class="module-icon">☁️</span><span>Google Drive & Cloud <span class="future-badge">FUTURE</span></span></div>
             </div>
           </div>
@@ -635,17 +639,32 @@
           <div class="controls-section animate-in">
 
             <div class="form-group">
+<<<<<<< HEAD
+              <label for="targetRegionSelect">Target Region</label>
+              <select id="targetRegionSelect" class="form-select" onchange="toggleFolderInput(); validateConsent();">
+                <option value="all">Full System Scan</option>
+                <option value="folder">Custom Folder</option>
+                <option value="github">Remote Github Repositories</option>
+                <option value="gdrive" disabled>Google Drive & Cloud (Future Scope)</option>
+              </select>
+=======
               <label for="githubUrlInput">GitHub Repository URL <span style="color:var(--text-muted);font-weight:400;">(Optional)</span></label>
               <input type="text" id="githubUrlInput" class="form-input"
                      placeholder="https://github.com/owner/repo"
                      oninput="validateConsent()" />
               <span class="github-hint">📡 Repo will be downloaded, scanned, then deleted on exit.</span>
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
             </div>
 
             <div class="form-group">
               <label for="repoNameInput">Scan Label <span style="color:var(--text-muted);font-weight:400;">(Optional)</span></label>
               <input type="text" id="repoNameInput" class="form-input"
                      placeholder="e.g. my-project-audit" />
+            </div>
+
+            <div class="form-group" id="githubInputContainer">
+              <label for="githubUrlInput">GitHub Repository URL (Optional)</label>
+              <input type="text" id="githubUrlInput" class="form-input" placeholder="https://github.com/owner/repository" oninput="validateConsent()" />
             </div>
 
             <div class="form-group">
@@ -754,6 +773,26 @@
 
     function validateConsent() {
       const isChecked = document.getElementById('consentCheckbox').checked;
+<<<<<<< HEAD
+      const targetRegion = document.getElementById('targetRegionSelect').value;
+      let pathValid = true;
+      
+      const githubUrl = document.getElementById('githubUrlInput').value.trim();
+      
+      if (targetRegion === 'folder') {
+        const folderPath = document.getElementById('folderPathInput').value.trim();
+        pathValid = folderPath.length > 0;
+      }
+      
+      // If Remote Github is selected, URL is mandatory. If another region is selected, it's optional but must be valid if filled.
+      if (targetRegion === 'github') {
+        pathValid = githubUrl.length > 0 && githubUrl.includes('github.com/');
+      } else if (githubUrl.length > 0) {
+        pathValid = githubUrl.includes('github.com/');
+      }
+      
+=======
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
       const depthLevel = document.getElementById('depthLevelSelect').value;
       let depthValid = true;
       if (depthLevel === 'custom') {
@@ -788,6 +827,18 @@
       loadingStatus.textContent  = "Initializing scan request...";
       loadingSubtext.textContent = "Connecting to background host...";
 
+<<<<<<< HEAD
+      // Make network request to trigger the Python scan controller
+      let url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
+      
+      const githubUrl = document.getElementById('githubUrlInput').value.trim();
+      const isGithubScan = (targetRegion === 'github' || githubUrl.length > 0);
+      
+      if (isGithubScan) {
+        url += `&github_url=${encodeURIComponent(githubUrl)}`;
+      } else if (targetRegion === 'folder' && folderPath) {
+        url += `&folder=${encodeURIComponent(folderPath)}`;
+=======
       // Decide endpoint: GitHub URL filled → repo scan, else → system scan
       let url;
       const isGithubScan = githubUrl.length > 0 && githubUrl.includes('github.com');
@@ -797,6 +848,7 @@
         loadingSubtext.textContent = `Fetching: ${githubUrl}`;
       } else {
         url = `/run-scan?quick=${quickScan}&depth=${depthValue}`;
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
       }
 
       fetch(url)
@@ -836,6 +888,18 @@
             }, 6000);
           } else {
             // Poll status from the backend until complete
+<<<<<<< HEAD
+            if (isGithubScan) {
+              loadingStatus.textContent = "Downloading Repository...";
+              loadingSubtext.textContent = "Connecting to GitHub servers and fetching zip archive...";
+            } else {
+              loadingStatus.textContent = "Exploring File System...";
+              loadingSubtext.textContent = folderPath ? `Walking directory: ${folderPath}` : `Performing filesystem search (depth ${depthValue})...`;
+            }
+
+            let fileExplorationStartTime = Date.now();
+            let lastStatus = isGithubScan ? "Downloading Repository..." : "Exploring File System...";
+=======
             loadingStatus.textContent = isGithubScan ? "Downloading GitHub Repository..." : "Exploring File System...";
             loadingSubtext.textContent = isGithubScan
               ? `Fetching archive from GitHub...`
@@ -843,6 +907,7 @@
 
             let fileExplorationStartTime = Date.now();
             let lastStatus = isGithubScan ? "Downloading GitHub Repository..." : "Exploring File System...";
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
 
             const statusInterval = setInterval(() => {
               fetch('/api/status')

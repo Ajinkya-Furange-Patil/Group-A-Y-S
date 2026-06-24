@@ -68,6 +68,11 @@ TARGET_PACKAGES = {
     "dspy-ai",
     "haystack-ai",
     "agno",
+    "langgraph",
+    "chromadb",
+    "faiss",
+    "qdrant-client",
+    "pinecone",
 }
 
 # ── NPM global AI CLI agent targets ──────────────────────────────────────────
@@ -1459,17 +1464,88 @@ def run(scan_folder: str | None = None) -> tuple[list[Finding], ModuleInfo]:
     return findings, module_info
 
 
+def _scan_folder_packages(scan_folder: str) -> list[Finding]:
+    """Scan local repository folder recursively for requirements.txt and package.json files."""
+    import re
+    findings: list[Finding] = []
+    folder_path = pathlib.Path(scan_folder).resolve()
+    
+    exclude_dirs = {".git", "node_modules", "venv", ".venv", "env", "dist", "build"}
+    
+    for root, dirs, files in os.walk(folder_path):
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        for file in files:
+            file_path = pathlib.Path(root) / file
+            rel_path = os.path.relpath(file_path, folder_path).replace("\\", "/")
+            
+            if file == "requirements.txt":
+                try:
+                    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read().lower()
+                        for dep in TARGET_PACKAGES:
+                            if re.search(rf"\b{re.escape(dep)}\b", content):
+                                findings.append(
+                                    _make_finding(
+                                        title=f"Dependency: {dep}",
+                                        description=f"Detected Python dependency '{dep}' declared in {rel_path}.",
+                                        source=f"{str(file_path.resolve()).replace('\\', '/')}:requirements",
+                                        package_name=dep,
+                                        version="declared",
+                                        installer="pip",
+                                        install_location=str(file_path.resolve()).replace("\\", "/"),
+                                        category=FindingCategory.ML_FRAMEWORK if dep not in {"langchain", "crewai", "autogen", "agno"} else FindingCategory.AI_AGENT
+                                    )
+                                )
+                except Exception as e:
+                    logger.debug("Failed reading %s: %s", rel_path, e)
+                    
+            elif file == "package.json":
+                try:
+                    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                        data = json.load(f)
+                        deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
+                        for dep in NPM_AI_PACKAGES:
+                            if dep in deps:
+                                version = deps[dep]
+                                label = NPM_AI_PACKAGES[dep]
+                                findings.append(
+                                    _make_finding(
+                                        title=f"NPM Dependency: {dep} ({version})",
+                                        description=f"Detected Node.js dependency '{label}' ({dep}) declared in {rel_path}.",
+                                        source=f"{str(file_path.resolve()).replace('\\', '/')}:package.json",
+                                        package_name=dep,
+                                        version=version,
+                                        installer="npm",
+                                        install_location=str(file_path.resolve()).replace("\\", "/"),
+                                        category=FindingCategory.ML_FRAMEWORK if "mcp" not in dep.lower() else FindingCategory.AI_SERVICE
+                                    )
+                                )
+                except Exception as e:
+                    logger.debug("Failed reading %s: %s", rel_path, e)
+    return findings
+
+
 class PackageScanner:
     """Wrapper class for Module 04 PackageScanner to conform to the Discovery Engine interface."""
 
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
+<<<<<<< HEAD
+    def __init__(self, scan_folder: str | None = None) -> None:
+        self.scan_folder = scan_folder
+
+    def scan(self) -> list[Finding]:
+        if self.scan_folder:
+            return _scan_folder_packages(self.scan_folder)
+        findings, _ = run()
+=======
     def __init__(self, scan_folder: str | None = None):
         self._scan_folder = scan_folder
 
     def scan(self) -> list[Finding]:
         findings, _ = run(scan_folder=self._scan_folder)
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
         return findings
 
 

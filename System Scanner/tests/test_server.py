@@ -100,9 +100,16 @@ class TestServer(unittest.TestCase):
         self.assertIn(data["status"], ["started", "already_running"])
         response.close()
         
+<<<<<<< HEAD
         import time
         start_time = time.time()
         while mock_run.call_count == 0 and time.time() - start_time < 5.0:
+=======
+        # Wait up to 2.5s for the background thread to invoke the mock
+        for _ in range(50):
+            if mock_run.call_count > 0:
+                break
+>>>>>>> 0e4bd6ab40e404e826ccffd35618d50fc5dff11e
             time.sleep(0.05)
             
         mock_run.assert_called_once()

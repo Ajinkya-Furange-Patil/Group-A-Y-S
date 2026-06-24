@@ -210,25 +210,57 @@ def run_custom_scan():
                 print("✗ Scan cancelled")
                 return
     elif region_choice == "3":
-        print("\n→ GitHub Repository Scan")
-        github_url = input("  Enter GitHub URL (e.g. https://github.com/owner/repo): ").strip()
-        if not github_url:
-            print("✗ No URL provided, returning to menu.")
+        print("\n→ GitHub Repository Selected")
+        repo_url = input("  Enter GitHub Repository URL (e.g., https://github.com/user/repo): ").strip()
+        if not repo_url:
+            print("✗ No URL provided. Scan cancelled.")
+            input("\nPress Enter to return to menu...")
             return
-        if "github.com" not in github_url:
-            print("✗ URL must be a GitHub URL containing 'github.com'.")
+        
+        # Run repository scan
+        from scanner.repo_scanner import run_repo_scan
+        from scanner.reporter import generate_repo_html_report
+        import json
+        
+        print(f"\nDownloading and scanning repository: {repo_url}...")
+        report_data = run_repo_scan(repo_url)
+        if not report_data:
+            print("✗ Scan failed.")
+            input("\nPress Enter to return to menu...")
             return
-
-        print(f"\n⬇ Downloading repository from: {github_url}")
+        
+        # Display summary to console
+        print("\n" + "=" * 70)
+        print("SCAN COMPLETE - SUMMARY")
+        print("=" * 70)
+        print(f"Repository:       {report_data.get('repository')}")
+        print(f"Languages:        {', '.join(report_data.get('languages', []))}")
+        print(f"Frameworks:       {', '.join(report_data.get('frameworks', []))}")
+        print(f"Models:           {', '.join(report_data.get('models', []))}")
+        print(f"Components:       {', '.join(report_data.get('components', []))}")
+        print(f"Findings Count:   {len(report_data.get('findings', []))}")
+        print(f"Confidence Score: {report_data.get('confidence_score')}%")
+        print("=" * 70)
+        
+        # Save JSON & HTML report
         try:
-            extracted_path = download_and_extract_repo(github_url)
-            print(f"✓ Repository extracted to: {extracted_path}")
+            with open("report.json", "w", encoding="utf-8") as f:
+                json.dump(report_data, f, indent=2)
+            print("✓ Saved JSON report to report.json")
         except Exception as e:
-            print(f"✗ Failed to download repository: {e}")
-            return
-
-        # Run all 10 modules on the extracted folder with full depth
-        run_scan(quick=False, scan_folder=extracted_path, max_depth=10, repo_mode=True)
+            print(f"✗ Failed to save JSON report: {e}")
+            
+        try:
+            generate_repo_html_report(report_data, "report.html")
+            print("✓ Saved HTML report to report.html")
+        except Exception as e:
+            print(f"✗ Failed to save HTML report: {e}")
+            
+        # Store in global variable so exports work
+        global _last_scan_result
+        _last_scan_result = report_data
+        
+        input("\nPress Enter to return to menu...")
         return
     elif region_choice == "4":
         print("\n⚠️  Google Drive / Cloud Storage scanning is not yet implemented")
@@ -313,6 +345,17 @@ def view_last_results():
         with open(report_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
+        if "repository" in data:
+            print(f"Repository:       {data.get('repository', 'Unknown')}")
+            print(f"Scan Time:        {data.get('scan_timestamp', 'Unknown')}")
+            print(f"Findings:         {len(data.get('findings', []))}")
+            print(f"Confidence Score: {data.get('confidence_score', 0)}%")
+            print(f"Languages:        {', '.join(data.get('languages', []))}")
+            print(f"Frameworks:       {', '.join(data.get('frameworks', []))}")
+            print(f"Models:           {', '.join(data.get('models', []))}")
+            print(f"Components:       {', '.join(data.get('components', []))}")
+            return
+            
         print(f"Hostname: {data.get('hostname', 'Unknown')}")
         print(f"OS: {data.get('os_info', 'Unknown')}")
         print(f"Scan Time: {data.get('timestamp', 'Unknown')}")
@@ -448,8 +491,12 @@ def export_html():
     if _last_scan_result is not None:
         # Use the in-memory result
         try:
-            from scanner.reporter import generate_html_report
-            generate_html_report(_last_scan_result, "report.html")
+            if isinstance(_last_scan_result, dict) and "repository" in _last_scan_result:
+                from scanner.reporter import generate_repo_html_report
+                generate_repo_html_report(_last_scan_result, "report.html")
+            else:
+                from scanner.reporter import generate_html_report
+                generate_html_report(_last_scan_result, "report.html")
             
             html_path = Path("report.html")
             print(f"✓ HTML report exported: {html_path.absolute()}")
@@ -469,6 +516,7 @@ def export_html():
         return
         
     try:
+<<<<<<< HEAD
         from _open_dashboard import load_from_json
         from scanner.reporter import generate_html_report
         scan_obj = load_from_json(json_path)
@@ -476,7 +524,23 @@ def export_html():
         print(f"✓ HTML report exported: {Path('report.html').absolute()}")
     except Exception as e:
         print(f"✗ Failed to export HTML: {e}")
-
+=======
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if isinstance(data, dict) and "repository" in data:
+            from scanner.reporter import generate_repo_html_report
+            generate_repo_html_report(data, "report.html")
+            html_path = Path("report.html")
+            print(f"✓ HTML report exported: {html_path.absolute()}")
+            print(f"  Size: {html_path.stat().st_size / 1024:.2f} KB")
+            return
+    except Exception as e:
+        print(f"✗ Failed to export HTML from JSON file: {e}")
+        return
+    
+    print("⚠ No scan result in memory. HTML export for host scans requires running a fresh scan.")
+    print("  Please run option [1] or [2] first to generate a new scan.")
+>>>>>>> 0e4bd6ab40e404e826ccffd35618d50fc5dff11e
 
 
 def show_help():

@@ -55,6 +55,29 @@ def _run_scan_background(quick: bool, folder: str | None, depth: int | None) -> 
 
 
 def _run_repo_scan_background(github_url: str) -> None:
+<<<<<<< HEAD
+    global _scan_thread
+    with _scan_lock:
+        try:
+            from scanner.repo_scanner import run_repo_scan
+            from scanner.reporter import generate_repo_html_report
+            import json
+
+            # Update status
+            update_scan_status("Downloading Repository...", 15)
+            report_data = run_repo_scan(github_url)
+            if report_data:
+                # Save JSON and HTML report
+                with open("report.json", "w", encoding="utf-8") as f:
+                    json.dump(report_data, f, indent=2)
+                
+                generate_repo_html_report(report_data, "rendered_dashboard.html")
+                update_scan_status("Complete", 100)
+            else:
+                update_scan_status("Error: Scan Failed", 100)
+        except Exception as e:
+            logger.error("Background repository scan failed: %s", e, exc_info=True)
+=======
     """Background thread: download repo ZIP → extract → run full scan."""
     global _scan_thread
     with _scan_lock:
@@ -88,6 +111,7 @@ def _run_repo_scan_background(github_url: str) -> None:
             update_scan_status(f"Error: {e}", 100)
         except Exception as e:
             logger.error("GitHub repo scan failed: %s", e, exc_info=True)
+>>>>>>> 0216ea5cd9da6e34b7bb5fe5dd3cb97986c49dfe
             update_scan_status(f"Error: {e}", 100)
 
 
@@ -546,6 +570,7 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             quick = query.get("quick", ["false"])[0].lower() == "true"
             folder = query.get("folder", [None])[0]
             depth_str = query.get("depth", [None])[0]
+            github_url = query.get("github_url", [None])[0]
 
             depth = None
             if depth_str and depth_str.strip():
@@ -557,16 +582,31 @@ class ScanHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             # Check if there is a previous scan report
             has_previous = os.path.exists("rendered_dashboard.html") and os.path.exists("report.json")
 
-            status_msg = "started"
+            status_msg = "success"
 
             try:
                 if _scan_thread is None or not _scan_thread.is_alive():
+<<<<<<< HEAD
                     update_scan_status("Starting scan...", 5)
                     _scan_thread = threading.Thread(
                         target=_run_scan_background,
                         args=(quick, folder, depth),
                         daemon=True
                     )
+=======
+                    if github_url:
+                        _scan_thread = threading.Thread(
+                            target=_run_repo_scan_background,
+                            args=(github_url,),
+                            daemon=True
+                        )
+                    else:
+                        _scan_thread = threading.Thread(
+                            target=_run_scan_background,
+                            args=(quick, folder, depth),
+                            daemon=True
+                        )
+>>>>>>> 0e4bd6ab40e404e826ccffd35618d50fc5dff11e
                     _scan_thread.start()
                 else:
                     status_msg = "already_running"

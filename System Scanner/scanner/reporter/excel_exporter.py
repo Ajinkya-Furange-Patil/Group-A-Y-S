@@ -584,13 +584,70 @@ def _content_types_xml(num_sheets: int) -> str:
 
 # ── Public API ────────────────────────────────────────────────────────────
 
+def _calculate_col_widths(rows: list[list[tuple]]) -> list[int]:
+    """Calculate dynamic column widths based on cells content length,
+    excluding title rows (length 1) and capping wrapped columns (style 14, 15) to 45.
+    """
+    if not rows:
+        return []
+
+    # Determine maximum columns
+    num_cols = 0
+    for row in rows:
+        if len(row) > 1:
+            num_cols = max(num_cols, len(row))
+
+    if num_cols == 0:
+        for row in rows:
+            num_cols = max(num_cols, len(row))
+        if num_cols == 0:
+            return []
+
+    widths = [12] * num_cols # Default minimum width of 12
+
+    # Track which columns contain wrapped cells (style 14/15)
+    wrapped_cols = set()
+
+    for row in rows:
+        if len(row) <= 1:
+            continue # Skip title or empty rows
+
+        for col_idx, cell in enumerate(row):
+            if col_idx >= num_cols:
+                continue
+
+            val = cell[1]
+            if val is None:
+                val = ""
+            val_str = str(val)
+
+            style = cell[2] if len(cell) > 2 else None
+            if style in (14, 15):
+                wrapped_cols.add(col_idx)
+
+            # Compute width: string length + 4 characters padding
+            cell_w = len(val_str) + 4
+            widths[col_idx] = max(widths[col_idx], cell_w)
+
+    # Apply standard limit of 45 characters to columns with wrapped text
+    for col_idx in range(num_cols):
+        if col_idx in wrapped_cols:
+            widths[col_idx] = min(widths[col_idx], 45)
+
+    return widths
+
+
 def export_excel(scan_result: ScanResult | dict, output_path: str) -> None:
     """Write a multi-sheet .xlsx workbook for the given ScanResult.
 
-    Produces 3 sheets:
-      1. SBOM Report     — Software Bill of Materials findings
-      2. CBOM Report     — Configuration Bill of Materials findings
-      3. AI BOM Report   — AI Bill of Materials findings
+    Produces 7 sheets:
+      1. Scan Summary    — Scan metadata and statistics
+      2. Risk Breakdown  — Composite threat ranking (0-100)
+      3. All Findings    — Complete findings list
+      4. SBOM Report     — Software Bill of Materials findings
+      5. CBOM Report     — Configuration Bill of Materials findings
+      6. AI BOM Report   — AI Bill of Materials findings
+      7. Diagnostics     — System check statuses
 
     No third-party dependencies required (stdlib zipfile + xml only).
 
@@ -606,14 +663,22 @@ def export_excel(scan_result: ScanResult | dict, output_path: str) -> None:
         result_dict = scan_result.to_dict()
 
     sheet_defs = [
-        ("SBOM Report",   _build_sbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
-        ("CBOM Report",   _build_cbom_sheet(result_dict), [15, 18, 28, 45, 40, 15, 15, 25]),
-        ("AI BOM Report", _build_aibom_sheet(result_dict), [15, 18, 28, 45, 18, 40, 15, 15, 25]),
+        ("Scan Summary",   _build_summary_sheet(result_dict)),
+        ("Risk Breakdown", _build_risk_breakdown_sheet(result_dict)),
+        ("All Findings",   _build_findings_sheet(result_dict)),
+        ("SBOM Report",    _build_sbom_sheet(result_dict)),
+        ("CBOM Report",    _build_cbom_sheet(result_dict)),
+        ("AI BOM Report",  _build_aibom_sheet(result_dict)),
+        ("Diagnostics",    _build_diagnostics_sheet(result_dict)),
     ]
 
     # Build all sheet XMLs first (populates shared-string table)
-    sheet_xmls = [_sheet_xml(rows, col_widths) for _, rows, col_widths in sheet_defs]
-    sheet_names = [name for name, _, _ in sheet_defs]
+    sheet_xmls = []
+    for name, rows in sheet_defs:
+        col_widths = _calculate_col_widths(rows)
+        sheet_xmls.append(_sheet_xml(rows, col_widths))
+
+    sheet_names = [name for name, _ in sheet_defs]
 
     try:
         with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:

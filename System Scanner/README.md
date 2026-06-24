@@ -42,3 +42,25 @@ All generated data is natively exported as:
 - **Excel SBOM/AIBOM Sheets** (`test_report.xlsx`)
 
 In compliance with CERT-In 180-day retention policies, every scan execution hashes its findings and archives them locally in `ai_scanner_history.db`.
+
+## Remote GitHub Repository Scanning
+
+The scanner supports remote scanning of public GitHub repositories. It parses the URL, downloads the ZIP archive (trying the `main` branch first, and falling back to the `master` branch on HTTP 404), extracts the files, runs the core scanner modules, and generates custom visual reports.
+
+### Operational Guide (CLI)
+1. Run:
+   ```bash
+   python main.py
+   ```
+2. Select Option `[3] Run Custom Scan`.
+3. Select Target Option `[2] GitHub Repository` (Option 3 in the sub-menu).
+4. Enter a public GitHub repository URL (e.g., `https://github.com/openai/openai-python`).
+5. Review AIBOM summary metrics and find saved outputs `report.json` and `report.html` in the workspace directory.
+
+### Operational Guide (Web UI)
+1. Start the server via CLI option `[4] Start Web UI Dashboard`.
+2. Connect to `http://127.0.0.1:8000/`.
+3. In the **Target Region** dropdown, select **Remote Github Repositories**.
+4. Enter the public GitHub URL in the textbox.
+5. Authorize and click **Authorize & Run Scan**.
+6. The dashboard will redirect to a dedicated Repository Telemetry Dashboard displaying the confidence gauge dial, detected languages, frameworks, models, and interactive collapsible code findings.

@@ -2438,39 +2438,158 @@
           return xml;
         }
 
-        // ── Configuration BOM (CBOM) ──────────────────────────────────────────
-        const cbomHeader = ["Finding ID", "Module", "Setting Name", "Description",
-                            "Value / Source", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
-        const cbomRows = [cbomHeader];
-        const cbomCats = ["Configuration", "System Info"];
-        const cbomFindings = SCAN_DATA.findings.filter(f => cbomCats.includes(f.category));
-        cbomFindings.forEach((f, idx) => {
+        function calculateColWidths(rows) {
+          if (!rows || rows.length === 0) return [];
+          let numCols = 0;
+          rows.forEach(row => {
+            if (row && row.length > 1) {
+              numCols = Math.max(numCols, row.length);
+            }
+          });
+          if (numCols === 0) {
+            rows.forEach(row => {
+              if (row) numCols = Math.max(numCols, row.length);
+            });
+          }
+          const colWidths = Array(numCols).fill(12);
+          const wrappedCols = new Set();
+
+          rows.forEach(row => {
+            if (!row || row.length <= 1) return;
+            row.forEach((cell, colIdx) => {
+              if (!cell || colIdx >= numCols) return;
+              const val = cell.v === undefined || cell.v === null ? "" : String(cell.v);
+              if (cell.s === 14 || cell.s === 15) {
+                wrappedCols.add(colIdx);
+              }
+              const cellW = val.length + 4;
+              colWidths[colIdx] = Math.max(colWidths[colIdx], cellW);
+            });
+          });
+
+          colWidths.forEach((w, colIdx) => {
+            if (wrappedCols.has(colIdx)) {
+              colWidths[colIdx] = Math.min(w, 45);
+            }
+          });
+
+          return colWidths;
+        }
+
+        // ── Scan Summary ──────────────────────────────────────────────────────
+        const summaryHeader = ["Field", "Value"].map(h=>({t:'h',v:h}));
+        const summaryRows = [
+          [{t:'s',v:`AI Discovery Scanner — Scan Summary Report (v${SCAN_DATA.version || '1.1.0'})`,s:2}],
+          [],
+          summaryHeader,
+          [{t:'s',v:"Scan ID",s:9},          {t:'s',v:SCAN_DATA.scan_id || '',s:0}],
+          [{t:'s',v:"Scan Timestamp",s:9},   {t:'s',v:SCAN_DATA.scan_timestamp || '',s:0}],
+          [{t:'s',v:"Hostname",s:9},         {t:'s',v:SCAN_DATA.hostname || '',s:0}],
+          [{t:'s',v:"Operating System",s:9}, {t:'s',v:SCAN_DATA.os_info || '',s:0}],
+          [{t:'s',v:"Scan Duration (s)",s:9},{t:'n',v:Math.round(parseFloat(SCAN_DATA.total_duration_sec || 0)*1000)/1000,s:10}],
+          [],
+          [{t:'s',v:"Summary Statistics",s:3}, {t:'s',v:"",s:3}],
+          [{t:'s',v:"Total Findings",s:9},   {t:'n',v:SCAN_DATA.summary.total_findings || 0,s:10}],
+          [{t:'s',v:"Overall Risk Score (0-100)",s:9}, {t:'n',v:SCAN_DATA.summary.overall_risk_score || 0,s:10}],
+          [{t:'s',v:"Modules Run",s:9},      {t:'n',v:SCAN_DATA.summary.modules_run || 0,s:10}],
+          [{t:'s',v:"Modules Succeeded",s:9},{t:'n',v:SCAN_DATA.summary.modules_succeeded || 0,s:10}],
+          [{t:'s',v:"Modules Failed",s:9},   {t:'n',v:SCAN_DATA.summary.modules_failed || 0,s:10}],
+          [],
+          ["Module", "Status", "Duration (s)", "Findings"].map(h=>({t:'h',v:h}))
+        ];
+        (SCAN_DATA.modules || []).forEach((mod, idx) => {
           const isEven = idx % 2 === 0;
-          const rl = (f.risk_level||'').toLowerCase();
+          summaryRows.push([
+            {t:'s',v:mod.name || '',s:isEven?0:4},
+            {t:'s',v:mod.status || '',s:isEven?10:11},
+            {t:'n',v:Math.round(parseFloat(mod.duration_sec || 0)*1000)/1000,s:isEven?10:11},
+            {t:'n',v:mod.findings_count || 0,s:isEven?10:11}
+          ]);
+        });
+
+        // ── Risk Breakdown ────────────────────────────────────────────────────
+        const findings = SCAN_DATA.findings || [];
+        const total = Math.max(findings.length, 1);
+        const byRisk = SCAN_DATA.summary.findings_by_risk || {};
+        const critical = parseInt(byRisk.critical || 0, 10);
+        const high = parseInt(byRisk.high || 0, 10);
+        const medium = parseInt(byRisk.medium || 0, 10);
+
+        const byCat = SCAN_DATA.summary.findings_by_category || {};
+        const agents = parseInt(byCat["AI Agent"] || 0, 10);
+        const models = parseInt(byCat["AI Model"] || 0, 10);
+        const pkgs = parseInt(byCat["ML Framework"] || 0, 10);
+        const configs = parseInt(byCat["Configuration"] || 0, 10);
+        
+        let runtimes = 0;
+        Object.keys(byCat).forEach(k => {
+          if (!["AI Agent", "AI Model", "ML Framework", "Configuration", "System Info"].includes(k)) {
+            runtimes += parseInt(byCat[k] || 0, 10);
+          }
+        });
+
+        const riskScore = parseFloat(SCAN_DATA.summary.overall_risk_score || 0);
+        const secScore = Math.min(Math.max(Math.floor((critical * 100 + high * 75) / total), 0), 100);
+        const privScore = Math.min(Math.max(Math.floor((configs * 85 + agents * 55) / total), 0), 100);
+        const compScore = Math.min(Math.max(Math.floor(riskScore * 0.8), 0), 100);
+        const supScore = Math.min(Math.max(Math.floor((models * 60 + pkgs * 40) / total), 0), 100);
+        const opsScore = Math.min(Math.max(Math.floor((runtimes * 50 + medium * 25) / total), 0), 100);
+
+        function getLevelStyle(score) {
+          if (score >= 75) return 5;
+          if (score >= 50) return 6;
+          if (score >= 25) return 7;
+          return 8;
+        }
+        function dimLevel(s) {
+          return s >= 75 ? "CRITICAL" : s >= 50 ? "HIGH" : s >= 25 ? "MEDIUM" : "LOW";
+        }
+
+        const riskRows = [
+          [{t:'s',v:"5-Dimension Risk Breakdown",s:2}],
+          [],
+          ["Dimension", "Weight", "Score (0-100)", "Level"].map(h=>({t:'h',v:h})),
+          [{t:'s',v:"Security",s:0},      {t:'s',v:"25%",s:10},{t:'n',v:secScore,s:10}, {t:'s',v:dimLevel(secScore),s:getLevelStyle(secScore)}],
+          [{t:'s',v:"Data Privacy",s:4},  {t:'s',v:"25%",s:11},{t:'n',v:privScore,s:11},{t:'s',v:dimLevel(privScore),s:getLevelStyle(privScore)}],
+          [{t:'s',v:"Compliance",s:0},    {t:'s',v:"25%",s:10},{t:'n',v:compScore,s:10},{t:'s',v:dimLevel(compScore),s:getLevelStyle(compScore)}],
+          [{t:'s',v:"Supply Chain",s:4},  {t:'s',v:"15%",s:11},{t:'n',v:supScore,s:11}, {t:'s',v:dimLevel(supScore),s:getLevelStyle(supScore)}],
+          [{t:'s',v:"Operational",s:0},   {t:'s',v:"10%",s:10},{t:'n',v:opsScore,s:10}, {t:'s',v:dimLevel(opsScore),s:getLevelStyle(opsScore)}],
+          [],
+          [{t:'s',v:"Overall Risk Score",s:9}, {t:'n',v:Math.round(riskScore*10)/10,s:10}, {t:'s',v:"",s:0}, {t:'s',v:"",s:0}]
+        ];
+
+        // ── All Findings ──────────────────────────────────────────────────────
+        const findingsHeader = ["Finding ID", "Module", "Title", "Description",
+                                "Category", "Risk Level", "Source", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
+        const findingsRows = [findingsHeader];
+        findings.forEach((f, idx) => {
+          const isEven = idx % 2 === 0;
+          const rl = (f.risk_level || '').toLowerCase();
           let riskStyle = isEven ? 10 : 11;
           if (rl === 'critical') riskStyle = 5;
           else if (rl === 'high') riskStyle = 6;
           else if (rl === 'medium') riskStyle = 7;
           else if (rl === 'low' || rl === 'info') riskStyle = 8;
 
-          cbomRows.push([
-            {t:'s',v:f.finding_id,s:isEven?10:11},
+          findingsRows.push([
+            {t:'s',v:f.finding_id || '',s:isEven?10:11},
             {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
-            {t:'s',v:f.title,s:isEven?0:4},
-            {t:'i',v:f.description||'',s:isEven?14:15},
-            {t:'i',v:f.source||'',s:isEven?14:15},
-            {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
-            {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
-            {t:'s',v:f.timestamp,s:isEven?10:11},
+            {t:'s',v:f.title || '',s:isEven?0:4},
+            {t:'i',v:f.description || '',s:isEven?14:15},
+            {t:'s',v:f.category || '',s:isEven?10:11},
+            {t:'s',v:(f.risk_level || '').toUpperCase(),s:riskStyle},
+            {t:'i',v:f.source || '',s:isEven?14:15},
+            {t:'n',v:Math.round(parseFloat(f.confidence || 0)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp || '',s:isEven?10:11}
           ]);
         });
 
-        // ── Software BOM (SBOM) ────────────────────────────────────────────────
+        // ── SBOM Report ───────────────────────────────────────────────────────
         const sbomHeader = ["Finding ID", "Module", "Package / Library", "Description",
                             "Location / Source", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
         const sbomRows = [sbomHeader];
         const sbomCats = ["ML Framework", "AI Service"];
-        const sbomFindings = SCAN_DATA.findings.filter(f => sbomCats.includes(f.category));
+        const sbomFindings = findings.filter(f => sbomCats.includes(f.category));
         sbomFindings.forEach((f, idx) => {
           const isEven = idx % 2 === 0;
           const rl = (f.risk_level||'').toLowerCase();
@@ -2481,23 +2600,50 @@
           else if (rl === 'low' || rl === 'info') riskStyle = 8;
 
           sbomRows.push([
-            {t:'s',v:f.finding_id,s:isEven?10:11},
+            {t:'s',v:f.finding_id || '',s:isEven?10:11},
             {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
-            {t:'s',v:f.title,s:isEven?0:4},
+            {t:'s',v:f.title || '',s:isEven?0:4},
             {t:'i',v:f.description||'',s:isEven?14:15},
             {t:'i',v:f.source||'',s:isEven?14:15},
             {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
-            {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
-            {t:'s',v:f.timestamp,s:isEven?10:11},
+            {t:'n',v:Math.round(parseFloat(f.confidence || 0)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp || '',s:isEven?10:11},
           ]);
         });
 
-        // ── AI BOM (AIBOM) ───────────────────────────────────────────────────
+        // ── CBOM Report ───────────────────────────────────────────────────────
+        const cbomHeader = ["Finding ID", "Module", "Setting Name", "Description",
+                            "Value / Source", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
+        const cbomRows = [cbomHeader];
+        const cbomCats = ["Configuration", "System Info"];
+        const cbomFindings = findings.filter(f => cbomCats.includes(f.category));
+        cbomFindings.forEach((f, idx) => {
+          const isEven = idx % 2 === 0;
+          const rl = (f.risk_level||'').toLowerCase();
+          let riskStyle = isEven ? 10 : 11;
+          if (rl === 'critical') riskStyle = 5;
+          else if (rl === 'high') riskStyle = 6;
+          else if (rl === 'medium') riskStyle = 7;
+          else if (rl === 'low' || rl === 'info') riskStyle = 8;
+
+          cbomRows.push([
+            {t:'s',v:f.finding_id || '',s:isEven?10:11},
+            {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
+            {t:'s',v:f.title || '',s:isEven?0:4},
+            {t:'i',v:f.description||'',s:isEven?14:15},
+            {t:'i',v:f.source||'',s:isEven?14:15},
+            {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
+            {t:'n',v:Math.round(parseFloat(f.confidence || 0)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp || '',s:isEven?10:11},
+          ]);
+        });
+
+        // ── AI BOM Report ─────────────────────────────────────────────────────
         const aibomHeader = ["Finding ID", "Module", "AI Model / Agent / Runtime", "Description",
                              "Type (Category)", "Location / Endpoint", "Risk Level", "Confidence %", "Timestamp"].map(h=>({t:'h',v:h}));
         const aibomRows = [aibomHeader];
         const aibomCats = ["AI Model", "AI Agent", "LLM Runtime"];
-        const aibomFindings = SCAN_DATA.findings.filter(f => aibomCats.includes(f.category));
+        const aibomFindings = findings.filter(f => aibomCats.includes(f.category));
         aibomFindings.forEach((f, idx) => {
           const isEven = idx % 2 === 0;
           const rl = (f.risk_level||'').toLowerCase();
@@ -2508,22 +2654,45 @@
           else if (rl === 'low' || rl === 'info') riskStyle = 8;
 
           aibomRows.push([
-            {t:'s',v:f.finding_id,s:isEven?10:11},
+            {t:'s',v:f.finding_id || '',s:isEven?10:11},
             {t:'s',v:f.module_name || f.module || '',s:isEven?0:4},
-            {t:'s',v:f.title,s:isEven?0:4},
+            {t:'s',v:f.title || '',s:isEven?0:4},
             {t:'i',v:f.description||'',s:isEven?14:15},
-            {t:'s',v:f.category,s:isEven?10:11},
+            {t:'s',v:f.category || '',s:isEven?10:11},
             {t:'i',v:f.source||'',s:isEven?14:15},
             {t:'s',v:(f.risk_level||'').toUpperCase(),s:riskStyle},
-            {t:'n',v:Math.round(parseFloat(f.confidence)*1000)/10,s:isEven?10:11},
-            {t:'s',v:f.timestamp,s:isEven?10:11},
+            {t:'n',v:Math.round(parseFloat(f.confidence || 0)*1000)/10,s:isEven?10:11},
+            {t:'s',v:f.timestamp || '',s:isEven?10:11},
+          ]);
+        });
+
+        // ── Diagnostics ───────────────────────────────────────────────────────
+        const diagHeader = ["Diagnostic Check", "Value / Output", "Status", "Timestamp"].map(h=>({t:'h',v:h}));
+        const diagRows = [diagHeader];
+        (SCAN_DATA.diagnostics || []).forEach((diag, idx) => {
+          const isEven = idx % 2 === 0;
+          const status = (diag.status || 'PASS').toUpperCase();
+          let statusStyle = isEven ? 10 : 11;
+          if (status === 'FAIL') statusStyle = 5;
+          else if (status === 'WARNING') statusStyle = 6;
+          else if (status === 'PASS') statusStyle = 8;
+
+          diagRows.push([
+            {t:'s',v:diag.name || '',s:isEven?0:4},
+            {t:'s',v:diag.value || '',s:isEven?0:4},
+            {t:'s',v:status,s:statusStyle},
+            {t:'s',v:diag.timestamp || '',s:isEven?10:11}
           ]);
         });
 
         const sheets = [
-          {name:'SBOM Report',   xml:sheetXml(sbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
-          {name:'CBOM Report',   xml:sheetXml(cbomRows, [15, 18, 28, 45, 40, 15, 15, 25])},
-          {name:'AI BOM Report', xml:sheetXml(aibomRows, [15, 18, 28, 45, 18, 40, 15, 15, 25])},
+          {name:'Scan Summary',   xml:sheetXml(summaryRows, calculateColWidths(summaryRows))},
+          {name:'Risk Breakdown', xml:sheetXml(riskRows, calculateColWidths(riskRows))},
+          {name:'All Findings',   xml:sheetXml(findingsRows, calculateColWidths(findingsRows))},
+          {name:'SBOM Report',    xml:sheetXml(sbomRows, calculateColWidths(sbomRows))},
+          {name:'CBOM Report',    xml:sheetXml(cbomRows, calculateColWidths(cbomRows))},
+          {name:'AI BOM Report',  xml:sheetXml(aibomRows, calculateColWidths(aibomRows))},
+          {name:'Diagnostics',    xml:sheetXml(diagRows, calculateColWidths(diagRows))},
         ];
 
         const wbXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -3756,8 +3925,14 @@ ${sst.map(s=>`  <si><t xml:space="preserve">${escXml(s)}</t></si>`).join('\n')}
     </button>
   </div>
 
+<<<<<<< HEAD
   <script src="/static/jspdf.umd.min.js"></script>
   <script src="/static/html2pdf.bundle.min.js"></script>
+=======
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+>>>>>>> 0e4bd6ab40e404e826ccffd35618d50fc5dff11e
 
 </body>
 </html>

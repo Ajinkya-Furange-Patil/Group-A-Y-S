@@ -66,3 +66,29 @@ def generate_html_report(scan_result: ScanResult, output_path: str) -> None:
     except Exception as e:
         logger.error("Failed to render HTML report to %s: %s", output_path, e)
         raise
+
+
+def generate_repo_html_report(report_data: dict, output_path: str) -> None:
+    """Render the repository report_data via repo_dashboard.html.j2 and save as an HTML file."""
+    try:
+        templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+        from scanner.version_manager import get_version
+        
+        env = Environment(
+            loader=FileSystemLoader(templates_dir),
+            autoescape=True
+        )
+        template = env.get_template("repo_dashboard.html.j2")
+        
+        # Render the template with version and the dictionary report_data as "result"
+        rendered_html = template.render(
+            result=report_data,
+            version=get_version()
+        )
+        
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(rendered_html)
+        logger.info("Repository HTML report saved to: %s", output_path)
+    except Exception as e:
+        logger.error("Failed to render Repository HTML report to %s: %s", output_path, e)
+        raise

@@ -571,7 +571,6 @@ def run(scan_folder: str | None = None) -> tuple[list[Finding], ModuleInfo]:
 
             # ── Step 3: Merge and deduplicate ─────────────────────────────────
             all_locations = known_locations + generic_locations
-
         seen_paths: set[str] = set()
         unique_locations: list[tuple[pathlib.Path, str]] = []
         for path, label in all_locations:
@@ -621,7 +620,7 @@ class MCPScanner:
     MODULE_NAME = MODULE_NAME
     MODULE_NUMBER = MODULE_NUMBER
 
-    def __init__(self, scan_folder: str | None = None):
+    def __init__(self, scan_folder: str | None = None) -> None:
         self._scan_folder = scan_folder
 
     def scan(self) -> list[Finding]:
