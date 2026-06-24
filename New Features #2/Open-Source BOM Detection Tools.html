@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Open-Source BOM Detection Tools</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --text: #1a1a1a;
+    --muted: #555;
+    --border: #ddd;
+    --accent: #1a56db;
+    --table-head: #f0f4ff;
+    --table-stripe: #f8f9fb;
+    --code-bg: #f4f4f4;
+    --tag-sbom: #e8f4fd;
+    --tag-cbom: #fef3e2;
+    --tag-aibom: #e8faf0;
+    --max: 860px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    padding: 0 16px 60px;
+  }
+  /* ── NAV ── */
+  #toc-panel {
+    position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+    overflow-y: auto; background: #fff; border-right: 1px solid var(--border);
+    padding: 20px 14px; font-size: 0.82rem; z-index: 100;
+  }
+  #toc-panel h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+  #toc-panel a { display: block; color: var(--muted); text-decoration: none; padding: 3px 0; border-left: 3px solid transparent; padding-left: 8px; transition: all .15s; }
+  #toc-panel a:hover, #toc-panel a.active { color: var(--accent); border-left-color: var(--accent); }
+  /* ── MAIN ── */
+  #content { margin-left: 256px; max-width: var(--max); padding-top: 40px; }
+  /* ── COVER ── */
+  .cover {
+    background: linear-gradient(135deg, #1a56db 0%, #0d3b8c 100%);
+    color: #fff; border-radius: 10px; padding: 48px 40px 40px;
+    margin-bottom: 48px;
+  }
+  .cover h1 { font-size: 1.85rem; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+  .cover .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+  .cover .tag { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 3px 12px; font-size: 0.78rem; font-weight: 600; }
+  /* ── SECTIONS ── */
+  section { margin-bottom: 52px; }
+  h2 { font-size: 1.3rem; font-weight: 700; color: #0d3b8c; border-bottom: 2px solid #d0e0ff; padding-bottom: 6px; margin-bottom: 20px; scroll-margin-top: 24px; }
+  h3 { font-size: 1.05rem; font-weight: 600; color: #1a1a2e; margin: 24px 0 10px; scroll-margin-top: 24px; }
+  p { margin-bottom: 14px; color: #333; }
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; border: 1px solid var(--border); border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th { background: var(--table-head); color: #0d3b8c; font-weight: 700; padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:nth-child(even) td { background: var(--table-stripe); }
+  tbody tr:last-child td { border-bottom: none; }
+  /* ── BULLETS ── */
+  ul { padding-left: 22px; margin-bottom: 14px; }
+  ul li { margin-bottom: 6px; }
+  /* ── REFS ── */
+  .refs ol { padding-left: 22px; font-size: 0.82rem; color: var(--muted); }
+  .refs ol li { margin-bottom: 5px; }
+  .refs a { color: var(--accent); word-break: break-all; }
+  /* ── CALLOUT ── */
+  .callout { background: #f0f4ff; border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 20px 0; font-size: 0.92rem; }
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    #toc-panel { display: none; }
+    #content { margin-left: 0; padding-top: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TABLE OF CONTENTS -->
+<nav id="toc-panel">
+  <h2>Contents</h2>
+  <a href="#intro">Introduction</a>
+  <a href="#sbom">1. SBOM Generation</a>
+  <a href="#s1-1">1.1 Standards: SPDX & CycloneDX</a>
+  <a href="#s1-2">1.2 Syft vs. Trivy</a>
+  <a href="#s1-3">1.3 cdxgen: Reachability</a>
+  <a href="#s1-4">1.4 Enterprise: SBOM & UniBOM</a>
+  <a href="#s1-5">1.5 Post-Processing</a>
+  <a href="#cbom">2. CBOM &amp; Post-Quantum</a>
+  <a href="#s2-1">2.1 CBOM Specification</a>
+  <a href="#s2-2">2.2 PQCA CBOMkit</a>
+  <a href="#s2-3">2.3 CipherIQ</a>
+  <a href="#s2-4">2.4 cdxgen &amp; SCANOSS</a>
+  <a href="#aibom">4. AIBOM &amp; Agentic Gov.</a>
+  <a href="#s4-1">4.1 AI Taxonomy</a>
+  <a href="#s4-2">4.2 SPDX 3.0 &amp; CycloneDX</a>
+  <a href="#s4-3">4.3 Cisco AI BOM</a>
+  <a href="#s4-4">4.4 DefendAI AgentDiscover</a>
+  <a href="#s4-5">4.5 AIBoMGen</a>
+  <a href="#s4-6">4.6 pitloom &amp; runtime-emitter</a>
+  <a href="#s5">5. Reporting &amp; Workflows</a>
+  <a href="#s5-1">5.1 OBOM, HBOM, SaaSBOM</a>
+  <a href="#s5-2">5.2 VEX Intelligence</a>
+  <a href="#s6">6. Conclusions</a>
+  <a href="#refs">Works Cited</a>
+</nav>
+
+<main id="content">
+
+<!-- COVER -->
+<div class="cover">
+  <h1>Systems-Level Detection and Supply Chain Intelligence: A Comprehensive Evaluation of Open-Source SBOM, CBOM, and AIBOM Tooling</h1>
+  <div class="tags">
+    <span class="tag">SBOM</span>
+    <span class="tag">CBOM</span>
+    <span class="tag">AIBOM</span>
+    <span class="tag">Post-Quantum Cryptography</span>
+    <span class="tag">Supply Chain Security</span>
+    <span class="tag">CycloneDX</span>
+    <span class="tag">SPDX</span>
+  </div>
+</div>
+
+<!-- INTRODUCTION -->
+<section id="intro">
+  <h2>Introduction</h2>
+  <p>The software supply chain has irrevocably transformed from a static collection of proprietary binaries and explicit open-source libraries into a highly dynamic, globally distributed ecosystem of interconnected components. Modern digital infrastructure integrates pre-compiled external code, complex cryptographic algorithms transitioning to post-quantum standards, and non-deterministic artificial intelligence models powered by autonomous agents. As a result of this escalating complexity, the regulatory and operational mandate for transparency has expanded exponentially. Global directives—such as the United States Executive Order 14028, the European Union Cyber Resilience Act (CRA), the EU AI Act, and the National Security Memorandum on Post-Quantum Cryptography (NSM-10)—now demand machine-readable, verifiable, and continuously updated inventories of all system components.</p>
+  <p>To satisfy these stringent requirements, the concept of the Bill of Materials (BOM) has bifurcated into highly specialized, interoperable domains. The foundational <strong>Software Bill of Materials (SBOM)</strong> tracks application dependencies and structural composition; the <strong>Cryptography Bill of Materials (CBOM)</strong> inventories cryptographic assets, keys, and algorithms to facilitate post-quantum migration; and the <strong>Artificial Intelligence Bill of Materials (AIBOM or ML-BOM)</strong> catalogs machine learning models, training data provenance, hyperparameter configurations, and autonomous agentic behaviors. This report provides an exhaustive, peer-level evaluation of the leading open-source detection tools across these three critical domains, focusing specifically on their system-level identification capabilities, underlying architectural methodologies, and downstream reporting fidelity.</p>
+</section>
+
+<!-- SECTION 1: SBOM -->
+<section id="sbom">
+  <h2>1. Software Bill of Materials (SBOM) Generation and Analysis</h2>
+  <p>A Software Bill of Materials serves as the definitive, machine-readable inventory of libraries, frameworks, direct dependencies, transitive dependencies, and their exact cryptographic hashes within a given product. In the contemporary open-source ecosystem, automated generation tools are an absolute necessity, as modern applications possess hundreds of transitive dependencies that render manual tracking statistically impossible. However, the efficacy of an SBOM relies entirely on the detection depth of the generator, the chosen output specification, and the tool's ability to integrate into continuous integration and continuous deployment (CI/CD) pipelines.</p>
+
+  <h3 id="s1-1">1.1 The Standardization Landscape: SPDX and CycloneDX</h3>
+  <p>The reporting capabilities of any SBOM tool are inherently constrained by the specifications it supports. The industry has largely standardized on two formats: <strong>CycloneDX</strong> and <strong>SPDX</strong>.</p>
+  <p>CycloneDX, maintained by the OWASP Foundation and standardized as ECMA-424, was architected from inception with security, vulnerability management, and component reachability as its primary objectives. The CycloneDX specification has aggressively expanded over the past several iterations, with version 1.6 formally introducing native cryptographic asset tracking and version 1.7 finalizing machine learning model metadata, data provenance, and citations.</p>
+  <p>Conversely, the Software Package Data Exchange (SPDX), governed by the Linux Foundation and recognized internationally as ISO/IEC 5962:2021, originated primarily in the licensing and intellectual property compliance space. The release of SPDX 3.0 represents a monumental structural shift, transitioning from a flat document model to a modular profile system. An SPDX 3.0 document is constructed around a mandatory Core Model—which dictates provenance and document creation mechanics—stacked with optional namespaces such as the Software Profile, the Security Profile, the Build Profile, and newly introduced profiles explicitly designed for AI and Datasets. The Security Profile in SPDX 3.0 drastically enhances reporting capabilities by embedding Vulnerability Exploitability eXchange (VEX) status justifications, CVSS assessments across multiple versions, and Exploit Prediction Scoring System (EPSS) metrics directly into the artifact. Both formats have reached a level of maturity where they seamlessly support downstream supply chain risk management, provided the generation tool accurately populates the schema.</p>
+
+  <h3 id="s1-2">1.2 Deep Binary Inspection and Container Ecosystems: Syft vs. Trivy</h3>
+  <p>For system-level scanning—particularly concerning the introspection of container images, raw filesystems, and compiled build artifacts—the open-source ecosystem is dominated by two primary utilities: <strong>Syft</strong> and <strong>Trivy</strong>. While often compared directly, their architectural philosophies differ significantly.</p>
+  <p>Syft, developed by Anchore under an Apache 2.0 license, is a purpose-built SBOM generator. Its singular focus yields the deepest cataloger coverage currently available in the open-source tier. Syft executes comprehensive layer-by-layer analysis of container images and supports over thirty diverse package ecosystems, ranging from operating-system-level package managers like APK, DEB, and RPM to language-specific environments. Syft's system-level identification superiority manifests in its ability to parse complex edge cases, such as extracting dependency data from nested Java "uber-jars" or identifying statically linked libraries compiled directly into Rust and Go binaries. Syft operates entirely offline and generates artifacts in CycloneDX, SPDX, and a proprietary JSON format, pairing natively with Grype—Anchore's companion open-source vulnerability scanner—to enable an architecture where SBOM generation and vulnerability correlation are handled as distinct, cacheable pipeline stages.</p>
+  <p>Trivy, maintained by Aqua Security, originated as a vulnerability scanner and has evolved into an all-in-one security toolkit that generates SBOMs alongside misconfiguration detection and secret scanning capabilities. Trivy's primary advantage is its operational breadth; a single binary execution can target container registries, local filesystems, virtual machine images, and live Kubernetes clusters. For organizations seeking to consolidate their toolchain, Trivy provides rapid, holistic triage. However, because its SBOM generation mechanisms are secondary to its vulnerability scanning engine, its dependency cataloger depth occasionally trails Syft when analyzing deeply nested or obfuscated compiled binaries. Regarding reporting capabilities, Trivy is highly versatile, exporting data in CycloneDX, SPDX, SARIF (Static Analysis Results Interchange Format) for IDE and CI/CD integration, and native GitHub Dependency Snapshots, while natively supporting in-toto attestations via Cosign.</p>
+
+  <h3 id="s1-3">1.3 Reachability Analysis and Intermediate Representations: cdxgen</h3>
+  <p>A chronic limitation of traditional SBOM scanners is the generation of excessive false-positive vulnerability alerts. Scanners reliably identify vulnerable dependencies, but fail to determine if the host application's execution path ever invokes the vulnerable function. The OWASP CycloneDX Generator (<strong>cdxgen</strong>) directly addresses this limitation through the implementation of advanced data-flow and reachability analysis.</p>
+  <p>cdxgen is a polyglot generator supporting over twenty programming languages, focusing exclusively on producing high-fidelity CycloneDX documents. Its system-level identification capabilities are exponentially enhanced by its integration with <strong>atom</strong>, a novel intermediate representation (IR) toolkit powered by the <strong>chen</strong> (Code Hierarchy Exploration Net) library. When executed in "deep mode" (via flags such as <code>--with-reachables</code>), cdxgen performs static slicing of the application codebase to trace variable assignments and function calls from designated entry points down to external library sinks.</p>
+  <p>This process employs algorithms like Framework-Forward Reachability (FFR) and Semantic Reachability—the latter of which consumes OpenAPI specification files to map HTTP endpoint routes directly to code hotspots. If a vulnerability exists in a library but the callstack evidence proves the code is unreachable, security analysts can definitively deprioritize the alert. This callstack evidence is serialized directly into the resulting CycloneDX document. Furthermore, cdxgen expands its system-level reporting by offering a <code>tracebom</code> command to dynamically profile running applications, capturing negotiated TLS cipher suites and dynamically resolved software components via runtime analysis.</p>
+
+  <h3 id="s1-4">1.4 Enterprise Scalability and Firmware Specialization: Microsoft SBOM and UniBOM</h3>
+  <p>For massive enterprise deployments involving mixed-language monorepos, the <strong>Microsoft SBOM tool</strong> provides a highly scalable, open-source generation alternative. Leveraging Microsoft's internal component detection libraries, it integrates deeply into CI/CD pipelines to output SPDX format documents at build time, ensuring high-performance snapshotting of complex environments like NuGet, Go, and pip.</p>
+  <p>Conversely, the Internet of Things (IoT) and embedded firmware ecosystems present unique challenges, as legacy C and C++ codebases routinely lack unified package managers, relying instead on ad-hoc source inclusion or pre-compiled static libraries. The <strong>UniBOM</strong> project addresses this gap by performing multi-layered binary analysis on router firmware and embedded operating systems. UniBOM integrates string literal scanning, data compression similarity detection, and binary delta computations to identify third-party code cloning without relying on package manifests. Crucially, UniBOM incorporates an AI-based classification engine to evaluate detected firmware components against memory safety constraints, linking identified Common Platform Enumerations (CPEs) to specific memory vulnerabilities (such as CWE-476 NULL pointer dereferences or CWE-787 Out-of-bounds writes), thereby establishing a precise risk profile for headless edge devices.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Feature / Metric</th><th>Syft</th><th>Trivy</th><th>cdxgen</th><th>UniBOM</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Architectural Focus</td><td>Deep dependency cataloging</td><td>Unified vulnerability scanning</td><td>Polyglot reachability analysis</td><td>Firmware &amp; binary code cloning</td></tr>
+        <tr><td>Output Standard</td><td>CycloneDX, SPDX, Custom JSON</td><td>CycloneDX, SPDX, SARIF</td><td>CycloneDX (Versions 1.4–1.7)</td><td>CycloneDX</td></tr>
+        <tr><td>Reachability Evidence</td><td>None</td><td>None</td><td>Yes (via atom and chen IR)</td><td>Yes (Memory safety focus)</td></tr>
+        <tr><td>Target Workloads</td><td>Containers, archives, source</td><td>K8s, VMs, containers, repos</td><td>Source code, containers, APIs</td><td>IoT devices, embedded routers</td></tr>
+        <tr><td>Vulnerability Integration</td><td>Separate tool required (Grype)</td><td>Built-in continuous scanning</td><td>Threat modeling &amp; attack vectors</td><td>CPE/CWE AI-based classification</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="s1-5">1.5 SBOM Post-Processing: Merging, Augmentation, and Attestation</h3>
+  <p>System-level identification rarely ends at the generation phase; pipeline orchestration requires sophisticated post-processing tools. The open-source <strong>manifest-cli</strong> utility allows engineering teams to programmatically merge multiple SBOMs of the same format into a unified system inventory, which is critical when complex applications are built across multiple discrete stages or microservices. It natively wraps generators like Syft, Trivy, and spdx-sbom-generator, allowing snapshot modes that assign semantic tags to distinct production environments.</p>
+  <p>Furthermore, the <strong>sbomify-action</strong> toolkit provides essential augmentation and enrichment functions. While a raw scanner might only extract a package name and version, sbomify queries authoritative external registries—such as PyPI, crates.io, and ClearlyDefined—to enrich the BOM with lifecycle dates, support periods, and rigorous license data. It injects critical organizational metadata, such as supplier information and manufacturer details, ensuring the final artifact meets the strict NTIA minimum elements and CISA regulatory requirements before the SBOM is cryptographically signed and stored as an OCI artifact in the container registry.</p>
+</section>
+
+<!-- SECTION 2: CBOM -->
+<section id="cbom">
+  <h2>2. Cryptography Bill of Materials (CBOM) and Post-Quantum Agility</h2>
+  <p>The impending obsolescence of classical asymmetric cryptography, driven by rapid advancements in quantum computing, has established a firm deadline for global infrastructure modernization. Regulatory bodies are moving aggressively; the National Institute of Standards and Technology (NIST) intends to deprecate RSA and elliptic-curve cryptography algorithms after 2030, and the NSA's CNSA 2.0 guidelines mandate a full transition to post-quantum cryptography (PQC) by 2033. The fundamental barrier to this migration is visibility. Organizations cannot refactor cryptographic dependencies if they do not know where these algorithms are deployed, how they are parameterized, or which network services actively depend on them.</p>
+  <p>The Cryptography Bill of Materials (CBOM) standardizes this inventory process. A comprehensive CBOM provides a machine-readable record of all cryptographic algorithms (symmetric, asymmetric, hash functions, key derivation functions), the software libraries implementing them (e.g., OpenSSL, Bouncy Castle), the digital certificates securing communications, and the exact protocols governing their usage.</p>
+
+  <h3 id="s2-1">2.1 The CBOM Specification and Regulatory Drivers</h3>
+  <p>The structural foundation for the CBOM was formally adopted into the OWASP CycloneDX specification beginning with version 1.6 and significantly expanded in 1.7, establishing an internationally recognized schema (ECMA-424) for cryptographic asset reporting. The specification extends the CycloneDX object model by introducing a <em>cryptographic-asset</em> component type, under which algorithms, protocols, certificates, and related cryptographic material (such as keys and tokens) are categorized. This modularity allows a CBOM to exist as a standalone document or to be seamlessly integrated via BOM-Link relationships into a broader application SBOM.</p>
+
+  <h3 id="s2-2">2.2 The PQCA CBOMkit Architecture: A Multi-Layered Approach</h3>
+  <p>The most authoritative open-source implementation of the CBOM specification is the <strong>CBOMkit suite</strong>, developed originally by IBM Research and subsequently donated to the Linux Foundation's Post-Quantum Cryptography Alliance (PQCA). The architecture of CBOMkit demonstrates a profound understanding of system-level identification, segmenting the discovery process across five interconnected components.</p>
+  <p>For static codebase analysis, the suite relies on the <strong>sonar-cryptography plugin (Codename: Hyperion)</strong>. Rather than relying on simple regular expression matching, this engine operates on the Abstract Syntax Trees (ASTs) generated by language-specific parsers for Java, Python, and Go, ensuring a highly accurate identification of cryptographic API calls. This engine is wrapped by <code>cbomkit-lib</code> for standalone programmatic access and <code>cbomkit-action</code> for automated execution within CI/CD pipelines.</p>
+  <p>However, the true system-level identification capabilities reside within <strong>cbomkit-theia (Theia)</strong>. This Go-based command-line tool bypasses source code entirely, focusing instead on inspecting compiled container images (Docker, OCI, Singularity) and raw directories. cbomkit-theia operates through an extensible, multi-plugin architecture:</p>
+  <ul>
+    <li><strong>Certificate Plugin:</strong> Extracts and parses X.509 certificates from the filesystem, injecting signature algorithms and public key metrics into the CycloneDX schema.</li>
+    <li><strong>Java Security Plugin:</strong> Locates Java runtime configuration files (e.g., <code>java.security</code>) and analyzes properties like <code>jdk.tls.disabledAlgorithms</code>. By comparing these configurations against the cryptographic algorithms detected in the container, it computes an empirical "confidence level" representing the likelihood that a specific algorithm is actively executable in that specific environment.</li>
+    <li><strong>OpenSSL Configuration Plugin:</strong> Parses <code>openssl.cnf</code> structures to catalog globally permitted TLS protocol versions and cipher suites.</li>
+    <li><strong>Secrets Plugin:</strong> Leverages the gitleaks engine to uncover exposed private keys and secret tokens embedded within the infrastructure.</li>
+  </ul>
+  <p>The outputs from these scanners are centralized into the <strong>Mnemosyne</strong> database, utilizing a Command Query Responsibility Segregation (CQRS) pattern to manage scan state and query retrieval. The data is visualized through the <strong>Coeus</strong> frontend and continuously evaluated for quantum safety by the <strong>Themis</strong> compliance engine. Themis utilizes Open Policy Agent (OPA) and Rego language policies to automatically classify assets against a whitelist of approved quantum-safe Object Identifiers (OIDs), outputting detailed compliance violation reports.</p>
+
+  <h3 id="s2-3">2.3 Deep Linux Introspection and Embedded Systems: CipherIQ cbom-generator</h3>
+  <p>While the PQCA suite is highly optimized for containerized cloud workloads, the <strong>CipherIQ cbom-generator</strong> delivers unmatched system-level cryptographic discovery for bare-metal Linux servers, edge computing nodes, and embedded Linux builds. Dual-licensed under GPL-3.0 and developed in C11, CipherIQ supports a massive array of distributions, including Ubuntu, RHEL, Alpine, and highly constrained architectures like Yocto and OpenWrt.</p>
+  <p>CipherIQ's architectural differentiator is its instantiation of a strict four-level dependency relationship graph: <code>SERVICE → PROTOCOL → CIPHER_SUITE → ALGORITHM</code>. This paradigm provides complete traceability; if a vulnerable algorithm is detected, an infrastructure engineer can trace the exact dependency path back to a specific high-level service (e.g., Nginx, strongSwan, Mosquitto) responsible for invoking it.</p>
+  <p>CipherIQ achieves this mapping through exhaustive system-level identification methodologies:</p>
+  <ul>
+    <li><strong>Dynamic ELF Header Parsing:</strong> Instead of executing potentially untrusted target binaries, the scanner safely parses VERNEED and SONAME headers directly from Executable and Linkable Format (ELF) files within the target root filesystem. This enables reliable cross-architecture scanning, allowing an x86_64 host to audit an ARM64 Yocto image accurately.</li>
+    <li><strong>Active Service Contextualization:</strong> CipherIQ extracts TLS and SSH configurations from active daemons by combining process table analysis, open port inspection, and systemd service file parsing. It is sophisticated enough to detect OpenSSH post-quantum hybrid key exchange methods (e.g., <code>sntrup761x25519-sha512@openssh.com</code>).</li>
+    <li><strong>Key Lifecycle Tracking:</strong> The system safely catalogs seven distinct key formats (PEM, DER, PKCS#8, OpenSSH, etc.) and ten key types, verifying lifecycle states against NIST SP 800-57 guidelines to flag weak configurations, such as RSA keys under 2048 bits.</li>
+  </ul>
+  <p>Furthermore, CipherIQ embeds advanced reporting capabilities by directly appending PQC risk assessments into the CycloneDX 1.6/1.7 properties metadata. It evaluates 48 NIST-finalized OIDs, calculates estimated quantum break-years, and categorizes every asset as <strong>SAFE</strong>, <strong>TRANSITIONAL</strong>, <strong>DEPRECATED</strong>, or <strong>UNSAFE</strong>, automatically generating a phased migration roadmap aligned with FIPS 203/204/205 standards.</p>
+
+  <h3 id="s2-4">2.4 Integration with Software Scanners: cdxgen and SCANOSS</h3>
+  <p>CBOM generation is increasingly becoming a native feature within advanced SBOM generators. For instance, cdxgen leverages its intermediate representation capabilities to inventory Java keystores and perform source-level cryptographic tracking for JavaScript and TypeScript ecosystems. Similarly, the <strong>SCANOSS crypto-finder</strong> analyzes source code to produce an interim JSON file rich with matched code snippets, which is subsequently converted into a validated CycloneDX 1.6 CBOM. SCANOSS implements rules-based deduplication, ensuring that if multiple heuristics identify the same cryptographic primitive or padding scheme, the system consolidates the findings into a single, highly detailed component entry.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Feature / Metric</th><th>PQCA cbomkit-theia</th><th>CipherIQ cbom-generator</th><th>SCANOSS crypto-finder</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Primary Environment</td><td>Cloud Containers, Filesystems</td><td>Bare-metal Linux, Yocto, Edge</td><td>Local Source Code</td></tr>
+        <tr><td>Identification Logic</td><td>Environment Configs, Executability</td><td>Dynamic ELF &amp; Process Mapping</td><td>Code Snippet Rule Matching</td></tr>
+        <tr><td>Relationship Mapping</td><td>Flat list with confidence scoring</td><td>Deep 4-tier Service-to-Algo graph</td><td>File-level snippet metadata</td></tr>
+        <tr><td>Reporting Standard</td><td>CycloneDX 1.6</td><td>CycloneDX 1.6 &amp; 1.7</td><td>CycloneDX 1.6</td></tr>
+        <tr><td>PQC Risk Prioritization</td><td>External via Themis Rego policies</td><td>Internal assessment &amp; break-years</td><td>Custom downstream analysis</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 4: AIBOM -->
+<section id="aibom">
+  <h2>4. Artificial Intelligence Bill of Materials (AIBOM) and Agentic Governance</h2>
+  <p>The integration of foundational large language models (LLMs), fine-tuned predictive networks, and autonomous multi-agent systems has fundamentally altered software economics. However, AI introduces non-deterministic behaviors, proprietary data dependencies, and novel attack vectors—such as prompt injection, data poisoning, and model evasion. The Artificial Intelligence Bill of Materials (AIBOM) provides the necessary structural transparency to operationalize AI securely and achieve compliance with frameworks like the EU AI Act and the NIST AI Risk Management Framework (RMF).</p>
+
+  <h3 id="s4-1">4.1 Deconstructing the AI System: A Multi-Layered Taxonomy</h3>
+  <p>A functional AIBOM extends far beyond simple software dependency listing. According to industry consensus frameworks, a complete AIBOM must capture metadata across several distinct layers:</p>
+  <ul>
+    <li>The <strong>Data Layer</strong> tracks the origin, licensing, and preprocessing steps of both training datasets and real-time inference data streams.</li>
+    <li>The <strong>Model Layer</strong> inventories the foundation models (e.g., OpenAI, Anthropic), fine-tuned variants, internal architectures, and specific deployment hyperparameters.</li>
+    <li>The <strong>Dependency and Infrastructure Layers</strong> log the underlying software frameworks (TensorFlow, PyTorch) alongside the hardware compute resources (GPUs, TPUs) required for execution.</li>
+    <li>The <strong>Security and Governance Layers</strong> map access paths, identity entitlements, and ownership structures to establish an audit trail.</li>
+  </ul>
+
+  <h3 id="s4-2">4.2 AIBOM Standardization: SPDX 3.0 Profiles and CycloneDX ML-BOM</h3>
+  <p>The implementation of these layers relies heavily on emerging standard schemas. The CycloneDX specification introduced robust ML-BOM capabilities starting in version 1.5, reaching maturity in version 1.7. The CycloneDX approach favors integrating machine learning components tightly within the existing software dependency graph, adding specific capabilities to track data lineage, performance metrics, and compliance citations natively.</p>
+  <p>Alternatively, the SPDX 3.0 specification introduced dedicated namespaces explicitly designed to handle complex AI workloads. The SPDX 3.0 <strong>AI Profile</strong> requires comprehensive safety and ethical disclosures, instituting properties such as <code>AI/autonomyType</code> to document a system's operational independence, <code>AI/energyConsumption</code> to measure the environmental impact of training runs, and <code>AI/safetyRiskAssessmentType</code> to categorize the model into EU AI Act risk tiers (Low, Medium, High, Serious). Furthermore, properties like <code>AI/hyperparameter</code> provide transparency into the pre-defined configurations that dictate learning efficiency, ensuring model reproducibility. This is paired closely with the SPDX 3.0 <strong>Dataset Profile</strong>, which documents data noise, known biases, sensitivity indicators, and specific sensor origins.</p>
+
+  <h3 id="s4-3">4.3 Multi-Tiered Code and Container Analysis: Cisco AI BOM</h3>
+  <p>Generating an AIBOM across a distributed codebase requires advanced identification logic. The <strong>Cisco AI BOM (aibom)</strong> is an open-source CLI utility engineered to construct a dependency graph of AI assets—including models, agents, tools, Model Context Protocol (MCP) servers, prompts, and guardrails—by scanning source code and container images.</p>
+  <p>Cisco AI BOM employs a highly sophisticated, three-tier detection architecture:</p>
+  <ul>
+    <li><strong>Tier 1 (Deterministic High-Confidence):</strong> Using LibCST for deep Abstract Syntax Tree (AST) parsing in Python, and tree-sitter for languages like Java, Go, and Rust, the engine detects framework instantiations and dependencies. It compares imports against a continuously updated DuckDB knowledge base to identify AI-specific SDKs.</li>
+    <li><strong>Tier 2 (Cross-Reference Resolution):</strong> The scanner maps environment variables and multi-file dependencies, correctly correlating a model invocation in a Python script back to an API key defined in a <code>.env</code> or <code>docker-compose.yaml</code> file.</li>
+    <li><strong>Tier 3 (Agentic LLM Classification):</strong> To eliminate the high false-positive rates typical of static analyzers, Cisco AI BOM utilizes a local or cloud-hosted LLM agent (powered by Deep Agents and LangChain). Using "Locality-Aware Batching," the tool feeds contextually related code snippets to the LLM. The agent utilizes functions like <code>trace_data_flow</code> and <code>search_package_info</code> to definitively classify whether an arbitrary class is a standard web server or a specialized AI MCP server, pulling metadata directly from registries like Hugging Face or PyPI.</li>
+  </ul>
+  <p>Cisco AI BOM supports robust container integration, autonomously extracting source code from Docker, Podman, Skopeo, or Crane containers without requiring runtime execution. It leverages Anchore Syft as a fallback to generate standard SBOM metadata, enriching the final AI BOM. The tool excels in reporting capabilities, exporting to ten distinct formats including SARIF, SPDX 3.0, CycloneDX, and an interactive HTML dashboard.</p>
+
+  <h3 id="s4-4">4.4 Resolving Shadow AI via Kernel and Network Telemetry: DefendAI AgentDiscover</h3>
+  <p>While static analysis is critical, it suffers from a fundamental blind spot: <strong>"Shadow AI."</strong> Developers can deploy unauthorized agents, swap LLM bindings at runtime, or alter prompt templates in local configuration files without committing changes to source control. In these scenarios, static scanners will report a system as compliant while a malicious or ungoverned agent silently exfiltrates data in production.</p>
+  <p>The <strong>DefendAI AgentDiscover Scanner</strong> solves this problem by shifting identification to the operating system kernel and network layers. It introduces a classification taxonomy that categorizes agents based on runtime correlation, identifying <strong>"GHOST" agents</strong>—workloads actively communicating with AI providers that completely lack corresponding source code declarations or Kubernetes deployment manifests.</p>
+  <p>AgentDiscover achieves this visibility through a five-layer detection mechanism:</p>
+  <ul>
+    <li><strong>Layer 1 (Static Analysis):</strong> AST pattern matching to establish a baseline inventory of declared frameworks like LangChain, AutoGen, and CrewAI.</li>
+    <li><strong>Layer 2 (Network Heuristics &amp; Introspection):</strong> The scanner monitors active socket connections via psutil. However, major providers like AWS Bedrock rotate endpoints across generic EC2 IPs, rendering reverse-DNS lookups ineffective. AgentDiscover utilizes <strong>Forward-DNS correlation</strong>, proactively caching the IP addresses of known LLM hostnames to attribute traffic accurately. It then introspects the active process command line to identify the exact Python script generating the traffic, dynamically applying Layer 1 signatures to memory.</li>
+    <li><strong>Layer 3 (Kubernetes eBPF Monitoring):</strong> For production clusters, the scanner integrates with Cilium Tetragon, deploying extended Berkeley Packet Filter (eBPF) probes directly into the Linux kernel. This zero-overhead tracing maps outbound AI API calls directly back to the exact pod, container, and execution path responsible, providing irrefutable attribution.</li>
+    <li><strong>Layer 5 (Cloud Audit &amp; SSE Proxies):</strong> To bypass TLS inspection and Secure Service Edge (SSE) proxies (e.g., Zscaler ZIA, Palo Alto Prisma Access), AgentDiscover ingests cloud audit logs directly. This allows it to extract the HTTP User-Agent and caller identities, revealing specific framework attributions (e.g., boto3, langchain-aws) that local network monitoring cannot intercept.</li>
+  </ul>
+
+  <h3 id="s4-5">4.5 Cryptographic Trust in Model Training Pipelines: AIBoMGen</h3>
+  <p>For internally trained models, evaluating the resulting binary post-hoc provides no guarantee of data provenance. A malicious developer can easily falsify the dataset metadata attached to the model card. <strong>AIBoMGen</strong>, developed by IDLab (Ghent University and imec), enforces cryptographic trust directly at the source of model creation.</p>
+  <p>AIBoMGen operates as a locked-down, neutral Platform as a Service (PaaS) training environment. To establish an absolute root of trust, the platform intentionally prohibits remote code execution (RCE) on the worker nodes during training. As the approved TensorFlow classification or regression job runs, the platform autonomously observes and captures the precise datasets, hyperparameters, resource metrics, and foundation models utilized.</p>
+  <p>Upon completion, AIBoMGen cryptographically hashes all input files, environment states, and output binaries. It generates a signed CycloneDX AIBOM paired with an <strong>in-toto attestation link file</strong>. The in-toto framework generates cryptographically signed records of every supply chain action. Downstream auditors can subsequently verify the layout validity, signature authenticity, and artifact hashes against the AIBOM, proving conclusively that the model was generated using the declared dataset without external tampering.</p>
+
+  <h3 id="s4-6">4.6 Native Weight Extraction and Runtime Emission: pitloom and runtime-aibom-emitter</h3>
+  <p>The ecosystem is further enriched by specialized extraction utilities. The <strong>pitloom</strong> project, an open-source SBOM generator for Python and AI workflows, provides deep integration with the hatchling build system. pitloom is uniquely capable of programmatically extracting native metadata directly from compiled machine learning weights—specifically supporting GGUF, ONNX, and PyTorch models, as well as parsing Hugging Face repository URLs to construct transparent dependency chains for deployed models.</p>
+  <p>Similarly, the <strong>runtime-aibom-emitter</strong> bridges the gap between static analysis and dynamic execution. Operating alongside the <em>aibom-policy-engine</em> (which utilizes OPA-style rules to enforce model pinning and deny risky data combinations), the runtime emitter ingests OpenTelemetry (OTel) trace evidence. It combines the static AI inventory with real-time trace data to generate a CycloneDX-compatible AIBOM that reflects only the models, tools, and endpoints that were definitively invoked during live inference, eliminating dead code paths from compliance reports.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Tool / Framework</th><th>Detection Methodology</th><th>Key System Capabilities</th><th>Primary Output</th><th>Target Workload</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Cisco AI BOM</td><td>AST Parsing + Agentic LLM</td><td>Resolves env vars, extracts container code</td><td>CycloneDX, SPDX 3.0, SARIF</td><td>Repos, Container Images</td></tr>
+        <tr><td>AgentDiscover</td><td>eBPF + Network + Cloud Logs</td><td>Correlates code to live kernel syscalls</td><td>SARIF, Console JSON</td><td>Kubernetes, Local OS</td></tr>
+        <tr><td>AIBoMGen</td><td>PaaS observation + Hash generation</td><td>Prevents RCE, enforces in-toto links</td><td>Signed CycloneDX</td><td>Model Training Pipelines</td></tr>
+        <tr><td>pitloom</td><td>Binary weight parsing</td><td>Extracts metadata from GGUF/ONNX</td><td>SPDX / CycloneDX</td><td>ML Model Files</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section id="s5">
+  <h2>5. System-Level Reporting, Consolidation, and Downstream Workflows</h2>
+  <p>The ultimate utility of SBOMs, CBOMs, and AIBOMs lies in their ability to be consolidated, audited, and actioned across the enterprise infrastructure. Open-source tooling provides several mechanisms for transforming raw inventories into strategic intelligence.</p>
+
+  <h3 id="s5-1">5.1 Beyond the SBOM: OBOM, HBOM, and SaaSBOM</h3>
+  <p>System-level reporting is actively expanding beyond the application layer. The cdxgen platform possesses the capability to generate an <strong>Operations Bill of Materials (OBOM)</strong>. Targeted heavily toward SOC analysts and incident responders, an OBOM scans live Linux, Windows, or macOS hosts to inventory operating system packages, running services, and runtime configurations, which is invaluable for hardening drift reviews or detecting persistence mechanisms. Furthermore, cdxgen supports the generation of a <strong>Hardware Bill of Materials (HBOM)</strong> for Apple Silicon and Linux hosts, as well as <strong>SaaSBOMs</strong> to map external cloud service dependencies, allowing platforms to merge HBOMs and OBOMs into a single topology-aware host document.</p>
+
+  <h3 id="s5-2">5.2 Vulnerability Exploitability eXchange (VEX) and Actionable Intelligence</h3>
+  <p>The generation of complex BOMs inevitably leads to an overwhelming volume of vulnerability alerts, many of which are mathematically or structurally impossible to exploit in a given environment. The <strong>Vulnerability Exploitability eXchange (VEX)</strong> standard is crucial for mitigating this alert fatigue.</p>
+  <p>When cdxgen uses its atom intermediate representation to determine a vulnerable library is unreachable, or when the PQCA's cbomkit-theia calculates a zero confidence level for a deprecated cryptographic algorithm, this intelligence is serialized. Using platforms like OWASP Dependency-Track, organizations can automatically generate VEX attestations that flag the affected components as "Not Affected" with precise technical justifications. This reporting mechanism allows admission controllers (such as OPA/Gatekeeper or Kyverno) to verify Cosign signatures on the SBOMs and VEX documents, securely admitting only verifiable, risk-mitigated workloads into the Kubernetes cluster.</p>
+</section>
+
+<!-- SECTION 6 -->
+<section id="s6">
+  <h2>6. Synthesized Conclusions and Strategic Recommendations</h2>
+  <p>The software supply chain has evolved from a linear progression of code into a multi-dimensional matrix of cryptographic primitives, autonomous artificial intelligence models, and deeply nested container dependencies. The open-source tooling ecosystem has rapidly matured to address this complexity, offering specialized identification and reporting capabilities that rival or exceed commercial alternatives.</p>
+  <p>To establish a resilient, cryptographically verifiable, and compliant supply chain architecture, organizations should adopt the following strategic implementation model:</p>
+  <ul>
+    <li><strong>Establish Verifiable SBOM Foundations:</strong> Integrate <strong>Syft</strong> natively into the CI/CD pipeline to generate highly accurate, layer-by-layer dependency maps of all containerized applications, utilizing <em>sbomify-action</em> to enrich the data to CISA compliance standards. Couple this with <strong>cdxgen</strong> to execute deep data-flow reachability analysis, generating precise callstack evidence that significantly reduces the noise of false-positive CVE alerts.</li>
+    <li><strong>Accelerate Post-Quantum Migration with CBOMs:</strong> As regulatory deadlines for quantum safety approach, deploy the <strong>CipherIQ cbom-generator</strong> across bare-metal and embedded Linux infrastructure to establish a dynamic, 4-tier map of cryptographic service dependencies. Simultaneously, leverage the <strong>PQCA CBOMkit suite</strong> to monitor containerized cryptographic configurations, employing Open Policy Agent (OPA) to enforce NIST and CNSA 2.0 quantum-safe compliance baselines automatically.</li>
+    <li><strong>Enforce Agentic Governance via AIBOMs:</strong> Address the escalating risk of non-deterministic and Shadow AI by generating comprehensive AIBOMs using <strong>Cisco AI BOM</strong> during the build phase, leveraging its local LLM agent to accurately classify complex Model Context Protocol integrations and eliminate static false positives. Furthermore, deploy the <strong>DefendAI AgentDiscover Scanner</strong> with eBPF hooks into production Kubernetes clusters. This ensures continuous runtime telemetry, attributing exact outbound LLM traffic to specific pods and immediately flagging ungoverned "Ghost" agents that attempt to bypass static security controls.</li>
+  </ul>
+  <div class="callout">
+    By treating SBOM, CBOM, and AIBOM generation not as disparate compliance checkboxes, but as a unified, continuous pipeline of system-level intelligence, organizations can proactively defend their infrastructure against the next generation of supply chain, cryptographic, and algorithmic threats.
+  </div>
+</section>
+
+<!-- WORKS CITED -->
+<section id="refs" class="refs">
+  <h2>Works Cited</h2>
+  <ol>
+    <li>12 Free Open-Source SCA Tools 2026: Trivy, Grype, Syft Tested – AppSec Santa. <a href="https://appsecsanta.com/sca-tools/open-source-sca-tools" target="_blank">appsecsanta.com</a></li>
+    <li>What is an AI bill of materials (AIBOM)? – Sysdig. <a href="https://www.sysdig.com/learn-cloud-native/what-is-ai-bill-of-materials-aibom" target="_blank">sysdig.com</a></li>
+    <li>CipherIQ/cbom-generator – GitHub. <a href="https://github.com/CipherIQ/cbom-generator" target="_blank">github.com/CipherIQ/cbom-generator</a></li>
+    <li>The Model Bill of Materials: What AI Act Auditors Will Ask For – Medium. <a href="https://medium.com/@michael.hannecke/the-model-bill-of-materials-what-ai-act-auditors-will-ask-for-8bf2da012faa" target="_blank">medium.com</a></li>
+    <li>SBOM Tools 2026: Syft vs Trivy vs Dependency-Track Compared – NomadX. <a href="https://devsecops.ae/sbom-tools-comparison-2026/" target="_blank">devsecops.ae</a></li>
+    <li>Best SBOM Tools 2026: Syft Leads OSS, FOSSA Leads Commercial – AppSec Santa. <a href="https://appsecsanta.com/sca-tools/sbom-tools-comparison" target="_blank">appsecsanta.com</a></li>
+    <li>SBOM Generation Tools Compared: Syft, Trivy, cdxgen, and More – Sbomify. <a href="https://sbomify.com/2026/01/26/sbom-generation-tools-comparison/" target="_blank">sbomify.com</a></li>
+    <li>CycloneDX Generator (cdxgen) – GitHub. <a href="https://github.com/cdxgen/cdxgen" target="_blank">github.com/cdxgen/cdxgen</a></li>
+    <li>Advancing Cryptographic Transparency: CBOM Standardization in CycloneDX – PKI Consortium. <a href="https://pkic.org/events/2025/pqc-conference-kuala-lumpur-my/THU_B_0900_basil-hess_advancing-cryptographic-transparency-cbom-standardization-in-cyclonedx_merged.pdf" target="_blank">pkic.org</a></li>
+    <li>Overview – SPDX. <a href="https://spdx.dev/about/overview/" target="_blank">spdx.dev</a></li>
+    <li>SPDX 3.0 Is Released – FOSSA Blog. <a href="https://fossa.com/blog/spdx-3-0/" target="_blank">fossa.com</a></li>
+    <li>All about SPDX 3.0 – Medium. <a href="https://medium.com/@interlynkblog/all-about-spdx-3-0-7763c9e93c78" target="_blank">medium.com</a></li>
+    <li>SPDX 3.0 data fields – Black Duck. <a href="https://documentation.blackduck.com/bundle/bd-hub-2026.1/page/Reporting/spdx3datafields.html" target="_blank">documentation.blackduck.com</a></li>
+    <li>Guide to SBOM Tools: 5 Picks for Enterprise Security Teams – Wiz. <a href="https://www.wiz.io/academy/application-security/top-open-source-sbom-tools" target="_blank">wiz.io</a></li>
+    <li>SBOM Tools Compared: Syft vs Trivy vs CycloneDX CLI – Secure Pipelines. <a href="https://secure-pipelines.com/ci-cd-security/sbom-tools-compared-syft-trivy-cyclonedx-cli/" target="_blank">secure-pipelines.com</a></li>
+    <li>Grype: Free CVE Scanner for Containers (2026) – AppSec Santa. <a href="https://appsecsanta.com/grype" target="_blank">appsecsanta.com</a></li>
+    <li>Reporting – Trivy. <a href="https://trivy.dev/docs/dev/docs/configuration/reporting/" target="_blank">trivy.dev</a></li>
+    <li>CDXgen – OWASP CycloneDX SBOM Generator – AppSec Santa. <a href="https://appsecsanta.com/cdxgen" target="_blank">appsecsanta.com</a></li>
+    <li>Introduction – Atom Project. <a href="https://appthreat-atom.readthedocs.io/" target="_blank">appthreat-atom.readthedocs.io</a></li>
+    <li>atom and chen join AboutCode. <a href="https://aboutcode.org/blog/atom-chen-aboutcode" target="_blank">aboutcode.org</a></li>
+    <li>Reachability Analysis – OWASP dep-scan. <a href="https://depscan.readthedocs.io/reachability-analysis/" target="_blank">depscan.readthedocs.io</a></li>
+    <li>UniBOM – A Unified SBOM Analysis and Visualisation Tool for IoT Systems – ResearchGate. <a href="https://www.researchgate.net/publication/398627581_UniBOM_-_A_Unified_SBOM_Analysis_and_Visualisation_Tool_for_IoT_Systems_and_Beyond" target="_blank">researchgate.net</a></li>
+    <li>[2511.22359] UniBOM – arXiv. <a href="https://arxiv.org/abs/2511.22359" target="_blank">arxiv.org</a></li>
+    <li>cli/README.md – manifest-cyber/cli – GitHub. <a href="https://github.com/manifest-cyber/cli/blob/main/README.md" target="_blank">github.com/manifest-cyber/cli</a></li>
+    <li>GitHub Action for sbomify. <a href="https://github.com/sbomify/sbomify-action" target="_blank">github.com/sbomify/sbomify-action</a></li>
+    <li>CBOM: Cryptographic Bill of Materials Guide – O3 Security. <a href="https://o3.security/academy/cbom-cryptographic-bill-of-materials" target="_blank">o3.security</a></li>
+    <li>Best CBOM &amp; Cryptographic Discovery Tools 2026 – QCecuring. <a href="https://www.qcecuring.com/blog/best-cbom-cryptographic-discovery-tools-2026" target="_blank">qcecuring.com</a></li>
+    <li>PQCA CBOMkit Architecture – Post-Quantum Cryptography Alliance. <a href="https://pqca.org/blog/2026/pqca-cbomkit-architecture/" target="_blank">pqca.org</a></li>
+    <li>cbomkit-theia – GitHub. <a href="https://github.com/IBM/cbomkit-theia" target="_blank">github.com/IBM/cbomkit-theia</a></li>
+    <li>crypto-finder OUTPUT_FORMATS – SCANOSS – GitHub. <a href="https://github.com/scanoss/crypto-finder/blob/main/docs/OUTPUT_FORMATS.md" target="_blank">github.com/scanoss/crypto-finder</a></li>
+    <li>AI-BOMs: A Practical Guide to AI Bills of Materials – Wiz. <a href="https://www.wiz.io/academy/ai-security/ai-bom-ai-bill-of-materials" target="_blank">wiz.io</a></li>
+    <li>Understanding the SPDX 3.0 AI BOM Support – Medium. <a href="https://becomingahacker.org/understanding-the-spdx-3-0-ai-bom-support-7f3dbdd28345" target="_blank">becomingahacker.org</a></li>
+    <li>Cisco aibom – GitHub. <a href="https://github.com/cisco-ai-defense/aibom" target="_blank">github.com/cisco-ai-defense/aibom</a></li>
+    <li>Defend-AI-Tech-Inc/agent-discover-scanner – GitHub. <a href="https://github.com/Defend-AI-Tech-Inc/agent-discover-scanner" target="_blank">github.com/Defend-AI-Tech-Inc</a></li>
+    <li>AIBoMGen – arXiv. <a href="https://arxiv.org/html/2601.05703v1" target="_blank">arxiv.org/html/2601.05703v1</a></li>
+    <li>bact/pitloom – GitHub. <a href="https://github.com/bact/pitloom" target="_blank">github.com/bact/pitloom</a></li>
+    <li>runtime-aibom-emitter – GitHub. <a href="https://github.com/airblackbox/runtime-aibom-emitter" target="_blank">github.com/airblackbox/runtime-aibom-emitter</a></li>
+    <li>OWASP cdxgen. <a href="https://owasp.org/www-project-cdxgen/" target="_blank">owasp.org/www-project-cdxgen</a></li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+  // Highlight active TOC link on scroll
+  const sections = document.querySelectorAll('section, h3[id]');
+  const links = document.querySelectorAll('#toc-panel a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = e.target.id || e.target.closest('section')?.id;
+        if (id) {
+          const active = document.querySelector(`#toc-panel a[href="#${id}"]`);
+          if (active) active.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
