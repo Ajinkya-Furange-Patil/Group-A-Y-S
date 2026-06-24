@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Discovery Scanner — Modules 8, 9, 10 & GitHub Remote Scan</title>
+<style>
+:root {
+  --bg: #0d0f14;
+  --panel: #13161e;
+  --border: rgba(255,255,255,0.08);
+  --red: #e8192c;
+  --red-glow: rgba(232,25,44,0.2);
+  --cyan: #00d4ff;
+  --green: #00e676;
+  --yellow: #ffd600;
+  --orange: #ff6d00;
+  --purple: #bb86fc;
+  --text: #f0f0f0;
+  --muted: #8a8f9a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;line-height:1.6;padding:32px 24px;}
+.page{max-width:1100px;margin:0 auto;}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:48px 24px 32px;border-bottom:2px solid var(--red);margin-bottom:48px;}
+.hero h1{font-size:2.4rem;font-weight:800;letter-spacing:1px;}
+.hero h1 span{color:var(--red);}
+.hero p{color:var(--muted);margin-top:10px;font-size:1.05rem;}
+.badge-row{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+.badge{padding:6px 16px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.b-red{background:rgba(232,25,44,0.15);border:1px solid var(--red);color:var(--red);}
+.b-cyan{background:rgba(0,212,255,0.1);border:1px solid var(--cyan);color:var(--cyan);}
+.b-green{background:rgba(0,230,118,0.1);border:1px solid var(--green);color:var(--green);}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:1.6rem;font-weight:700;color:var(--red);margin:48px 0 20px;padding-bottom:10px;border-bottom:1px solid rgba(232,25,44,0.3);display:flex;align-items:center;gap:10px;}
+.sec-title .num{background:var(--red);color:#fff;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:1rem;}
+
+/* ── MODULE CARD ── */
+.mod-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:28px;position:relative;overflow:hidden;}
+.mod-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent-color);}
+.mod-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;}
+.mod-icon{font-size:2.2rem;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;}
+.mod-meta h2{font-size:1.3rem;font-weight:700;}
+.mod-meta p{color:var(--muted);font-size:0.9rem;margin-top:4px;}
+.mod-num{font-family:monospace;font-size:0.75rem;color:var(--muted);border:1px solid var(--border);padding:2px 8px;border-radius:3px;margin-top:6px;display:inline-block;}
+
+/* ── WHAT IT DOES ── */
+.what-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:700px){.what-grid{grid-template-columns:1fr;}}
+.what-item{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:16px;}
+.what-item h4{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;}
+.what-item p{font-size:0.9rem;}
+
+/* ── RISK TABLE ── */
+.risk-table{width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:12px;}
+.risk-table th{background:rgba(255,255,255,0.04);padding:10px 14px;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.risk-table td{padding:10px 14px;border-top:1px solid var(--border);}
+.risk-table tr:hover td{background:rgba(255,255,255,0.02);}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:700;text-transform:uppercase;}
+.p-critical{background:rgba(232,25,44,0.15);color:#ff5252;border:1px solid rgba(232,25,44,0.4);}
+.p-high{background:rgba(255,109,0,0.15);color:#ff9800;border:1px solid rgba(255,109,0,0.4);}
+.p-medium{background:rgba(255,214,0,0.1);color:#ffd600;border:1px solid rgba(255,214,0,0.4);}
+.p-low{background:rgba(0,230,118,0.1);color:#00e676;border:1px solid rgba(0,230,118,0.4);}
+.p-info{background:rgba(0,212,255,0.1);color:#00d4ff;border:1px solid rgba(0,212,255,0.4);}
+
+/* ── SCHEMATIC ── */
+.schema-wrap{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:32px 24px;margin-top:12px;}
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;justify-content:center;}
+.flow-step{display:flex;flex-direction:column;align-items:center;position:relative;}
+.step-box{background:var(--panel);border:1.5px solid var(--border);border-radius:8px;padding:16px 20px;text-align:center;min-width:140px;max-width:160px;}
+.step-box .icon{font-size:1.8rem;margin-bottom:6px;}
+.step-box .label{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.step-box .sub{font-size:0.7rem;color:var(--muted);margin-top:4px;}
+.arrow{display:flex;align-items:center;padding:0 6px;color:var(--muted);font-size:1.4rem;align-self:center;}
+.step-box.accent-red{border-color:var(--red);box-shadow:0 0 12px var(--red-glow);}
+.step-box.accent-cyan{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,0.15);}
+.step-box.accent-green{border-color:var(--green);box-shadow:0 0 12px rgba(0,230,118,0.1);}
+.step-box.accent-yellow{border-color:var(--yellow);box-shadow:0 0 12px rgba(255,214,0,0.1);}
+.step-box.accent-purple{border-color:var(--purple);box-shadow:0 0 12px rgba(187,134,252,0.1);}
+.step-box.accent-orange{border-color:var(--orange);box-shadow:0 0 12px rgba(255,109,0,0.1);}
+
+.sub-flow{display:flex;flex-direction:column;gap:8px;margin-top:16px;width:100%;}
+.sub-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.mini-box{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:8px 14px;font-size:0.75rem;text-align:center;}
+.mini-box.m-red{border-color:rgba(232,25,44,0.4);color:#ff8a80;}
+.mini-box.m-cyan{border-color:rgba(0,212,255,0.4);color:#80d8ff;}
+.mini-box.m-green{border-color:rgba(0,230,118,0.4);color:#b9f6ca;}
+.mini-box.m-yellow{border-color:rgba(255,214,0,0.4);color:#ffff8d;}
+.mini-box.m-purple{border-color:rgba(187,134,252,0.4);color:#e040fb;}
+.mini-box.m-orange{border-color:rgba(255,109,0,0.4);color:#ffcc80;}
+.mini-arrow{text-align:center;color:var(--muted);font-size:1.1rem;}
+
+/* ── SUMMARY TABLE ── */
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+@media(max-width:700px){.sum-grid{grid-template-columns:1fr;}}
+.sum-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center;}
+.sum-card .big{font-size:2.2rem;font-weight:800;font-family:monospace;}
+.sum-card .lbl{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.sum-card .desc{font-size:0.8rem;margin-top:10px;color:var(--text);}
+
+/* ── FOOTER ── */
+.footer{text-align:center;color:var(--muted);font-size:0.75rem;margin-top:56px;padding-top:20px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <h1>AI Discovery Scanner<br/><span>Modules 8, 9 &amp; 10</span></h1>
+  <p>Executive Briefing — AI Security, License Governance &amp; Regulatory Compliance</p>
+  <div class="badge-row">
+    <span class="badge b-red">Module 08 · MCP Scanner</span>
+    <span class="badge b-cyan">Module 09 · License Scanner</span>
+    <span class="badge b-green">Module 10 · Compliance Scanner</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODULE 08 — MCP SCANNER
+════════════════════════════════════════════════════ -->
+<div class="sec-title"><span class="num">08</span> MCP Config Scanner</div>
+
+<div class="mod-card" style="--accent-color: var(--red);">
+  <div class="mod-header">
+    <div class="mod-icon" style="background:rgba(232,25,44,0.1);border:1px solid rgba(232,25,44,0.3);">🔌</div>
+    <div class="mod-meta">
+      <h2>Model Context Protocol (MCP) Scanner</h2>
+      <p>Discovers every AI tool your developers have connected to their IDEs and flags dangerous access rights before an incident occurs.</p>
+      <span class="mod-num">MODULE 08 · CONFIGURATION RISK</span>
+    </div>
+  </div>
+
+  <div class="what-grid">
+    <div class="what-item">
+      <h4>🎯 Business Problem</h4>
+      <p>Developers connect AI assistants (Claude, Cursor, GitHub Copilot) to powerful tools — databases, filesystems, cloud APIs. Each connection is a potential security gap that no one is auditing.</p>
+    </div>
+    <div class="what-item">
+      <h4>✅ What This Module Does</h4>
+      <p>Automatically reads every MCP configuration file on the system, lists all registered AI tool connections, detects embedded credentials, and scores each connection by risk level.</p>
+    </div>
+    <div class="what-item">
+      <h4>🔍 Where It Looks</h4>
+      <p>Claude Desktop · Cursor IDE · VS Code / Insiders · Windsurf IDE · Kiro IDE · Any <code>mcp.json</code> found on disk (up to 4 levels deep)</p>
+    </div>
+    <div class="what-item">
+      <h4>🚨 What Gets Flagged</h4>
+      <p>Unauthorized remote servers, embedded API keys/tokens, shell-level command execution, filesystem &amp; database access, cloud API connections (AWS, Azure, GCP)</p>
+    </div>
+  </div>
+
+  <table class="risk-table">
+    <thead><tr><th>Risk Level</th><th>Trigger Condition</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p-critical">Critical</span></td><td>Filesystem, database, cloud, or unauthorized remote domain</td><td>MCP server with access to PostgreSQL or AWS</td></tr>
+      <tr><td><span class="pill p-high">High</span></td><td>Shell execution (bash, docker, powershell) or embedded secrets</td><td>API_KEY or TOKEN found in env block</td></tr>
+      <tr><td><span class="pill p-medium">Medium</span></td><td>Known 3rd-party API services</td><td>GitHub, Slack, Gmail, Google Drive integrations</td></tr>
+      <tr><td><span class="pill p-low">Low</span></td><td>Read-only or search-only utility servers</td><td>Web search, memory, sequential thinking</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SCHEMATIC: MCP Scanner Flow -->
+  <div class="schema-wrap" style="margin-top:24px;">
+    <p style="text-align:center;color:var(--muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">How MCP Scanner Works</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-box accent-cyan">
+          <div class="icon">💻</div>
+          <div class="label">Developer's Machine</div>
+          <div class="sub">IDEs &amp; AI tools installed</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-red">
+          <div class="icon">🔌</div>
+          <div class="label">Config File Discovery</div>
+          <div class="sub">Scan all known MCP locations</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-yellow">
+          <div class="icon">⚙️</div>
+          <div class="label">JSON Parser</div>
+          <div class="sub">Extract mcpServers block</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-orange">
+          <div class="icon">🧠</div>
+          <div class="label">Risk Classifier</div>
+          <div class="sub">Score each server entry</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-green">
+          <div class="icon">📋</div>
+          <div class="label">Findings Report</div>
+          <div class="sub">Critical / High / Medium / Low</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px;">
+      <p style="text-align:center;color:var(--muted);font-size:0.75rem;margin-bottom:10px;">CONFIG LOCATIONS SCANNED</p>
+      <div class="sub-row">
+        <div class="mini-box m-red">Claude Desktop<br/><span style="color:var(--muted);">claude_desktop_config.json</span></div>
+        <div class="mini-box m-cyan">Cursor IDE<br/><span style="color:var(--muted);">.cursor/mcp.json</span></div>
+        <div class="mini-box m-yellow">VS Code<br/><span style="color:var(--muted);">settings.json</span></div>
+        <div class="mini-box m-green">Windsurf / Kiro<br/><span style="color:var(--muted);">mcp_config.json</span></div>
+        <div class="mini-box m-purple">Generic Walk<br/><span style="color:var(--muted);">mcp.json / .mcp.json</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODULE 09 — LICENSE SCANNER
+════════════════════════════════════════════════════ -->
+<div class="sec-title"><span class="num">09</span> License Scanner &amp; AST Parser</div>
+
+<div class="mod-card" style="--accent-color: var(--cyan);">
+  <div class="mod-header">
+    <div class="mod-icon" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);">⚖️</div>
+    <div class="mod-meta">
+      <h2>License Scanner &amp; AST Parser</h2>
+      <p>Ensures every piece of code and every library your team uses is legally safe for enterprise deployment — protecting the company from copyleft and licensing lawsuits.</p>
+      <span class="mod-num">MODULE 09 · LICENSE GOVERNANCE · SEBI CSCRF ALIGNED</span>
+    </div>
+  </div>
+
+  <div class="what-grid">
+    <div class="what-item">
+      <h4>🎯 Business Problem</h4>
+      <p>Developers often copy AI-generated code or import open-source libraries without checking licenses. A single AGPL or GPL dependency can force you to open-source your entire product.</p>
+    </div>
+    <div class="what-item">
+      <h4>✅ What This Module Does</h4>
+      <p>Parses Python code at the AST (Abstract Syntax Tree) level — not just text search — to detect license headers, restricted library imports, and inline copyleft snippets across your entire codebase.</p>
+    </div>
+    <div class="what-item">
+      <h4>🔍 Files Scanned</h4>
+      <p>Python (.py) — AST deep parse<br/>JavaScript, TypeScript, Java, Go, Rust, C/C++ — regex inline scan<br/>LICENSE, COPYING, LICENSE.md — workspace root files</p>
+    </div>
+    <div class="what-item">
+      <h4>🚨 What Gets Flagged</h4>
+      <p>AGPL/GPL library imports, copyleft license headers in docstrings, Polyform Shield restrictions, Proprietary license mentions requiring legal review</p>
+    </div>
+  </div>
+
+  <!-- License Taxonomy Table -->
+  <table class="risk-table">
+    <thead><tr><th>License</th><th>Enterprise Status</th><th>Risk</th><th>Why It Matters</th></tr></thead>
+    <tbody>
+      <tr><td>MIT</td><td>✅ Approved</td><td><span class="pill p-info">Info</span></td><td>Fully permissive, safe for commercial use</td></tr>
+      <tr><td>Apache 2.0</td><td>✅ Approved</td><td><span class="pill p-info">Info</span></td><td>Permissive with patent grants</td></tr>
+      <tr><td>LGPL</td><td>⚠️ Moderate</td><td><span class="pill p-medium">Medium</span></td><td>OK if dynamically linked — review recommended</td></tr>
+      <tr><td>GPL</td><td>🚫 Review / Banned</td><td><span class="pill p-high">High</span></td><td>Forces your product to become open-source</td></tr>
+      <tr><td>AGPL</td><td>🚫 Strictly Banned</td><td><span class="pill p-critical">Critical</span></td><td>Even SaaS/API usage triggers open-source obligation</td></tr>
+      <tr><td>Polyform Shield</td><td>🚫 Review / Banned</td><td><span class="pill p-high">High</span></td><td>Blocks commercial SaaS usage entirely</td></tr>
+      <tr><td>Proprietary</td><td>🚫 Legal Review</td><td><span class="pill p-medium">Medium</span></td><td>Custom terms — needs legal sign-off</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SCHEMATIC: License Scanner Flow -->
+  <div class="schema-wrap" style="margin-top:24px;">
+    <p style="text-align:center;color:var(--muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">3-Layer Detection Engine</p>
+    <div class="flow" style="justify-content:center;gap:0;">
+      <div class="flow-step">
+        <div class="step-box accent-cyan">
+          <div class="icon">📁</div>
+          <div class="label">Source Files</div>
+          <div class="sub">.py .js .ts .java .go .rs</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step" style="align-items:center;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="step-box accent-purple" style="min-width:160px;">
+            <div class="icon">🌳</div>
+            <div class="label">Layer 1: AST Parser</div>
+            <div class="sub">Reads code structure — not just text</div>
+          </div>
+          <div class="step-box accent-yellow" style="min-width:160px;">
+            <div class="icon">📦</div>
+            <div class="label">Layer 2: Import Checker</div>
+            <div class="sub">Detects restricted libraries</div>
+          </div>
+          <div class="step-box accent-orange" style="min-width:160px;">
+            <div class="icon">🔍</div>
+            <div class="label">Layer 3: Inline Regex</div>
+            <div class="sub">Finds license keywords in code</div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-red">
+          <div class="icon">⚖️</div>
+          <div class="label">Taxonomy Lookup</div>
+          <div class="sub">MIT / Apache / GPL / AGPL etc.</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-green">
+          <div class="icon">📋</div>
+          <div class="label">Legal Risk Report</div>
+          <div class="sub">File · Line · License · Risk</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px;">
+      <p style="text-align:center;color:var(--muted);font-size:0.75rem;margin-bottom:10px;">RESTRICTED LIBRARIES FLAGGED</p>
+      <div class="sub-row">
+        <div class="mini-box m-red">PyQt5 / PyQt6<br/><span style="color:var(--muted);">GPL — High Risk</span></div>
+        <div class="mini-box m-red">mysql.connector<br/><span style="color:var(--muted);">GPL — High Risk</span></div>
+        <div class="mini-box m-orange">readline<br/><span style="color:var(--muted);">GPL — High Risk</span></div>
+        <div class="mini-box m-yellow">pygobject<br/><span style="color:var(--muted);">LGPL — Medium</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODULE 10 — COMPLIANCE SCANNER
+════════════════════════════════════════════════════ -->
+<div class="sec-title"><span class="num">10</span> Regulatory Compliance Scanner</div>
+
+<div class="mod-card" style="--accent-color: var(--green);">
+  <div class="mod-header">
+    <div class="mod-icon" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);">🏛️</div>
+    <div class="mod-meta">
+      <h2>Regulatory Compliance Scanner</h2>
+      <p>Automatically verifies that your AI infrastructure meets India's three key regulatory frameworks — DPDP Act, SEBI CSCRF, and CERT-In — without manual audit effort.</p>
+      <span class="mod-num">MODULE 10 · DPDP ACT · SEBI CSCRF · CERT-In</span>
+    </div>
+  </div>
+
+  <div class="what-grid">
+    <div class="what-item">
+      <h4>🎯 Business Problem</h4>
+      <p>Indian regulators (SEBI, CERT-In, MeitY) are actively enforcing AI governance rules. A missed audit or unlawful data transmission can result in penalties, license revocation, or reputational damage.</p>
+    </div>
+    <div class="what-item">
+      <h4>✅ What This Module Does</h4>
+      <p>Runs 3 automated compliance checks every scan — checking live network connections, SBOM baselines, and audit log integrity — and reports any regulatory gap instantly.</p>
+    </div>
+  </div>
+
+  <table class="risk-table">
+    <thead><tr><th>Framework</th><th>Check Performed</th><th>Risk if Failed</th><th>What Is Verified</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:#00d4ff;">DPDP Act</strong><br/><span style="font-size:0.72rem;color:var(--muted);">Digital Personal Data Protection</span></td>
+        <td>Live network monitoring of AI processes</td>
+        <td><span class="pill p-high">High</span></td>
+        <td>Detects if ollama, Claude, Python, Node etc. are sending data to external IPs without enterprise routing</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#00e676;">SEBI CSCRF</strong><br/><span style="font-size:0.72rem;color:var(--muted);">Cyber Security &amp; Resilience Framework</span></td>
+        <td>SBOM baseline &amp; telemetry log check</td>
+        <td><span class="pill p-high">High</span> / <span class="pill p-medium">Medium</span></td>
+        <td>Verifies <code>hashes.json</code> baseline exists and <code>ai_scanner_history.db</code> telemetry is active</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#ffd600;">CERT-In</strong><br/><span style="font-size:0.72rem;color:var(--muted);">Computer Emergency Response Team India</span></td>
+        <td>Audit log existence &amp; write-access check</td>
+        <td><span class="pill p-high">High</span></td>
+        <td>Confirms <code>ai_scanner.log</code> is present and writable for incident forensics</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SCHEMATIC: Compliance Scanner -->
+  <div class="schema-wrap" style="margin-top:24px;">
+    <p style="text-align:center;color:var(--muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">3-Framework Compliance Check Flow</p>
+    <div class="flow" style="justify-content:center;">
+      <div class="flow-step">
+        <div class="step-box accent-green">
+          <div class="icon">🚀</div>
+          <div class="label">Scan Triggered</div>
+          <div class="sub">Any scan mode</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step" style="align-items:center;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="step-box accent-cyan" style="min-width:170px;">
+            <div class="icon">🌐</div>
+            <div class="label">DPDP Check</div>
+            <div class="sub">Live process network connections via psutil</div>
+          </div>
+          <div class="step-box accent-green" style="min-width:170px;">
+            <div class="icon">📦</div>
+            <div class="label">SEBI CSCRF Check</div>
+            <div class="sub">hashes.json + history.db present?</div>
+          </div>
+          <div class="step-box accent-yellow" style="min-width:170px;">
+            <div class="icon">📝</div>
+            <div class="label">CERT-In Check</div>
+            <div class="sub">ai_scanner.log exists &amp; writable?</div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-red">
+          <div class="icon">⚖️</div>
+          <div class="label">Compliance Verdict</div>
+          <div class="sub">Pass / Fail per framework</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-green">
+          <div class="icon">📊</div>
+          <div class="label">Report &amp; Dashboard</div>
+          <div class="sub">Actionable findings</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     GITHUB REMOTE REPO SCAN — END TO END DIAGRAM
+════════════════════════════════════════════════════ -->
+<div class="sec-title" style="color:var(--purple);">
+  <span class="num" style="background:var(--purple);">🌐</span>
+  GitHub Remote Repository Scan — End-to-End Flow
+</div>
+
+<div class="mod-card" style="--accent-color: var(--purple);">
+  <div class="mod-header">
+    <div class="mod-icon" style="background:rgba(187,134,252,0.1);border:1px solid rgba(187,134,252,0.3);">🐙</div>
+    <div class="mod-meta">
+      <h2>How GitHub Remote Scanning Works</h2>
+      <p>A user provides any public GitHub URL. The scanner downloads, extracts, runs all 10 modules, and produces a full security + compliance report — without cloning or persistent storage.</p>
+    </div>
+  </div>
+
+  <!-- BIG SCHEMATIC -->
+  <div class="schema-wrap">
+    <p style="text-align:center;color:var(--muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:28px;">Complete GitHub Remote Scan Pipeline</p>
+
+    <!-- ROW 1: Input → Download -->
+    <div class="flow" style="justify-content:center;margin-bottom:16px;">
+      <div class="flow-step">
+        <div class="step-box accent-cyan">
+          <div class="icon">👤</div>
+          <div class="label">User Input</div>
+          <div class="sub">GitHub URL entered in CLI or Web UI</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-purple">
+          <div class="icon">⬇️</div>
+          <div class="label">Download ZIP</div>
+          <div class="sub">GitHub API · /zipball/HEAD</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-yellow">
+          <div class="icon">📦</div>
+          <div class="label">Extract to Temp</div>
+          <div class="sub">System temp directory · auto-cleanup on exit</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-orange">
+          <div class="icon">🎛️</div>
+          <div class="label">Scan Controller</div>
+          <div class="sub">repo_mode=True · depth=10</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mini-arrow">↓</div>
+
+    <!-- ROW 2: 10 Modules -->
+    <div style="background:rgba(187,134,252,0.05);border:1px solid rgba(187,134,252,0.2);border-radius:8px;padding:20px;margin:12px 0;">
+      <p style="text-align:center;font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:16px;">🔬 Discovery Engine — All 10 Modules Fire in Parallel</p>
+      <div class="sub-row">
+        <div class="mini-box m-cyan">01 · File Scanner<br/><span>AI model files</span></div>
+        <div class="mini-box m-cyan">02 · Process Scanner<br/><span>Skipped (repo mode)</span></div>
+        <div class="mini-box m-cyan">03 · Package Scanner<br/><span>requirements.txt, package.json</span></div>
+        <div class="mini-box m-cyan">04 · Agent Scanner<br/><span>Agent configs &amp; prompts</span></div>
+        <div class="mini-box m-cyan">05 · Runtime Scanner<br/><span>AI runtime usage</span></div>
+        <div class="mini-box m-cyan">06 · API Scanner<br/><span>API keys &amp; endpoints</span></div>
+        <div class="mini-box m-red">07 · MCP Scanner<br/><span>AI tool connections</span></div>
+        <div class="mini-box m-yellow">08 · License Scanner<br/><span>AGPL / GPL / Proprietary</span></div>
+        <div class="mini-box m-green">09 · Compliance Scanner<br/><span>DPDP / SEBI / CERT-In</span></div>
+        <div class="mini-box m-purple">10 · Classifier<br/><span>Risk scoring all findings</span></div>
+      </div>
+    </div>
+
+    <div class="mini-arrow">↓</div>
+
+    <!-- ROW 3: Output -->
+    <div class="flow" style="justify-content:center;margin-top:16px;">
+      <div class="flow-step">
+        <div class="step-box accent-red">
+          <div class="icon">📊</div>
+          <div class="label">Findings Aggregated</div>
+          <div class="sub">Languages · Frameworks · Models · Risk</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-yellow">
+          <div class="icon">🗂️</div>
+          <div class="label">report.json</div>
+          <div class="sub">Machine-readable full data</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-green">
+          <div class="icon">🌐</div>
+          <div class="label">report.html</div>
+          <div class="sub">Dark HUD dashboard · Interactive tabs</div>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="step-box accent-purple">
+          <div class="icon">🧹</div>
+          <div class="label">Auto Cleanup</div>
+          <div class="sub">Temp files deleted · Nothing persisted</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step-by-step numbered list -->
+  <div style="margin-top:28px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:24px;">
+    <p style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:16px;">Step-by-Step Walkthrough</p>
+    <ol style="padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:0.9rem;">
+      <li><strong>User enters GitHub URL</strong> in the CLI menu (Option 3 → Custom Scan → GitHub Repository) or the Web UI dashboard</li>
+      <li><strong>Scanner calls GitHub's API</strong> (<code>/zipball/HEAD</code>) to download the repository as a ZIP archive — no git clone, no history</li>
+      <li><strong>ZIP is extracted</strong> to a system temp folder. An <code>atexit</code> hook guarantees cleanup even if the scan crashes</li>
+      <li><strong>ScanController launches</strong> with <code>repo_mode=True</code> and <code>max_depth=10</code> — all 10 modules fire against the extracted folder</li>
+      <li><strong>Module 08 (MCP Scanner)</strong> looks for <code>.cursor/mcp.json</code>, <code>.kiro/settings/mcp.json</code>, and any other MCP configs inside the repo</li>
+      <li><strong>Module 09 (License Scanner)</strong> AST-parses every Python file and regex-scans JS/TS/Java/Go for license violations</li>
+      <li><strong>Module 10 (Compliance Scanner)</strong> checks for DPDP network risks, SBOM baseline, and audit log presence within the repo context</li>
+      <li><strong>All findings are aggregated</strong>, risk-scored, and written to <code>report.json</code></li>
+      <li><strong>HTML report is generated</strong> — a full dark-theme interactive dashboard with tabbed views (Overview / Findings / Compliance)</li>
+      <li><strong>Temp folder is deleted</strong> — nothing from the scanned repo remains on disk</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SUMMARY STATS
+════════════════════════════════════════════════════ -->
+<div class="sec-title">At a Glance</div>
+<div class="sum-grid">
+  <div class="sum-card">
+    <div class="big" style="color:var(--red);">3</div>
+    <div class="lbl">Advanced Modules</div>
+    <div class="desc">MCP · License · Compliance — covering AI tool risk, legal exposure, and regulatory obligations</div>
+  </div>
+  <div class="sum-card">
+    <div class="big" style="color:var(--cyan);">3</div>
+    <div class="lbl">Indian Regulatory Frameworks</div>
+    <div class="desc">DPDP Act · SEBI CSCRF · CERT-In — automated checks, no manual auditing required</div>
+  </div>
+  <div class="sum-card">
+    <div class="big" style="color:var(--green);">10</div>
+    <div class="lbl">Modules on GitHub Scan</div>
+    <div class="desc">Every module fires against any public GitHub repo — download, scan, report, cleanup in one step</div>
+  </div>
+  <div class="sum-card">
+    <div class="big" style="color:var(--yellow);">7</div>
+    <div class="lbl">License Types Classified</div>
+    <div class="desc">From MIT (safe) to AGPL (critical) — full enterprise license governance taxonomy built in</div>
+  </div>
+  <div class="sum-card">
+    <div class="big" style="color:var(--purple);">5</div>
+    <div class="lbl">IDE Configs Scanned</div>
+    <div class="desc">Claude Desktop · Cursor · VS Code · Windsurf · Kiro — every AI tool connection discovered</div>
+  </div>
+  <div class="sum-card">
+    <div class="big" style="color:var(--orange);">0</div>
+    <div class="lbl">Manual Steps Required</div>
+    <div class="desc">One URL or one command — fully automated discovery, risk scoring, and report generation</div>
+  </div>
+</div>
+
+<div class="footer">
+  AI Discovery Scanner · Group A-Y-S · Confidential Executive Briefing · 2026
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
